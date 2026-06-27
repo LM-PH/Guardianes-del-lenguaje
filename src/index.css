@@ -1,0 +1,100 @@
+:root {
+  /* Paleta Game Boy Color vibrante */
+  --gbc-bg: #8b9bb4;
+  --gbc-white: #ffffff;
+  --gbc-black: #111111;
+  --gbc-gray: #5a5a5a;
+  --gbc-primary: #e64a4a; /* Rojo para acentos */
+  --gbc-secondary: #4a90e2; /* Azul */
+  --gbc-success: #60b044; /* Verde */
+  
+  --border-radius-retro: 0px;
+  --border-thick: 4px solid var(--gbc-black);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Press Start 2P', cursive;
+  background-color: var(--gbc-bg);
+  color: var(--gbc-black);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: none; /* Mejor renderizado para pixel art */
+}
+
+/* Contenedor principal estilo pantalla de consola */
+#root {
+  width: 100%;
+  max-width: 480px;
+  height: 100vh;
+  max-height: 800px;
+  background-color: var(--gbc-white);
+  border: var(--border-thick);
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Componente tipo diálogo RPG */
+.rpg-box {
+  background-color: var(--gbc-white);
+  border: 4px solid var(--gbc-black);
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: var(--border-radius-retro);
+  box-shadow: 4px 4px 0px var(--gbc-gray);
+}
+
+/* Botones retro */
+.btn-retro {
+  font-family: 'Press Start 2P', cursive;
+  background-color: var(--gbc-primary);
+  color: var(--gbc-white);
+  border: var(--border-thick);
+  padding: 15px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  margin-top: 10px;
+  transition: transform 0.1s;
+  width: 100%;
+}
+
+.btn-retro:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.btn-retro.secondary {
+  background-color: var(--gbc-secondary);
+}
+
+.btn-retro.success {
+  background-color: var(--gbc-success);
+}
+
+h1, h2, h3 {
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+p {
+  font-size: 0.7rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+/* Utilidades */
+.text-center { text-align: center; }
+.mt-2 { margin-top: 2rem; }
+.mb-2 { margin-bottom: 2rem; }

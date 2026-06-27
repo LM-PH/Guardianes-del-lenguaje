@@ -1,0 +1,264 @@
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const Npc = require('./models/Npc');
+const Question = require('./models/Question');
+const connectDB = require('./config/db');
+
+dotenv.config();
+
+const TILE_SIZE = 32;
+
+// Configuraciones de Mapas y Zonas
+const mapConfigs = {
+  espanol: {
+    mapName: 'mapa_espanol',
+    subject: 'espanol',
+    zones: ['Ortografía', 'Comprensión lectora', 'Literatura', 'Producción de textos'],
+    counts: [15, 15, 10, 10]
+  },
+  artes: {
+    mapName: 'mapa_artes',
+    subject: 'artes',
+    zones: ['Artes visuales', 'Música', 'Danza', 'Teatro'],
+    counts: [15, 15, 10, 10]
+  },
+  ingles: {
+    mapName: 'mapa_ingles',
+    subject: 'ingles',
+    zones: ['Vocabulary', 'Grammar', 'Reading', 'Listening'],
+    counts: [15, 15, 10, 10]
+  },
+  integrador: {
+    mapName: 'ciudad_maestros',
+    subject: 'integrador',
+    zones: ['Comunicación Escrita', 'Comunicación Artística', 'Comunicación Internacional', 'Interpretación y Análisis', 'Retos Integradores'],
+    counts: [10, 10, 10, 10, 10]
+  }
+};
+
+const generateNPCsAndQuestions = async () => {
+  try {
+    await connectDB();
+    console.log('Limpiando base de datos (NPCs y Questions)...');
+    await Npc.deleteMany();
+    await Question.deleteMany();
+
+    const allNpcs = [];
+    const allQuestions = [];
+    
+    let npcCounter = 1;
+    let questionCounter = 1;
+
+    for (const [key, config] of Object.entries(mapConfigs)) {
+      console.log(`Generando datos para: ${config.mapName}...`);
+      
+      for (let z = 0; z < config.zones.length; z++) {
+        const zoneName = config.zones[z];
+        const countInZone = config.counts[z];
+
+        for (let i = 0; i < countInZone; i++) {
+          const npcId = `${config.mapName}_npc_${npcCounter}`;
+          
+          // Dificultad incremental basada en el índice de la zona
+          const difficulty = z < 2 ? 1 : (z === 2 ? 2 : 3);
+          const xpReward = difficulty === 1 ? 10 : (difficulty === 2 ? 20 : 40);
+
+          // Determinar cantidad de preguntas a asignar
+          let qCountToAssign = 8;
+          if (difficulty === 2) qCountToAssign = 10;
+          if (difficulty === 3) qCountToAssign = 12;
+
+          const questionIdsForNpc = [];
+
+          for (let q = 0; q < qCountToAssign; q++) {
+            const qId = `q_${npcCounter}_${questionCounter++}`;
+            questionIdsForNpc.push(qId);
+            
+            // Lógica especial para Inglés (30% voz)
+            let type = 'multiple_choice';
+            let expectedAnswer = null;
+            let correctAnswer = 1;
+            
+            if (config.subject === 'ingles' || config.subject === 'integrador') {
+              if (Math.random() < 0.3) {
+                type = 'voice';
+                expectedAnswer = `Answer for ${zoneName} - ${qId}`;
+                correctAnswer = null;
+              }
+            }
+
+            allQuestions.push({
+              questionId: qId,
+              npcId: npcId,
+              subject: config.subject,
+              map: config.mapName,
+              zone: zoneName,
+              topic: zoneName,
+              type: type,
+              difficulty: difficulty,
+              question: `Pregunta exclusiva para ${npcId} sobre ${zoneName}.`,
+              options: type === 'multiple_choice' ? ['Opción A', 'Opción B (Correcta)', 'Opción C', 'Opción D'] : [],
+              correctAnswer: correctAnswer,
+              expectedAnswer: expectedAnswer,
+              keywords: [],
+              explanation: `Esta es una explicación específica para la pregunta de ${zoneName}.`
+            });
+          }
+
+          allNpcs.push({
+            npcId: npcId,
+            name: `Estudiante ${npcCounter}`,
+            map: config.mapName,
+            zone: zoneName,
+            x: Math.floor(Math.random() * 48) + 1,
+            y: Math.floor(Math.random() * 48) + 1,
+            subject: config.subject,
+            difficulty: difficulty,
+            xpReward: xpReward,
+            defeatedBy: [],
+            questionIds: questionIdsForNpc
+          });
+
+          npcCounter++;
+        }
+      }
+    }
+
+    console.log(`Insertando ${allNpcs.length} NPCs...`);
+    await Npc.insertMany(allNpcs);
+
+    // ============================================
+    // SECCIÓN JEFES (TEACHERS)
+    // ============================================
+    const Teacher = require('./models/Teacher');
+    console.log('Limpiando y Generando Maestros...');
+    await Teacher.deleteMany();
+
+    const teachersData = [
+      {
+        teacherId: 'maestro_espanol',
+        name: 'Maestro de la Palabra',
+        title: 'Gran Sabio de Español',
+        subject: 'espanol',
+        map: 'mapa_espanol',
+        schoolName: 'Escuela de Español',
+        badgeReward: 'Insignia de la Palabra',
+        requiredXp: 700,
+        requiredDefeatedStudents: 35,
+        difficulty: 3,
+        questionIds: [],
+        defeatedBy: []
+      },
+      {
+        teacherId: 'maestro_artes',
+        name: 'Maestro de la Expresión',
+        title: 'Gran Artista',
+        subject: 'artes',
+        map: 'mapa_artes',
+        schoolName: 'Escuela de Artes',
+        badgeReward: 'Insignia de la Expresión',
+        requiredXp: 700,
+        requiredDefeatedStudents: 35,
+        difficulty: 3,
+        questionIds: [],
+        defeatedBy: []
+      },
+      {
+        teacherId: 'maestro_ingles',
+        name: 'Maestro de la Comunicación',
+        title: 'International Master',
+        subject: 'ingles',
+        map: 'mapa_ingles',
+        schoolName: 'Escuela de Inglés',
+        badgeReward: 'Insignia de la Comunicación',
+        requiredXp: 700,
+        requiredDefeatedStudents: 35,
+        difficulty: 3,
+        questionIds: [],
+        defeatedBy: []
+      },
+      {
+        teacherId: 'gran_maestro_lenguaje',
+        name: 'Gran Maestro del Lenguaje',
+        title: 'Leyenda del Lenguaje',
+        subject: 'integrador',
+        map: 'ciudad_maestros',
+        schoolName: 'Gran Academia del Lenguaje',
+        badgeReward: 'Certificado Gran Maestro',
+        requiredXp: 2500,
+        requiredDefeatedStudents: 35, // 35 integradores
+        difficulty: 4,
+        questionIds: [],
+        defeatedBy: []
+      }
+    ];
+
+    const teacherDocs = [];
+    for (const t of teachersData) {
+      const qIds = [];
+      const isFinalBoss = t.teacherId === 'gran_maestro_lenguaje';
+      const questionCount = isFinalBoss ? 20 : 15;
+
+      for(let i=0; i<questionCount; i++) {
+        const qId = `boss_${t.teacherId}_q_${i+1}`;
+        qIds.push(qId);
+        
+        let type = 'multiple_choice';
+        let expectedAnswer = null;
+        let correctAnswer = 1;
+
+        if (t.subject === 'ingles' && Math.random() < 0.4) {
+          type = 'voice';
+          expectedAnswer = `Boss answer ${i}`;
+          correctAnswer = null;
+        } else if (isFinalBoss) {
+          // El Gran Maestro usa una mezcla (algunas de voz, algunas múltiples)
+          if (Math.random() < 0.3) {
+            type = 'voice';
+            expectedAnswer = `Grand Master sentence ${i}`;
+            correctAnswer = null;
+          }
+        }
+
+        allQuestions.push({
+          questionId: qId,
+          npcId: t.teacherId,
+          subject: t.subject,
+          map: t.map,
+          zone: t.schoolName,
+          topic: 'Boss Battle',
+          type: type,
+          difficulty: isFinalBoss ? 4 : 3,
+          question: isFinalBoss ? `El Gran Maestro te pone a prueba con el reto #${i+1}. Demuestra tu valía.` : `Pregunta de Jefe para ${t.name}. ¡Demuestra tu valor! #${i+1}`,
+          options: type === 'multiple_choice' ? ['Respuesta Errónea', 'Respuesta Correcta', 'Respuesta Errónea', 'Respuesta Errónea'] : [],
+          correctAnswer: correctAnswer,
+          expectedAnswer: expectedAnswer,
+          keywords: [],
+          explanation: `Esta es la explicación definitiva para la pregunta #${i+1}.`
+        });
+      }
+      t.questionIds = qIds;
+      teacherDocs.push(t);
+    }
+
+    await Teacher.insertMany(teacherDocs);
+    console.log(`Insertados ${teacherDocs.length} Maestros.`);
+
+    console.log(`Insertando ${allQuestions.length} Preguntas...`);
+    // Insertar en chunks para no desbordar memoria si es muy grande
+    const chunkSize = 500;
+    for (let i = 0; i < allQuestions.length; i += chunkSize) {
+      const chunk = allQuestions.slice(i, i + chunkSize);
+      await Question.insertMany(chunk);
+    }
+    
+    console.log('¡Generación masiva completada exitosamente!');
+    process.exit();
+
+  } catch (error) {
+    console.error('Error durante la generación masiva:', error);
+    process.exit(1);
+  }
+};
+
+generateNPCsAndQuestions();
