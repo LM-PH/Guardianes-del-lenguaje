@@ -348,7 +348,17 @@ function MainMap() {
       <div style={{ padding: '5px 10px', backgroundColor: 'var(--gbc-white)', borderBottom: '4px solid var(--gbc-black)', zIndex: 10 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ fontSize: '0.7rem', margin: 0, color: 'var(--gbc-primary)' }}>{currentMapData.title}</h2>
-          <div style={{ fontSize: '0.6rem' }}>XP: {player.xp} | {player.title}</div>
+          <div style={{ fontSize: '0.6rem', display: 'flex', alignItems: 'center' }}>
+            XP: {player.xp} | {player.title}
+            <button className="btn-retro" style={{ fontSize: '0.5rem', padding: '2px 5px', marginLeft: '10px', backgroundColor: '#ffca28' }} onClick={() => {
+              const cx = Math.floor(MAPS[player.currentMap].width / 2);
+              const cy = Math.floor(MAPS[player.currentMap].height / 2);
+              setPos({ x: cx, y: cy });
+              setPetPos({ x: cx, y: cy - 1 });
+              posHistory.current = [{ x: cx, y: cy - 1 }];
+              savePosition({ x: cx, y: cy }, player.currentMap);
+            }}>¡Ayuda! Me atasqué</button>
+          </div>
         </div>
         
         {player.currentMap !== 'pueblo_inicial' && (
