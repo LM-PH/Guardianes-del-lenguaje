@@ -2,37 +2,62 @@ const express = require('express');
 const router = express.Router();
 const Question = require('../models/Question');
 
-// Obtener preguntas aleatorias para batalla basadas en el npcId
+// Obtener preguntas aleatorias para batalla
+// En lugar de usar npcId fijo, mezclamos del pool del subject+zone
+// para que cada batalla sea diferente
 router.get('/battle', async (req, res) => {
   try {
     const { npcId, count } = req.query;
     
-    // Obtener preguntas filtradas por npcId
-    let questions = await Question.find({ npcId: npcId });
+    // 1. Buscar el NPC para saber su subject y zone
+    const Npc = require('../models/Npc');
+    const npc = await Npc.findOne({ npcId });
+    
+    let questions;
+    
+    if (npc) {
+      // 2. Obtener TODAS las preguntas de ese subject+zone (pool completo)
+      questions = await Question.find({
+        subject: npc.subject,
+        zone: npc.zone
+      });
+      
+      // Si hay muy pocas, ampliar al subject completo
+      if (questions.length < 5) {
+        questions = await Question.find({ subject: npc.subject });
+      }
+    } else {
+      // Fallback: preguntas del npcId original
+      questions = await Question.find({ npcId: npcId });
+    }
 
-    // Mezclar aleatoriamente el orden de las preguntas
-    questions.sort(() => 0.5 - Math.random());
+    // 3. Mezclar aleatoriamente usando Fisher-Yates para mejor aleatoriedad
+    for (let i = questions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [questions[i], questions[j]] = [questions[j], questions[i]];
+    }
 
-    // Devolver la cantidad solicitada (o menos si no hay suficientes)
+    // 4. Tomar la cantidad solicitada
     const limit = Number(count) || 5;
-    let selectedQuestions = questions.slice(0, limit);
+    const selectedQuestions = questions.slice(0, limit);
 
-    // Shuffle options and update correctAnswer index
+    // 5. Mezclar opciones de cada pregunta (para que la respuesta no siempre esté en el mismo lugar)
     const processedQuestions = selectedQuestions.map(q => {
       const qObj = q.toObject();
-      if (qObj.type === 'multiple_choice' && qObj.options && qObj.options.length > 0) {
-        // Create an array of objects to keep track of the original correct answer
-        const optionsWithIndex = qObj.options.map((opt, index) => ({
+      if (qObj.type === 'multiple_choice' && qObj.options && qObj.options.length > 1) {
+        // Fisher-Yates en las opciones
+        const optionsWithFlag = qObj.options.map((opt, index) => ({
           text: opt,
           isCorrect: index === qObj.correctAnswer
         }));
         
-        // Shuffle the options
-        optionsWithIndex.sort(() => 0.5 - Math.random());
+        for (let i = optionsWithFlag.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [optionsWithFlag[i], optionsWithFlag[j]] = [optionsWithFlag[j], optionsWithFlag[i]];
+        }
         
-        // Map back to string array and find the new correct index
-        qObj.options = optionsWithIndex.map(o => o.text);
-        qObj.correctAnswer = optionsWithIndex.findIndex(o => o.isCorrect);
+        qObj.options = optionsWithFlag.map(o => o.text);
+        qObj.correctAnswer = optionsWithFlag.findIndex(o => o.isCorrect);
       }
       return qObj;
     });

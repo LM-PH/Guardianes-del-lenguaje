@@ -119,13 +119,23 @@ function drawTile(ctx, tileId, px, py, size, tick) {
       break
     }
     case TILES.TREE: {
-      // Tronco
+      // Base de pasto debajo del árbol
+      ctx.fillStyle = GBC.grass1; ctx.fillRect(px, py, s, s)
+      // Tronco marrón
       ctx.fillStyle = GBC.trunk
-      ctx.fillRect(px + s*0.35, py + s*0.6, s*0.3, s*0.4)
-      // Copa circular en capas
-      ctx.fillStyle = GBC.tree3; ctx.beginPath(); ctx.arc(px+s/2, py+s*0.4, s*0.38, 0, Math.PI*2); ctx.fill()
-      ctx.fillStyle = GBC.tree2; ctx.beginPath(); ctx.arc(px+s/2, py+s*0.35, s*0.3, 0, Math.PI*2); ctx.fill()
-      ctx.fillStyle = GBC.tree1; ctx.beginPath(); ctx.arc(px+s/2, py+s*0.28, s*0.2, 0, Math.PI*2); ctx.fill()
+      ctx.fillRect(px + s*0.38, py + s*0.58, s*0.24, s*0.44)
+      // Sombra de la copa
+      ctx.fillStyle = 'rgba(0,80,0,0.25)'
+      ctx.beginPath(); ctx.ellipse(px+s*0.52, py+s*0.48, s*0.44, s*0.4, 0, 0, Math.PI*2); ctx.fill()
+      // Copa principal - capa exterior (verde oscuro)
+      ctx.fillStyle = '#388e3c'
+      ctx.beginPath(); ctx.arc(px+s/2, py+s*0.38, s*0.42, 0, Math.PI*2); ctx.fill()
+      // Copa media (verde medio)
+      ctx.fillStyle = '#66bb6a'
+      ctx.beginPath(); ctx.arc(px+s/2, py+s*0.32, s*0.34, 0, Math.PI*2); ctx.fill()
+      // Reflejos de luz (verde claro)
+      ctx.fillStyle = '#a5d6a7'
+      ctx.beginPath(); ctx.arc(px+s*0.4, py+s*0.22, s*0.16, 0, Math.PI*2); ctx.fill()
       break
     }
     case TILES.FLOWER: {
@@ -524,37 +534,43 @@ function MainMap() {
           ctx.globalAlpha = 1
           drawEmoji(ctx, icon, px + TS/2, py + TS/2, TS * 0.7)
         })
-        // NPCs fijos
+        // NPCs fijos del pueblo_inicial
         ;[
           { tx: Math.floor(info.width/2), ty: Math.floor(info.height/2), type: 'librarian' },
           { tx: Math.floor(info.width/2) + 2, ty: Math.floor(info.height/2), type: 'shop' }
         ].forEach(({tx, ty, type}) => {
           const { px, py, visible } = inView(tx, ty)
           if (!visible) return
+
+          if (type === 'shop') {
+            // Dibujar edificio de tienda usando imagen generada
+            const shopImg = shopBuildingImgRef.current
+            if (shopImg && (shopImg.width > 0 || shopImg.naturalWidth > 0)) {
+              const bw = TS * 2.5, bh = TS * 2.8
+              ctx.drawImage(shopImg, px - TS * 0.75, py - TS * 1.8, bw, bh)
+            } else {
+              // Fallback canvas building
+              ctx.fillStyle = '#1565c0'; ctx.fillRect(px - TS * 0.5, py - TS * 1.2, TS * 2, TS * 0.7)
+              ctx.fillStyle = '#bbdefb'; ctx.fillRect(px - TS * 0.5, py - TS * 0.5, TS * 2, TS * 1.5)
+              ctx.fillStyle = '#fff'
+              ctx.font = `bold ${TS * 0.22}px Arial`; ctx.textAlign = 'center'
+              ctx.fillText('TIENDA', px + TS / 2, py - TS * 0.9)
+            }
+            return
+          }
+
+          // Bibliotecario
           ctx.fillStyle = 'rgba(0,0,0,0.2)'
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
-          
-          const img = type === 'librarian' ? boyImgRef.current : girlImgRef.current
-          if (img && (img.width > 0 || img.naturalWidth > 0)) {
-            const sw = img.width || img.naturalWidth
-            const sh = img.height || img.naturalHeight
-            if (sw > 0 && sh > 0) {
-              const frameW = sw / 4
-              const frameH = sh / 2
-              const drawW = TS * 0.95
-              const drawH = TS * 1.55
-              const ox = (TS - drawW) / 2
-              const oy = TS - drawH
-              
-              if (type === 'shop') {
-                ctx.fillStyle = '#ffeb3b';
-                ctx.font = `bold ${TS * 0.25}px monospace`;
-                ctx.textAlign = 'center';
-                ctx.fillText('TIENDA', px + TS/2, py - 10);
-              }
-              
-              ctx.drawImage(img, 0, 0, frameW, frameH, px + ox, py + oy, drawW, drawH)
-            }
+          const libImg = librarianImgRef.current
+          if (libImg && (libImg.width > 0 || libImg.naturalWidth > 0)) {
+            const sw = libImg.width || libImg.naturalWidth
+            const sh = libImg.height || libImg.naturalHeight
+            // Cada frame ocupa sw/4 de ancho, sh*0.35 de alto (el personaje está en la parte superior)
+            const frameW = sw / 4
+            const frameH = sh * 0.35
+            const drawW = TS * 1.0; const drawH = TS * 1.6
+            ctx.drawImage(libImg, 0, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
           }
         })
       }
@@ -602,39 +618,16 @@ function MainMap() {
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
         
-        ctx.fillStyle = defeated ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.2)'
-        ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-4, TS*0.32, 4, 0, 0, Math.PI*2); ctx.fill()
-        
         if (npcImg && (npcImg.width > 0 || npcImg.naturalWidth > 0)) {
           const sw = npcImg.width || npcImg.naturalWidth
+          const sh = npcImg.height || npcImg.naturalHeight
           const frameW = sw / 4
-          // Animar frames del estudiante
+          const frameH = sh * 0.38 // personaje en 38% superior
           const animFrame = Math.floor(tick / 12) % 4
-          const frameH = (npcImg.height || npcImg.naturalHeight) * 0.45
-          const drawW = TS * 0.85; const drawH = TS * 1.4
+          const drawW = TS * 0.9; const drawH = TS * 1.5
           ctx.globalAlpha = defeated ? 0.35 : 1
           ctx.drawImage(npcImg, animFrame * frameW, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
           ctx.globalAlpha = 1
-        }
-        // Sombra
-        ctx.fillStyle = 'rgba(0,0,0,0.2)'
-        ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
-        // Sprite Enemigo
-        const hasSprite = npcImg && (npcImg.width > 0 || npcImg.naturalWidth > 0)
-        if (hasSprite) {
-          const sw = npcImg.width || npcImg.naturalWidth
-          const sh = npcImg.height || npcImg.naturalHeight
-          if (sw > 0 && sh > 0) {
-            const frameW = sw / 4
-            const frameH = sh / 2
-            const drawW = TS * 0.95
-            const drawH = TS * 1.55
-            const ox = (TS - drawW) / 2
-            const oy = TS - drawH
-            ctx.globalAlpha = defeated ? 0.3 : 1
-            ctx.drawImage(npcImg, 0, 0, frameW, frameH, px + ox, py + oy, drawW, drawH)
-            ctx.globalAlpha = 1
-          }
         } else {
           // Fallback emoji
           const studentEmoji = defeated ? '😵' : getStudentEmoji(npc.npcId)
