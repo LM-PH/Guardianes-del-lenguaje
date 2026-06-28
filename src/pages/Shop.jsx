@@ -69,10 +69,21 @@ function Shop() {
               opacity: isOwned ? 0.6 : 1, filter: isOwned ? 'grayscale(100%)' : 'none' 
             }}>
               <div style={{ fontSize: '3rem', marginBottom: '10px' }}>{item.sprite || '📜'}</div>
-              <div style={{ fontWeight: 'bold', textAlign: 'center' }}>{item.name}</div>
-              <div style={{ fontSize: '0.8rem', color: '#ffeb3b', margin: '5px 0' }}>{item.rarity}</div>
+              <div style={{ fontWeight: 'bold', textAlign: 'center', color: '#000' }}>{item.name}</div>
+              <div style={{ 
+                fontSize: '0.75rem', 
+                color: '#fff', 
+                backgroundColor: item.rarity === 'Legendario' ? '#e91e63' : (item.rarity === 'Épico' ? '#9c27b0' : '#4caf50'),
+                padding: '2px 8px',
+                borderRadius: '10px',
+                margin: '5px 0',
+                border: '1px solid #000',
+                fontWeight: 'bold'
+              }}>
+                {item.rarity}
+              </div>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'bold' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'bold', color: '#000' }}>
                 💰 {item.price}
               </div>
               
