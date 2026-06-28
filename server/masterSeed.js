@@ -56,6 +56,8 @@ const generateNPCsAndQuestions = async () => {
       for (let z = 0; z < config.zones.length; z++) {
         const zoneName = config.zones[z];
         const countInZone = config.counts[z];
+        const zonePool = [...(questionsPool[config.subject]?.[zoneName] || [])];
+        zonePool.sort(() => 0.5 - Math.random());
 
         for (let i = 0; i < countInZone; i++) {
           const npcId = `${config.mapName}_npc_${npcCounter}`;
@@ -212,6 +214,8 @@ const generateNPCsAndQuestions = async () => {
           explanation: 'Esta es una explicación de maestría.'
         }];
       }
+
+      teacherSubjectPool.sort(() => 0.5 - Math.random());
 
       for(let i=0; i<questionCount; i++) {
         const qId = `boss_${t.teacherId}_q_${i+1}`;
