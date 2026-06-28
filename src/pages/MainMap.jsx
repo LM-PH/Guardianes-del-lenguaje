@@ -58,49 +58,7 @@ const TEACHER_EMOJI = {
   ciudad_maestros: '🧙‍♂️',
 }
 
-// ─── Quitar fondo blanco del sprite (transparencia dinámica) ──────────────────
-function removeWhiteBg(img) {
-  try {
-    const c = document.createElement('canvas')
-    c.width = img.naturalWidth || img.width
-    c.height = img.naturalHeight || img.height
-    if (c.width === 0 || c.height === 0) return null
-    const ctx = c.getContext('2d')
-    ctx.drawImage(img, 0, 0)
-    const id = ctx.getImageData(0, 0, c.width, c.height)
-    const d = id.data
 
-    // Tomar el primer pixel (0,0) como color de fondo a remover
-    const rBg = d[0], gBg = d[1], bBg = d[2], aBg = d[3]
-
-    if (aBg > 0) {
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i], g = d[i+1], b = d[i+2]
-        // Distancia euclidiana de color
-        const dist = Math.sqrt((r - rBg) ** 2 + (g - gBg) ** 2 + (b - bBg) ** 2)
-        if (dist < 40) {
-          d[i+3] = 0 // Transparentar
-        }
-      }
-      ctx.putImageData(id, 0, 0)
-    }
-    return c
-  } catch (e) {
-    console.error("Error transparency filter:", e)
-    return null // Retorna null para usar emoji fallback en vez de imagen con fondo blanco
-  }
-}
-
-function useSpriteImage(src) {
-  const [cvs, setCvs] = useState(null)
-  useEffect(() => {
-    const img = new Image()
-    img.src = src
-    img.onload  = () => setCvs(removeWhiteBg(img))
-    img.onerror = () => setCvs(null)
-  }, [src])
-  return cvs
-}
 
 // ─── Dibujado de tiles (programático, sin imágenes externas) ─────────────────
 // Paleta GBC auténtica
@@ -273,8 +231,8 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets con fondo transparente
-  const boyImg  = useSpriteImage('/sprites/boy.png')
-  const girlImg = useSpriteImage('/sprites/girl.png')
+  const boyImg  = useImage('/sprites/boy.png')
+  const girlImg = useImage('/sprites/girl.png')
 
   // ─── Cargar jugador ────────────────────────────────────────────────────────
   useEffect(() => {
