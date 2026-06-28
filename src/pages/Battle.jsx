@@ -302,8 +302,20 @@ function Battle() {
           75% { transform: translateX(-5px); opacity: 0.5; }
           100% { transform: translateX(0); opacity: 1; }
         }
+        @keyframes walk {
+          0% { background-position-x: 0%; }
+          100% { background-position-x: 133.333%; }
+        }
         .retro-hp-bar {
           transition: width 0.3s ease-out, background-color 0.3s;
+        }
+        .sprite-walk-front {
+          animation: walk 0.8s steps(4) infinite;
+          background-position-y: 0%;
+        }
+        .sprite-walk-back {
+          animation: walk 0.8s steps(4) infinite;
+          background-position-y: 100%;
         }
       `}</style>
       
@@ -329,11 +341,7 @@ function Battle() {
           {/* Sprite Enemigo */}
           <div style={{ position: 'relative', width: '100px', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && feedback.isCorrect ? 'shake 0.5s' : 'none' }}>
             <div style={{ position: 'absolute', bottom: '15px', width: '70px', height: '16px', backgroundColor: '#a5d6a7', borderRadius: '50%', border: '2px solid #81c784' }}></div>
-            {isBoss ? (
-              <div style={{ position: 'relative', zIndex: 1, fontSize: '3rem', marginBottom: '20px' }}>{isFinalBoss ? '🧙‍♂️' : (subject === 'artes' ? '🧑‍🎨' : (subject === 'ingles' ? '👨‍🏫' : '👩‍🏫'))}</div>
-            ) : (
-              <div style={{ position: 'relative', zIndex: 1, width: '50px', height: '50px', marginBottom: '15px', backgroundImage: `url('/sprites/${getEnemySprite(npcName)}.png')`, backgroundSize: '400% 200%', backgroundPosition: '0% 0%', imageRendering: 'pixelated' }}></div>
-            )}
+            <div className="sprite-walk-front" style={{ position: 'relative', zIndex: 1, width: '50px', height: '50px', marginBottom: '15px', backgroundImage: `url('/sprites/${getEnemySprite(npcName)}.png')`, backgroundSize: '400% 200%', imageRendering: 'pixelated' }}></div>
           </div>
         </div>
 
@@ -342,7 +350,7 @@ function Battle() {
           {/* Sprite Jugador */}
           <div style={{ position: 'relative', width: '100px', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && !feedback.isCorrect ? 'shake 0.5s' : 'none' }}>
             <div style={{ position: 'absolute', bottom: '10px', width: '90px', height: '22px', backgroundColor: '#a5d6a7', borderRadius: '50%', border: '2px solid #81c784' }}></div>
-            <div style={{ position: 'relative', zIndex: 1, width: '64px', height: '64px', marginBottom: '10px', backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl.png' : 'boy.png'}')`, backgroundSize: '400% 200%', backgroundPosition: '66.6% 0%', imageRendering: 'pixelated' }}>
+            <div className="sprite-walk-back" style={{ position: 'relative', zIndex: 1, width: '64px', height: '64px', marginBottom: '10px', backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl.png' : 'boy.png'}')`, backgroundSize: '400% 200%', imageRendering: 'pixelated' }}>
                {player.inventory?.equippedSkin && (
                  <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '1.2rem', backgroundColor: '#fff', borderRadius: '50%', border: '2px solid #111', width: '28px', height: '28px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                    {getSkinEmoji(player.inventory.equippedSkin)}
