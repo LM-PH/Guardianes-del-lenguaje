@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const Npc = require('./models/Npc');
 const Question = require('./models/Question');
 const connectDB = require('./config/db');
+const questionsPool = require('./utils/questionsData');
 
 dotenv.config();
 
@@ -68,24 +69,21 @@ const generateNPCsAndQuestions = async () => {
           if (difficulty === 2) qCountToAssign = 10;
           if (difficulty === 3) qCountToAssign = 12;
 
+          const zonePool = questionsPool[config.subject]?.[zoneName] || [];
           const questionIdsForNpc = [];
 
           for (let q = 0; q < qCountToAssign; q++) {
             const qId = `q_${npcCounter}_${questionCounter++}`;
             questionIdsForNpc.push(qId);
             
-            // Lógica especial para Inglés (30% voz)
-            let type = 'multiple_choice';
-            let expectedAnswer = null;
-            let correctAnswer = 1;
-            
-            if (config.subject === 'ingles' || config.subject === 'integrador') {
-              if (Math.random() < 0.3) {
-                type = 'voice';
-                expectedAnswer = `Answer for ${zoneName} - ${qId}`;
-                correctAnswer = null;
-              }
-            }
+            // Elegir pregunta del pool ciclando
+            const poolIndex = q % zonePool.length;
+            const poolQuestion = zonePool[poolIndex] || {
+              question: `Pregunta de práctica sobre ${zoneName} #${q + 1}`,
+              options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
+              correctAnswer: 1,
+              explanation: 'Explicación de práctica.'
+            };
 
             allQuestions.push({
               questionId: qId,
@@ -94,14 +92,14 @@ const generateNPCsAndQuestions = async () => {
               map: config.mapName,
               zone: zoneName,
               topic: zoneName,
-              type: type,
+              type: poolQuestion.type || 'multiple_choice',
               difficulty: difficulty,
-              question: `Pregunta exclusiva para ${npcId} sobre ${zoneName}.`,
-              options: type === 'multiple_choice' ? ['Opción A', 'Opción B (Correcta)', 'Opción C', 'Opción D'] : [],
-              correctAnswer: correctAnswer,
-              expectedAnswer: expectedAnswer,
+              question: poolQuestion.question,
+              options: poolQuestion.options || [],
+              correctAnswer: poolQuestion.correctAnswer !== undefined ? poolQuestion.correctAnswer : null,
+              expectedAnswer: poolQuestion.expectedAnswer || null,
               keywords: [],
-              explanation: `Esta es una explicación específica para la pregunta de ${zoneName}.`
+              explanation: poolQuestion.explanation
             });
           }
 
@@ -199,26 +197,28 @@ const generateNPCsAndQuestions = async () => {
       const isFinalBoss = t.teacherId === 'gran_maestro_lenguaje';
       const questionCount = isFinalBoss ? 20 : 15;
 
+      // Recopilar todas las preguntas de la materia del maestro
+      let teacherSubjectPool = [];
+      const subjectPoolObj = questionsPool[t.subject] || {};
+      for (const zoneQs of Object.values(subjectPoolObj)) {
+        teacherSubjectPool = teacherSubjectPool.concat(zoneQs);
+      }
+
+      if (teacherSubjectPool.length === 0) {
+        teacherSubjectPool = [{
+          question: `Pregunta de maestría para ${t.name}`,
+          options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
+          correctAnswer: 1,
+          explanation: 'Esta es una explicación de maestría.'
+        }];
+      }
+
       for(let i=0; i<questionCount; i++) {
         const qId = `boss_${t.teacherId}_q_${i+1}`;
         qIds.push(qId);
         
-        let type = 'multiple_choice';
-        let expectedAnswer = null;
-        let correctAnswer = 1;
-
-        if (t.subject === 'ingles' && Math.random() < 0.4) {
-          type = 'voice';
-          expectedAnswer = `Boss answer ${i}`;
-          correctAnswer = null;
-        } else if (isFinalBoss) {
-          // El Gran Maestro usa una mezcla (algunas de voz, algunas múltiples)
-          if (Math.random() < 0.3) {
-            type = 'voice';
-            expectedAnswer = `Grand Master sentence ${i}`;
-            correctAnswer = null;
-          }
-        }
+        const poolIndex = i % teacherSubjectPool.length;
+        const poolQuestion = teacherSubjectPool[poolIndex];
 
         allQuestions.push({
           questionId: qId,
@@ -227,14 +227,14 @@ const generateNPCsAndQuestions = async () => {
           map: t.map,
           zone: t.schoolName,
           topic: 'Boss Battle',
-          type: type,
+          type: poolQuestion.type || 'multiple_choice',
           difficulty: isFinalBoss ? 4 : 3,
-          question: isFinalBoss ? `El Gran Maestro te pone a prueba con el reto #${i+1}. Demuestra tu valía.` : `Pregunta de Jefe para ${t.name}. ¡Demuestra tu valor! #${i+1}`,
-          options: type === 'multiple_choice' ? ['Respuesta Errónea', 'Respuesta Correcta', 'Respuesta Errónea', 'Respuesta Errónea'] : [],
-          correctAnswer: correctAnswer,
-          expectedAnswer: expectedAnswer,
+          question: poolQuestion.question,
+          options: poolQuestion.options || [],
+          correctAnswer: poolQuestion.correctAnswer !== undefined ? poolQuestion.correctAnswer : null,
+          expectedAnswer: poolQuestion.expectedAnswer || null,
           keywords: [],
-          explanation: `Esta es la explicación definitiva para la pregunta #${i+1}.`
+          explanation: poolQuestion.explanation
         });
       }
       t.questionIds = qIds;

@@ -110,6 +110,21 @@ function Battle() {
       .catch(err => console.error(err))
   }, [userId, authenticatedFetch, npcId, currentConfig.qCount, navigate])
 
+  const getEnemySprite = (name) => {
+    const hash = (name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
+    return Math.abs(hash) % 2 === 0 ? 'boy' : 'girl';
+  };
+
+  const getSkinEmoji = (eqSkin) => {
+    if (eqSkin === 'skin_explorador') return '🤠';
+    if (eqSkin === 'skin_bibliotecario') return '🤓';
+    if (eqSkin === 'skin_artista') return '🧑‍🎨';
+    if (eqSkin === 'skin_traductor') return '🗣️';
+    if (eqSkin === 'skin_maestro') return '🧑‍🏫';
+    if (eqSkin === 'skin_sabio') return '🧙';
+    return '';
+  };
+
   const checkEndBattle = (newEnemyHp, newPlayerHp) => {
     if (newEnemyHp <= 0 || newPlayerHp <= 0) {
       setTimeout(() => {
@@ -274,50 +289,84 @@ function Battle() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#2b2b2b', color: '#fff' }}>
       
-      {/* HEADER: ZONA DE SPRITES Y HP */}
-      <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <style>{`
+        @keyframes pulse {
+          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
+          70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+        }
+        @keyframes shake {
+          0% { transform: translateX(0); }
+          25% { transform: translateX(-5px); opacity: 0.5; }
+          50% { transform: translateX(5px); opacity: 1; }
+          75% { transform: translateX(-5px); opacity: 0.5; }
+          100% { transform: translateX(0); opacity: 1; }
+        }
+        .retro-hp-bar {
+          transition: width 0.3s ease-out, background-color 0.3s;
+        }
+      `}</style>
+      
+      {/* HEADER: ZONA DE SPRITES Y HP (ESTILO POKÉMON GAME BOY) */}
+      <div style={{ flex: 1, backgroundColor: '#f8f8f8', borderBottom: '4px solid #111', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundImage: 'linear-gradient(#e0e0e0 1px, transparent 1px)', backgroundSize: '100% 20px', fontFamily: '"Press Start 2P", cursive' }}>
         
-        {/* HUD Enemigo */}
-        <div style={{ alignSelf: 'flex-start', width: '60%', backgroundColor: '#fff', color: '#000', padding: '10px', borderRadius: '10px', border: '4px solid #000' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '0.8rem' }}>
-            <span>{npcName}</span>
-            <span>Materia: {subject.toUpperCase()}</span>
+        {/* HUD y Sprite Enemigo (Arriba) */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 10px 0 10px', alignItems: 'flex-start' }}>
+          {/* HUD Enemigo */}
+          <div style={{ width: '55%', backgroundColor: '#fff', border: '4px solid #111', padding: '5px 8px', borderRadius: '4px', boxShadow: '2px 2px 0px #5a5a5a', borderBottomRightRadius: '15px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '0.6rem', marginBottom: '5px' }}>
+              <span>{npcName.toUpperCase()}</span>
+              <span>Lv{difficulty}</span>
+            </div>
+            <div style={{ backgroundColor: '#111', padding: '2px 4px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
+              <span style={{ color: '#ffd700', fontSize: '0.4rem', fontWeight: 'bold', marginRight: '4px' }}>HP</span>
+              <div style={{ flex: 1, backgroundColor: '#555', height: '6px', borderRadius: '3px', border: '1px solid #fff', overflow: 'hidden' }}>
+                <div className="retro-hp-bar" style={{ width: \`\${(enemyHp / maxEnemyHp) * 100}%\`, height: '100%', backgroundColor: enemyHp > maxEnemyHp * 0.5 ? '#60b044' : enemyHp > maxEnemyHp * 0.2 ? '#f1c40f' : '#e74c3c' }}></div>
+              </div>
+            </div>
           </div>
-          <div style={{ marginTop: '5px', backgroundColor: '#555', height: '10px', width: '100%', border: '2px solid #000' }}>
-            <div style={{ width: `${(enemyHp / maxEnemyHp) * 100}%`, height: '100%', backgroundColor: '#4caf50', transition: 'width 0.5s ease-out' }}></div>
-          </div>
-          <div style={{ textAlign: 'right', fontSize: '0.6rem', marginTop: '2px' }}>HP: {enemyHp}/{maxEnemyHp}</div>
-        </div>
 
-        {/* Sprites Area */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px' }}>
-          <div style={{ fontSize: '4rem', transform: 'scaleX(-1)' }}>
-            {(() => {
-              const eqSkin = player.inventory?.equippedSkin;
-              if (eqSkin === 'skin_explorador') return '🤠';
-              if (eqSkin === 'skin_bibliotecario') return '🤓';
-              if (eqSkin === 'skin_artista') return '🧑‍🎨';
-              if (eqSkin === 'skin_traductor') return '🗣️';
-              if (eqSkin === 'skin_maestro') return '🧑‍🏫';
-              if (eqSkin === 'skin_sabio') return '🧙';
-              return player.character.gender === 'boy' ? '👦' : '👧';
-            })()}
-          </div>
-          <div style={{ fontSize: '4rem' }}>
-            🤓
+          {/* Sprite Enemigo */}
+          <div style={{ position: 'relative', width: '100px', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && feedback.isCorrect ? 'shake 0.5s' : 'none' }}>
+            <div style={{ position: 'absolute', bottom: '15px', width: '70px', height: '16px', backgroundColor: '#a5d6a7', borderRadius: '50%', border: '2px solid #81c784' }}></div>
+            {isBoss ? (
+              <div style={{ position: 'relative', zIndex: 1, fontSize: '3rem', marginBottom: '20px' }}>{isFinalBoss ? '🧙‍♂️' : (subject === 'artes' ? '🧑‍🎨' : (subject === 'ingles' ? '👨‍🏫' : '👩‍🏫'))}</div>
+            ) : (
+              <div style={{ position: 'relative', zIndex: 1, width: '50px', height: '50px', marginBottom: '15px', backgroundImage: \`url('/sprites/\${getEnemySprite(npcName)}.png')\`, backgroundSize: '400% 200%', backgroundPosition: '0% 0%', imageRendering: 'pixelated' }}></div>
+            )}
           </div>
         </div>
 
-        {/* HUD Jugador */}
-        <div style={{ alignSelf: 'flex-end', width: '60%', backgroundColor: '#fff', color: '#000', padding: '10px', borderRadius: '10px', border: '4px solid #000' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '0.8rem' }}>
-            <span>{player.nickname}</span>
-            <span>XP: {player.xp}</span>
+        {/* HUD y Sprite Jugador (Abajo) */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px 10px 10px', alignItems: 'flex-end', marginTop: 'auto' }}>
+          {/* Sprite Jugador */}
+          <div style={{ position: 'relative', width: '100px', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && !feedback.isCorrect ? 'shake 0.5s' : 'none' }}>
+            <div style={{ position: 'absolute', bottom: '10px', width: '90px', height: '22px', backgroundColor: '#a5d6a7', borderRadius: '50%', border: '2px solid #81c784' }}></div>
+            <div style={{ position: 'relative', zIndex: 1, width: '64px', height: '64px', marginBottom: '10px', backgroundImage: \`url('/sprites/\${player.character.gender === 'girl' ? 'girl.png' : 'boy.png'}')\`, backgroundSize: '400% 200%', backgroundPosition: '66.6% 0%', imageRendering: 'pixelated' }}>
+               {player.inventory?.equippedSkin && (
+                 <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '1.2rem', backgroundColor: '#fff', borderRadius: '50%', border: '2px solid #111', width: '28px', height: '28px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                   {getSkinEmoji(player.inventory.equippedSkin)}
+                 </div>
+               )}
+            </div>
           </div>
-          <div style={{ marginTop: '5px', backgroundColor: '#555', height: '10px', width: '100%', border: '2px solid #000' }}>
-            <div style={{ width: `${playerHp}%`, height: '100%', backgroundColor: '#4caf50', transition: 'width 0.5s ease-out' }}></div>
+
+          {/* HUD Jugador */}
+          <div style={{ width: '60%', backgroundColor: '#fff', border: '4px solid #111', padding: '5px 8px', borderRadius: '4px', boxShadow: '-2px 2px 0px #5a5a5a', borderTopLeftRadius: '15px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '0.6rem', marginBottom: '5px' }}>
+              <span>{player.nickname.toUpperCase()}</span>
+              <span>Lv{player.playerLevel || 1}</span>
+            </div>
+            <div style={{ backgroundColor: '#111', padding: '2px 4px', borderRadius: '8px', display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+              <span style={{ color: '#ffd700', fontSize: '0.4rem', fontWeight: 'bold', marginRight: '4px' }}>HP</span>
+              <div style={{ flex: 1, backgroundColor: '#555', height: '6px', borderRadius: '3px', border: '1px solid #fff', overflow: 'hidden' }}>
+                <div className="retro-hp-bar" style={{ width: \`\${playerHp}%\`, height: '100%', backgroundColor: playerHp > 50 ? '#60b044' : playerHp > 20 ? '#f1c40f' : '#e74c3c' }}></div>
+              </div>
+            </div>
+            <div style={{ textAlign: 'right', fontSize: '0.55rem', fontWeight: 'bold' }}>
+              {playerHp}/100
+            </div>
           </div>
-          <div style={{ textAlign: 'right', fontSize: '0.6rem', marginTop: '2px' }}>HP: {playerHp}/100</div>
         </div>
       </div>
 
@@ -370,11 +419,6 @@ function Battle() {
             </div>
             
             <style>{`
-              @keyframes pulse {
-                0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
-                70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
-                100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
-              }
             `}</style>
           </div>
         )}
