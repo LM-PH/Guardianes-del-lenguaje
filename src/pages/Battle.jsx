@@ -320,37 +320,37 @@ function Battle() {
       `}</style>
       
       {/* HEADER: ZONA DE SPRITES Y HP (ESTILO POKÉMON GAME BOY) */}
-      <div style={{ flex: 1, backgroundColor: '#f8f8f8', borderBottom: '4px solid #111', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundImage: 'linear-gradient(#e0e0e0 1px, transparent 1px)', backgroundSize: '100% 20px', fontFamily: '"Press Start 2P", cursive' }}>
+      <div className="gba-battle-bg" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         
         {/* HUD y Sprite Enemigo (Arriba) */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 10px 0 10px', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px 10px 0 10px', alignItems: 'flex-start' }}>
           {/* HUD Enemigo */}
-          <div style={{ width: '55%', backgroundColor: '#fff', border: '4px solid #111', padding: '5px 8px', borderRadius: '4px', boxShadow: '2px 2px 0px #5a5a5a', borderBottomRightRadius: '15px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '0.6rem', marginBottom: '5px' }}>
-              <span>{npcName.toUpperCase()}</span>
+          <div className="gba-hud">
+            <div className="gba-hud-title">
+              <span>{npcName}</span>
               <span>Lv{difficulty}</span>
             </div>
-            <div style={{ backgroundColor: '#111', padding: '2px 4px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
-              <span style={{ color: '#ffd700', fontSize: '0.4rem', fontWeight: 'bold', marginRight: '4px' }}>HP</span>
-              <div style={{ flex: 1, backgroundColor: '#555', height: '6px', borderRadius: '3px', border: '1px solid #fff', overflow: 'hidden' }}>
+            <div className="gba-hp-container">
+              <span className="gba-hp-label">HP</span>
+              <div className="gba-hp-bar-bg">
                 <div className="retro-hp-bar" style={{ width: `${(enemyHp / maxEnemyHp) * 100}%`, height: '100%', backgroundColor: enemyHp > maxEnemyHp * 0.5 ? '#60b044' : enemyHp > maxEnemyHp * 0.2 ? '#f1c40f' : '#e74c3c' }}></div>
               </div>
             </div>
           </div>
 
           {/* Sprite Enemigo */}
-          <div style={{ position: 'relative', width: '100px', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && feedback.isCorrect ? 'shake 0.5s' : 'none' }}>
-            <div style={{ position: 'absolute', bottom: '15px', width: '70px', height: '16px', backgroundColor: '#a5d6a7', borderRadius: '50%', border: '2px solid #81c784' }}></div>
-            <div className="sprite-walk-front" style={{ position: 'relative', zIndex: 1, width: '50px', height: '50px', marginBottom: '15px', backgroundImage: `url('/sprites/${getEnemySprite(npcName)}.png')`, backgroundSize: '400% 200%', imageRendering: 'pixelated' }}></div>
+          <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && feedback.isCorrect ? 'shake 0.5s' : 'none', marginRight: '20px' }}>
+            <div className="gba-grass-base" style={{ width: '120px', height: '120px', bottom: '-40px' }}></div>
+            <div className="sprite-walk-front" style={{ position: 'relative', zIndex: 1, width: '80px', height: '80px', backgroundImage: `url('/sprites/${getEnemySprite(npcName)}.png')`, backgroundSize: '400% 200%', imageRendering: 'pixelated' }}></div>
           </div>
         </div>
 
         {/* HUD y Sprite Jugador (Abajo) */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px 10px 10px', alignItems: 'flex-end', marginTop: 'auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 20px 20px 10px', alignItems: 'flex-end', marginTop: 'auto' }}>
           {/* Sprite Jugador */}
-          <div style={{ position: 'relative', width: '100px', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && !feedback.isCorrect ? 'shake 0.5s' : 'none' }}>
-            <div style={{ position: 'absolute', bottom: '10px', width: '90px', height: '22px', backgroundColor: '#a5d6a7', borderRadius: '50%', border: '2px solid #81c784' }}></div>
-            <div className="sprite-walk-back" style={{ position: 'relative', zIndex: 1, width: '64px', height: '64px', marginBottom: '10px', backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl.png' : 'boy.png'}')`, backgroundSize: '400% 200%', imageRendering: 'pixelated' }}>
+          <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && !feedback.isCorrect ? 'shake 0.5s' : 'none' }}>
+            <div className="gba-grass-base" style={{ width: '160px', height: '160px', bottom: '-60px' }}></div>
+            <div className="sprite-walk-back" style={{ position: 'relative', zIndex: 1, width: '90px', height: '90px', backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl.png' : 'boy.png'}')`, backgroundSize: '400% 200%', imageRendering: 'pixelated' }}>
                {player.inventory?.equippedSkin && (
                  <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '1.2rem', backgroundColor: '#fff', borderRadius: '50%', border: '2px solid #111', width: '28px', height: '28px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                    {getSkinEmoji(player.inventory.equippedSkin)}
@@ -360,18 +360,18 @@ function Battle() {
           </div>
 
           {/* HUD Jugador */}
-          <div style={{ width: '60%', backgroundColor: '#fff', border: '4px solid #111', padding: '5px 8px', borderRadius: '4px', boxShadow: '-2px 2px 0px #5a5a5a', borderTopLeftRadius: '15px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '0.6rem', marginBottom: '5px' }}>
-              <span>{player.nickname.toUpperCase()}</span>
+          <div className="gba-hud">
+            <div className="gba-hud-title">
+              <span>{player.nickname}</span>
               <span>Lv{player.playerLevel || 1}</span>
             </div>
-            <div style={{ backgroundColor: '#111', padding: '2px 4px', borderRadius: '8px', display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
-              <span style={{ color: '#ffd700', fontSize: '0.4rem', fontWeight: 'bold', marginRight: '4px' }}>HP</span>
-              <div style={{ flex: 1, backgroundColor: '#555', height: '6px', borderRadius: '3px', border: '1px solid #fff', overflow: 'hidden' }}>
+            <div className="gba-hp-container" style={{ marginBottom: '4px' }}>
+              <span className="gba-hp-label">HP</span>
+              <div className="gba-hp-bar-bg">
                 <div className="retro-hp-bar" style={{ width: `${playerHp}%`, height: '100%', backgroundColor: playerHp > 50 ? '#60b044' : playerHp > 20 ? '#f1c40f' : '#e74c3c' }}></div>
               </div>
             </div>
-            <div style={{ textAlign: 'right', fontSize: '0.55rem', fontWeight: 'bold' }}>
+            <div style={{ textAlign: 'right', fontSize: '0.8rem', fontWeight: 'bold', color: '#424242', fontFamily: 'Arial, Helvetica, sans-serif' }}>
               {playerHp}/100
             </div>
           </div>
@@ -379,22 +379,22 @@ function Battle() {
       </div>
 
       {/* FOOTER: ZONA DE INTERACCIÓN */}
-      <div style={{ height: '40%', backgroundColor: 'var(--gbc-white)', borderTop: '4px solid var(--gbc-black)', padding: '10px' }}>
+      <div style={{ height: '40%', backgroundColor: '#f0f0f0', borderTop: '4px solid #545454', display: 'flex', flexDirection: 'column' }}>
         
         {phase === 'intro' && (
-          <div className="rpg-box" style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <p>¡{npcName} te ha desafiado a un duelo de conocimientos!</p>
+          <div className="rpg-box" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '15px' }}>
+            <p style={{ margin: 0 }}>¡{npcName} te ha desafiado a un duelo de conocimientos!</p>
           </div>
         )}
 
         {phase === 'question' && currentQ.type === 'multiple_choice' && (
-          <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <div className="rpg-box" style={{ marginBottom: '10px', flex: 1 }}>
-              <p style={{ fontSize: '0.8rem' }}>{currentQ.question}</p>
+          <div style={{ flex: 1, display: 'flex', padding: '10px', gap: '10px' }}>
+            <div className="rpg-box" style={{ flex: 2, margin: 0, overflowY: 'auto' }}>
+              <p style={{ margin: 0 }}>{currentQ.question}</p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px' }}>
+            <div className="rpg-box" style={{ flex: 1, margin: 0, display: 'flex', flexDirection: 'column', padding: '5px' }}>
               {currentQ.options.map((opt, i) => (
-                <button key={i} className="btn-retro" style={{ fontSize: '0.7rem', padding: '10px' }} onClick={() => handleAnswer(i)}>
+                <button key={i} className="btn-retro" onClick={() => handleAnswer(i)}>
                   {opt}
                 </button>
               ))}

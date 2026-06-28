@@ -45,15 +45,18 @@ body {
   flex-direction: column;
 }
 
-/* Componente tipo diálogo RPG */
+/* Componente tipo diálogo RPG (Estilo GBA) */
 .rpg-box {
-  background-color: var(--gbc-white);
-  border: 4px solid var(--gbc-black);
-  padding: 1rem;
-  margin: 1rem;
-  border-radius: var(--border-radius-retro);
-  box-shadow: 4px 4px 0px var(--gbc-gray);
-  color: var(--gbc-black);
+  background-color: #ffffff;
+  border: 4px solid #6b88b5;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px;
+  color: #424242;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  box-shadow: inset 0 0 0 2px #d3e3f0, 2px 2px 0px rgba(0,0,0,0.15);
 }
 
 @keyframes walk {
@@ -71,32 +74,112 @@ body {
   background-position-y: 100%;
 }
 
-/* Botones retro */
+/* Botones retro (Estilo menú GBA) */
 .btn-retro {
-  font-family: 'Press Start 2P', cursive;
-  background-color: var(--gbc-primary);
-  color: var(--gbc-white);
-  border: var(--border-thick);
-  padding: 15px;
-  font-size: 0.8rem;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  background-color: transparent;
+  color: #424242;
+  border: none;
+  padding: 12px 15px;
+  font-size: 1.1rem;
   cursor: pointer;
   text-transform: uppercase;
-  margin-top: 10px;
-  transition: transform 0.1s;
+  margin-top: 5px;
   width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  position: relative;
+  transition: all 0.1s;
+}
+
+.btn-retro:hover {
+  background-color: #f0f0f0;
+}
+
+.btn-retro:hover::before {
+  content: '▶';
+  margin-right: 8px;
+  color: #d32f2f;
 }
 
 .btn-retro:active {
-  transform: translate(4px, 4px);
-  box-shadow: none;
+  transform: translateX(4px);
+}
+
+.btn-retro:disabled {
+  color: #b0b0b0;
 }
 
 .btn-retro.secondary {
-  background-color: var(--gbc-secondary);
+  background-color: #e0e0e0;
 }
 
 .btn-retro.success {
-  background-color: var(--gbc-success);
+  color: #2e7d32;
+}
+
+/* ── ESTILOS BATALLA GBA ── */
+.gba-battle-bg {
+  background: linear-gradient(to bottom, #e0f2f1 0%, #c5e1a5 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.gba-grass-base {
+  position: absolute;
+  background-color: #aed581;
+  border-radius: 50%;
+  border: 2px solid #8bc34a;
+  transform: scaleY(0.4);
+}
+
+.gba-hud {
+  background-color: #fdfdfd;
+  border: 3px solid #545454;
+  border-radius: 6px;
+  padding: 8px 12px;
+  box-shadow: inset 0 0 0 2px #eeeeee, 2px 2px 0 rgba(0,0,0,0.2);
+  display: inline-block;
+  min-width: 200px;
+}
+
+.gba-hud-title {
+  display: flex;
+  justify-content: space-between;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  color: #424242;
+  margin-bottom: 5px;
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.gba-hp-container {
+  display: flex;
+  align-items: center;
+  background-color: #424242;
+  border-radius: 10px;
+  padding: 2px 5px;
+  border: 2px solid #fff;
+  outline: 2px solid #424242;
+}
+
+.gba-hp-label {
+  color: #ffca28;
+  font-weight: bold;
+  font-size: 0.75rem;
+  margin-right: 8px;
+}
+
+.gba-hp-bar-bg {
+  flex: 1;
+  background-color: #e0e0e0;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #757575;
 }
 
 h1, h2, h3 {

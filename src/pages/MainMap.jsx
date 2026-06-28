@@ -61,17 +61,17 @@ const TEACHER_EMOJI = {
 
 
 // ─── Dibujado de tiles (programático, sin imágenes externas) ─────────────────
-// Paleta GBC auténtica
+// Paleta GBC auténtica (Actualizada a vibrante GBA)
 const GBC = {
-  grass1: '#78c050', grass2: '#58a038', grass3: '#408028',
-  water1: '#4898c8', water2: '#2870a0', water3: '#a8e0f8',
-  path1:  '#c8a858', path2:  '#b89848', path3:  '#907838',
-  tree1:  '#284808', tree2:  '#386818', tree3:  '#508028',
-  trunk:  '#785028',
-  house1: '#e04040', house2: '#c02020', house3: '#f8d058', housew: '#f0f0d8',
-  wall1:  '#888888', wall2:  '#606060', wall3:  '#a8a8a8',
-  floor1: '#d8c880', floor2: '#b8a860', floor3: '#f8e8a0',
-  flower: '#f85888', stem:   '#58a038',
+  grass1: '#9ccc65', grass2: '#8bc34a', grass3: '#7cb342',
+  water1: '#4fc3f7', water2: '#29b6f6', water3: '#81d4fa',
+  path1:  '#ffcc80', path2:  '#ffb74d', path3:  '#ffe0b2',
+  tree1:  '#33691e', tree2:  '#558b2f', tree3:  '#689f38',
+  trunk:  '#5d4037',
+  house1: '#ef5350', house2: '#e53935', house3: '#ffca28', housew: '#fff9c4',
+  wall1:  '#9e9e9e', wall2:  '#757575', wall3:  '#e0e0e0',
+  floor1: '#ffee58', floor2: '#fdd835', floor3: '#fff59d',
+  flower: '#ec407a', stem:   '#4caf50',
 }
 
 function drawTile(ctx, tileId, px, py, size, tick) {
