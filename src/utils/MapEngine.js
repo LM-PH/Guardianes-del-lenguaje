@@ -1,112 +1,135 @@
-// MapEngine.js
-// Genera cuadrículas 2D para renderizar el mundo y detectar colisiones sólidas
+// MapEngine.js - Genera cuadrículas 2D para el mundo y colisiones
 
 export const TILES = {
   GRASS: 0,
-  WATER: 1,      // Sólido
-  TREE: 2,       // Sólido
+  WATER: 1,   // Sólido
+  TREE: 2,    // Sólido
   PATH: 3,
-  HOUSE: 4,      // Sólido
-  WALL: 5,       // Sólido
+  HOUSE: 4,   // Sólido
+  WALL: 5,    // Sólido
   FLOOR: 6,
   FLOWER: 7
 };
 
 export const SOLID_TILES = [TILES.WATER, TILES.TREE, TILES.HOUSE, TILES.WALL];
 
-const generateNoise = (x, y, seed) => {
-  // Función hash súper básica para pseudo-aleatoriedad
+const noise = (x, y, seed) => {
   const n = Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453;
   return n - Math.floor(n);
 };
 
 export const generateMap = (mapName, width, height) => {
-  const grid = Array(height).fill(0).map(() => Array(width).fill(TILES.GRASS));
-  const seed = mapName.length;
+  const grid = Array(height).fill(null).map(() => Array(width).fill(TILES.GRASS));
+  const seed = mapName.length + 7;
 
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      // 1. Bordes de agua (simulando una isla)
+  const cx = Math.floor(width / 2);
+  const cy = Math.floor(height / 2);
+
+  // 1. Bordes de agua
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
       if (x === 0 || y === 0 || x === width - 1 || y === height - 1) {
-        // Excepciones para puertas de mapa
+        // Dejar puertas de mapa abiertas en pueblo_inicial
         if (mapName === 'pueblo_inicial') {
-          if ((x === 0 && y === Math.floor(height/2)) || 
-              (x === width - 1 && y === Math.floor(height/2)) || 
-              (x === Math.floor(width/2) && y === height - 1) || 
-              (x === Math.floor(width/2) && y === 0)) {
+          if ((x === 0 && y === cy) ||
+              (x === width - 1 && y === cy) ||
+              (x === cx && y === height - 1) ||
+              (x === cx && y === 0)) {
             grid[y][x] = TILES.PATH;
             continue;
           }
         }
         grid[y][x] = TILES.WATER;
-        continue;
       }
+    }
+  }
 
-      // 2. Ruido para árboles y flores (Bosques densos en los bordes)
-      const distFromCenter = Math.sqrt(Math.pow(x - width/2, 2) + Math.pow(y - height/2, 2));
-      const maxDist = width / 2;
-      const noise = generateNoise(x, y, seed);
+  // 2. Árboles y flores con ruido - solo lejos del centro
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+      const maxDist = Math.min(width, height) / 2;
+      const n = noise(x, y, seed);
 
-      if (distFromCenter > maxDist * 0.7 && noise > 0.4) {
+      if (dist > maxDist * 0.65 && n > 0.35) {
         grid[y][x] = TILES.TREE;
-      } else if (noise > 0.9) {
+      } else if (dist > maxDist * 0.3 && n > 0.88) {
         grid[y][x] = TILES.TREE;
-      } else if (noise > 0.85) {
+      } else if (n > 0.84 && n <= 0.88) {
         grid[y][x] = TILES.FLOWER;
       }
     }
   }
 
-  // 3. Caminos cruzados principales
-  const cx = Math.floor(width/2);
-  const cy = Math.floor(height/2);
-
-  // Cruz principal de caminos
-  for(let i=1; i<width-1; i++) {
-    grid[cy][i] = TILES.PATH;
-    grid[cy-1][i] = TILES.PATH; // 2 de grosor
+  // 3. Cruz principal de caminos (siempre libre de obstáculos)
+  // Camino horizontal: 3 tiles de grosor para asegurar paso
+  for (let x = 0; x < width; x++) {
+    grid[cy - 1][x] = TILES.PATH;
+    grid[cy][x]     = TILES.PATH;
+    grid[cy + 1][x] = TILES.PATH;
   }
-  for(let j=1; j<height-1; j++) {
-    grid[j][cx] = TILES.PATH;
-    grid[j][cx-1] = TILES.PATH;
+  // Camino vertical: 3 tiles de grosor
+  for (let y = 0; y < height; y++) {
+    grid[y][cx - 1] = TILES.PATH;
+    grid[y][cx]     = TILES.PATH;
+    grid[y][cx + 1] = TILES.PATH;
   }
 
-  // 4. Edificios y estructuras específicas según el mapa
+  // 4. Casas decorativas en pueblo_inicial (alejadas del camino)
   if (mapName === 'pueblo_inicial') {
-    // Casitas decorativas
-    const houses = [
-      {hx: cx - 10, hy: cy - 10},
-      {hx: cx + 10, hy: cy - 10},
-      {hx: cx - 10, hy: cy + 10},
-      {hx: cx + 10, hy: cy + 10},
+    const housePositions = [
+      { hx: cx - 12, hy: cy - 12 },
+      { hx: cx + 8,  hy: cy - 12 },
+      { hx: cx - 12, hy: cy + 8  },
+      { hx: cx + 8,  hy: cy + 8  },
     ];
-    houses.forEach(h => {
-      for(let hyy=0; hyy<3; hyy++) {
-        for(let hxx=0; hxx<4; hxx++) {
-          grid[h.hy+hyy][h.hx+hxx] = TILES.HOUSE;
+    housePositions.forEach(({ hx, hy }) => {
+      // Verificar que no colisione con caminos
+      if (hx < 2 || hy < 2 || hx + 4 >= width - 2 || hy + 3 >= height - 2) return;
+      for (let dy = 0; dy < 3; dy++) {
+        for (let dx = 0; dx < 4; dx++) {
+          grid[hy + dy][hx + dx] = TILES.HOUSE;
         }
       }
-      grid[h.hy+3][h.hx+1] = TILES.PATH; // Puerta camino
-      grid[h.hy+3][h.hx+2] = TILES.PATH;
+      // Puerta de la casa (camino libre)
+      grid[hy + 3][hx + 1] = TILES.PATH;
+      grid[hy + 3][hx + 2] = TILES.PATH;
+      // Camino de la puerta al camino principal
+      for (let d = 4; d < Math.abs(cy - hy) + 1; d++) {
+        const py = hy + d;
+        if (py >= 0 && py < height) {
+          grid[py][hx + 1] = TILES.PATH;
+          grid[py][hx + 2] = TILES.PATH;
+        }
+      }
     });
+  }
 
-  } else {
-    // Reinos (Tienen una escuela en el centro 15x15)
-    for(let sy=cy-7; sy<=cy+7; sy++) {
-      for(let sx=cx-7; sx<=cx+7; sx++) {
-        // Muros
-        if (sy === cy-7 || sy === cy+7 || sx === cx-7 || sx === cx+7) {
-          // Dejar entrada sur y norte libre
-          if ((sx === cx || sx === cx-1) && (sy === cy+7 || sy === cy-7)) {
+  // 5. Academia central en reinos
+  if (mapName !== 'pueblo_inicial') {
+    const R = 8; // radio de la academia
+    for (let sy = cy - R; sy <= cy + R; sy++) {
+      for (let sx = cx - R; sx <= cx + R; sx++) {
+        if (sy < 1 || sy >= height - 1 || sx < 1 || sx >= width - 1) continue;
+        const isEdge = sy === cy - R || sy === cy + R || sx === cx - R || sx === cx + R;
+        if (isEdge) {
+          // Puertas norte y sur de la academia
+          if ((sx === cx || sx === cx - 1 || sx === cx + 1) &&
+              (sy === cy + R || sy === cy - R)) {
             grid[sy][sx] = TILES.PATH;
           } else {
             grid[sy][sx] = TILES.WALL;
           }
         } else {
-          // Piso interior
           grid[sy][sx] = TILES.FLOOR;
         }
       }
+    }
+    // Camino norte-sur dentro de la academia (conecta las puertas)
+    for (let y = cy - R + 1; y < cy + R; y++) {
+      grid[y][cx - 1] = TILES.FLOOR;
+      grid[y][cx]     = TILES.FLOOR;
+      grid[y][cx + 1] = TILES.FLOOR;
     }
   }
 

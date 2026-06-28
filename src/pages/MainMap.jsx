@@ -4,83 +4,175 @@ import { AuthContext } from '../context/AuthContext'
 import { generateMap, TILES, SOLID_TILES } from '../utils/MapEngine'
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
-const TILE_SIZE = 16;
-const SCALE = 3;
-const VIEWPORT_TILES_X = 10;
-const VIEWPORT_TILES_Y = 9;
-const VIEWPORT_W = VIEWPORT_TILES_X * TILE_SIZE * SCALE;
-const VIEWPORT_H = VIEWPORT_TILES_Y * TILE_SIZE * SCALE;
-
-// Sprite sheet: 4 cols × 2 rows en la imagen generada (1024×512)
-const SPRITE_W = 256;
-const SPRITE_H = 256; // cada fila mide la mitad de la imagen (512/2)
-const SPRITE_FRAMES = {
-  down:  [{ col: 0, row: 0 }, { col: 1, row: 0 }],
-  up:    [{ col: 2, row: 0 }, { col: 3, row: 0 }],
-  left:  [{ col: 0, row: 1 }, { col: 1, row: 1 }],
-  right: [{ col: 2, row: 1 }, { col: 3, row: 1 }],
-}
-
-// Tileset: 4 cols × 2 rows (1024×512)
-const TILE_SRC = {
-  [TILES.GRASS]:  { col: 0, row: 0 },
-  [TILES.WATER]:  { col: 1, row: 0 },
-  [TILES.TREE]:   { col: 2, row: 0 },
-  [TILES.PATH]:   { col: 3, row: 0 },
-  [TILES.FLOWER]: { col: 0, row: 1 },
-  [TILES.HOUSE]:  { col: 1, row: 1 },
-  [TILES.WALL]:   { col: 2, row: 1 },
-  [TILES.FLOOR]:  { col: 3, row: 1 },
-}
-const TILE_IMG_W = 256;
-const TILE_IMG_H = 256;
+const TS = 48          // Tile size on screen (pixels)
+const VW = 11          // Viewport tiles wide
+const VH = 9           // Viewport tiles tall
+const CANVAS_W = VW * TS
+const CANVAS_H = VH * TS
 
 const MAPS = {
-  pueblo_inicial:  { width: 50,  height: 50,  title: 'Pueblo Inicial' },
-  mapa_espanol:    { width: 100, height: 100, title: 'Mapa de Español' },
-  mapa_artes:      { width: 100, height: 100, title: 'Mapa de Artes' },
-  mapa_ingles:     { width: 100, height: 100, title: 'Mapa de Inglés' },
-  ciudad_maestros: { width: 100, height: 100, title: 'Ciudad de los Maestros' },
+  pueblo_inicial:  { width: 50,  height: 50,  title: 'Pueblo Inicial'        },
+  mapa_espanol:    { width: 100, height: 100, title: 'Mapa de Español'       },
+  mapa_artes:      { width: 100, height: 100, title: 'Mapa de Artes'         },
+  mapa_ingles:     { width: 100, height: 100, title: 'Mapa de Inglés'        },
+  ciudad_maestros: { width: 100, height: 100, title: 'Ciudad de los Maestros'},
 }
 
-// ─── Quitar fondo blanco de un sprite (crea canvas con transparencia) ──────────
-function removeWhiteBg(img) {
-  const offscreen = document.createElement('canvas')
-  offscreen.width = img.width
-  offscreen.height = img.height
-  const ctx = offscreen.getContext('2d')
-  ctx.drawImage(img, 0, 0)
-  const data = ctx.getImageData(0, 0, img.width, img.height)
-  const d = data.data
-  for (let i = 0; i < d.length; i += 4) {
-    const r = d[i], g = d[i+1], b = d[i+2]
-    // Si el píxel es blanco o casi blanco → transparente
-    if (r > 220 && g > 220 && b > 220) {
-      d[i+3] = 0
+// ─── Mapeo de skins a emoji ────────────────────────────────────────────────────
+const SKIN_EMOJI = {
+  skin_explorador:   '🤠',
+  skin_bibliotecario:'🤓',
+  skin_artista:      '🧑‍🎨',
+  skin_traductor:    '🗣️',
+  skin_maestro:      '🧑‍🏫',
+  skin_sabio:        '🧙',
+}
+const PET_EMOJI = {
+  pet_panda:   '🐼',
+  pet_dragon:  '🐉',
+  pet_colibri: '🐦',
+}
+
+// ─── Dibujado de tiles (programático, sin imágenes externas) ─────────────────
+// Paleta GBC auténtica
+const GBC = {
+  grass1: '#78c050', grass2: '#58a038', grass3: '#408028',
+  water1: '#4898c8', water2: '#2870a0', water3: '#a8e0f8',
+  path1:  '#c8a858', path2:  '#b89848', path3:  '#907838',
+  tree1:  '#284808', tree2:  '#386818', tree3:  '#508028',
+  trunk:  '#785028',
+  house1: '#e04040', house2: '#c02020', house3: '#f8d058', housew: '#f0f0d8',
+  wall1:  '#888888', wall2:  '#606060', wall3:  '#a8a8a8',
+  floor1: '#d8c880', floor2: '#b8a860', floor3: '#f8e8a0',
+  flower: '#f85888', stem:   '#58a038',
+}
+
+function drawTile(ctx, tileId, px, py, size, tick) {
+  const s = size
+
+  switch (tileId) {
+    case TILES.GRASS: {
+      ctx.fillStyle = GBC.grass1; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = GBC.grass2
+      for (let i = 0; i < 4; i++) {
+        const gx = px + ((i * 13 + 3) % (s - 4))
+        const gy = py + ((i * 7  + 5) % (s - 4))
+        ctx.fillRect(gx, gy, 2, 1)
+        ctx.fillRect(gx + 1, gy + 1, 1, 2)
+      }
+      break
     }
+    case TILES.WATER: {
+      const wave = Math.floor(tick / 20) % 2
+      ctx.fillStyle = GBC.water1; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = GBC.water2
+      for (let w = 0; w < 3; w++) {
+        const wx = px + ((w * 16 + wave * 4) % s)
+        const wy = py + w * (s / 3) + 4
+        ctx.fillRect(wx, wy, 10, 2)
+      }
+      ctx.fillStyle = GBC.water3
+      for (let w = 0; w < 2; w++) {
+        const wx = px + ((w * 20 + 8 + wave * 3) % (s - 4))
+        const wy = py + w * (s / 2) + 10
+        ctx.fillRect(wx, wy, 6, 1)
+      }
+      break
+    }
+    case TILES.PATH: {
+      ctx.fillStyle = GBC.path1; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = GBC.path2
+      // Piedras del camino
+      ctx.fillRect(px + 2,    py + 2,    s/3 - 2, s/3 - 2)
+      ctx.fillRect(px + s/3 + 2, py + 2, s/3 - 4, s/3 - 2)
+      ctx.fillRect(px + 2,    py + s/3 + 2, s/3 - 2, s/3 - 4)
+      ctx.fillStyle = GBC.path3
+      ctx.fillRect(px + s*2/3 + 2, py + s/3 + 2, s/3 - 4, s/3 - 4)
+      ctx.fillRect(px + s/3 + 2, py + s*2/3 + 2, s/3 - 2, s/3 - 4)
+      break
+    }
+    case TILES.TREE: {
+      // Tronco
+      ctx.fillStyle = GBC.trunk
+      ctx.fillRect(px + s*0.35, py + s*0.6, s*0.3, s*0.4)
+      // Copa circular en capas
+      ctx.fillStyle = GBC.tree3; ctx.beginPath(); ctx.arc(px+s/2, py+s*0.4, s*0.38, 0, Math.PI*2); ctx.fill()
+      ctx.fillStyle = GBC.tree2; ctx.beginPath(); ctx.arc(px+s/2, py+s*0.35, s*0.3, 0, Math.PI*2); ctx.fill()
+      ctx.fillStyle = GBC.tree1; ctx.beginPath(); ctx.arc(px+s/2, py+s*0.28, s*0.2, 0, Math.PI*2); ctx.fill()
+      break
+    }
+    case TILES.FLOWER: {
+      ctx.fillStyle = GBC.grass1; ctx.fillRect(px, py, s, s)
+      // 2 flores pequeñas
+      ;[[0.25, 0.4],[0.65, 0.55]].forEach(([fx, fy]) => {
+        ctx.fillStyle = GBC.stem;  ctx.fillRect(px+s*fx, py+s*fy, 2, s*0.3)
+        ctx.fillStyle = GBC.flower; ctx.beginPath(); ctx.arc(px+s*fx+1, py+s*fy, 4, 0, Math.PI*2); ctx.fill()
+        ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(px+s*fx+1, py+s*fy, 2, 0, Math.PI*2); ctx.fill()
+      })
+      break
+    }
+    case TILES.HOUSE: {
+      // Paredes
+      ctx.fillStyle = GBC.housew; ctx.fillRect(px, py, s, s)
+      // Techo rojo
+      ctx.fillStyle = GBC.house1; ctx.fillRect(px, py, s, s*0.4)
+      ctx.fillStyle = GBC.house2; ctx.fillRect(px, py, s, s*0.08)
+      // Ventana
+      ctx.fillStyle = GBC.house3; ctx.fillRect(px + s*0.55, py + s*0.45, s*0.28, s*0.25)
+      ctx.fillStyle = '#90c0e0';  ctx.fillRect(px + s*0.57, py + s*0.47, s*0.24, s*0.21)
+      // Marco puerta
+      ctx.fillStyle = GBC.house2; ctx.fillRect(px + s*0.15, py + s*0.5, s*0.28, s*0.5)
+      ctx.fillStyle = '#c8905050'; ctx.fillRect(px + s*0.17, py + s*0.52, s*0.24, s*0.48)
+      break
+    }
+    case TILES.WALL: {
+      ctx.fillStyle = GBC.wall1; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = GBC.wall2
+      // Patrón de piedras
+      for (let row = 0; row < 3; row++) {
+        const offset = (row % 2) * (s * 0.3)
+        for (let col = 0; col < 3; col++) {
+          const bx = px + offset + col * s * 0.35
+          const by = py + row * (s / 3)
+          ctx.fillRect(bx + 1, by + 1, s*0.32, s/3 - 2)
+        }
+      }
+      ctx.fillStyle = GBC.wall3
+      ctx.fillRect(px, py, s, 2)
+      break
+    }
+    case TILES.FLOOR: {
+      ctx.fillStyle = GBC.floor1; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = GBC.floor2
+      // Tablones de madera
+      for (let row = 0; row < 3; row++) {
+        ctx.fillRect(px, py + row * (s/3), s, 1)
+      }
+      ctx.fillStyle = GBC.floor3
+      ctx.fillRect(px, py, s, 1)
+      break
+    }
+    default:
+      ctx.fillStyle = GBC.grass1; ctx.fillRect(px, py, s, s)
   }
-  ctx.putImageData(data, 0, 0)
-  return offscreen
 }
 
-// ─── Hook para cargar imagen y quitarle el fondo blanco ────────────────────────
-function useSpriteImage(src) {
-  const [canvas, setCanvas] = useState(null)
-  useEffect(() => {
-    const img = new Image()
-    img.src = src
-    img.onload = () => setCanvas(removeWhiteBg(img))
-  }, [src])
-  return canvas
+// ─── Función para dibujar emoji grande en canvas ────────────────────────────
+function drawEmoji(ctx, emoji, px, py, size) {
+  ctx.font = `${size}px sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(emoji, px, py)
 }
 
-// ─── Hook imagen simple (tileset sin transparencia) ───────────────────────────
+// ─── Hook imagen (para el sprite sheet) ───────────────────────────────────────
 function useImage(src) {
   const [img, setImg] = useState(null)
   useEffect(() => {
     const i = new Image()
     i.src = src
     i.onload = () => setImg(i)
+    i.onerror = () => setImg(null)
   }, [src])
   return img
 }
@@ -90,167 +182,146 @@ function MainMap() {
   const navigate = useNavigate()
   const { userId, authenticatedFetch } = useContext(AuthContext)
   const canvasRef = useRef(null)
-  const keysHeld = useRef({})
+  const keysHeld  = useRef({})
   const moveTimer = useRef(null)
+  const tickRef   = useRef(0)
+  const rafRef    = useRef(null)
 
-  const [player, setPlayer] = useState(null)
-  const [npcs, setNpcs] = useState([])
-  const [pos, setPos] = useState({ x: 25, y: 25 })
-  const [dir, setDir] = useState('down')
-  const [walkFrame, setWalkFrame] = useState(0)
-  const [isMoving, setIsMoving] = useState(false)
-  
-  // Historial de posiciones para la mascota (Pikachu-style: sigue al jugador)
-  const PET_TRAIL_LENGTH = 3
-  const posTrail = useRef(Array(PET_TRAIL_LENGTH).fill({ x: 25, y: 24 }))
-  const [petPos, setPetPos] = useState({ x: 25, y: 24 })
-  const [petBob, setPetBob] = useState(0) // animación de rebote
-  
-  const [dialog, setDialog] = useState(null)
-  const saveTimeout = useRef(null)
-  const rafRef = useRef(null)
+  const [player, setPlayer]         = useState(null)
+  const [npcs,   setNpcs]           = useState([])
+  const [pos,    setPos]            = useState({ x: 25, y: 25 })
+  const [dir,    setDir]            = useState('down')
+  const [walkFrame, setWalkFrame]   = useState(0)
+  const [isMoving, setIsMoving]     = useState(false)
+  const [dialog, setDialog]         = useState(null)
+
+  // Mascota Pikachu-style: historial de posiciones
+  const PET_DELAY = 4
+  const posTrail  = useRef(Array(PET_DELAY).fill({ x: 25, y: 26 }))
+  const [petPos, setPetPos] = useState({ x: 25, y: 26 })
   const petBobRef = useRef(0)
 
-  const tilesetImg = useImage('/tiles/tileset.png')
-  const boySprite  = useSpriteImage('/sprites/boy.png')
-  const girlSprite = useSpriteImage('/sprites/girl.png')
+  const saveTimeout = useRef(null)
 
-  // ─── Cargar jugador ──────────────────────────────────────────────────────────
+  // Sprite sheets (fallback si no carga → emoji)
+  const boyImg  = useImage('/sprites/boy.png')
+  const girlImg = useImage('/sprites/girl.png')
+
+  // ─── Cargar jugador ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!userId) { navigate('/'); return }
-    const load = async () => {
-      try {
-        const res = await authenticatedFetch(`/api/players/${userId}`)
-        if (res.ok) {
-          const data = await res.json()
-          setPlayer(data)
-          if (data.position && data.currentMap) {
-            const p = data.position
-            setPos(p)
-            const initPet = { x: p.x, y: p.y + 1 }
-            setPetPos(initPet)
-            posTrail.current = Array(PET_TRAIL_LENGTH).fill(initPet)
-          }
-        } else { navigate('/create') }
-      } catch (e) { console.error(e) }
-    }
-    load()
+    authenticatedFetch(`/api/players/${userId}`)
+      .then(r => r.json())
+      .then(data => {
+        setPlayer(data)
+        if (data.position && data.currentMap) {
+          const p = data.position
+          setPos(p)
+          const pet0 = { x: p.x, y: p.y + 1 }
+          setPetPos(pet0)
+          posTrail.current = Array(PET_DELAY).fill(pet0)
+        }
+      })
+      .catch(() => navigate('/create'))
   }, [navigate])
 
-  // ─── Cargar NPCs ─────────────────────────────────────────────────────────────
+  // ─── Cargar NPCs ───────────────────────────────────────────────────────────
   useEffect(() => {
     if (!player || player.currentMap === 'pueblo_inicial') { setNpcs([]); return }
     fetch(`/api/npcs/${player.currentMap}`)
-      .then(r => r.json()).then(d => setNpcs(d)).catch(() => {})
+      .then(r => r.json()).then(setNpcs).catch(() => {})
   }, [player?.currentMap])
 
-  // ─── Mapa generado ───────────────────────────────────────────────────────────
-  const mapGrid = useMemo(() =>
-    generateMap(
-      player?.currentMap || 'pueblo_inicial',
-      MAPS[player?.currentMap || 'pueblo_inicial'].width,
-      MAPS[player?.currentMap || 'pueblo_inicial'].height
-    ), [player?.currentMap])
+  // ─── Mapa ──────────────────────────────────────────────────────────────────
+  const mapGrid = useMemo(() => {
+    const m = player?.currentMap || 'pueblo_inicial'
+    return generateMap(m, MAPS[m].width, MAPS[m].height)
+  }, [player?.currentMap])
 
-  // ─── Colisiones ──────────────────────────────────────────────────────────────
+  // ─── Colisiones ────────────────────────────────────────────────────────────
   const isObstacle = useCallback((nx, ny, mapName) => {
     const info = MAPS[mapName] || MAPS.pueblo_inicial
     if (nx < 0 || ny < 0 || nx >= info.width || ny >= info.height) return true
     return SOLID_TILES.includes(mapGrid[ny]?.[nx])
   }, [mapGrid])
 
-  // ─── Anti-stuck ──────────────────────────────────────────────────────────────
+  // ─── Anti-stuck ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (player && mapGrid.length > 0) {
-      const cMap = player.currentMap || 'pueblo_inicial'
-      if (isObstacle(pos.x, pos.y, cMap)) {
-        const cx = Math.floor(MAPS[cMap].width / 2)
-        const cy = Math.floor(MAPS[cMap].height / 2)
-        setPos({ x: cx, y: cy })
-        const initPet = { x: cx, y: cy + 1 }
-        setPetPos(initPet)
-        posTrail.current = Array(PET_TRAIL_LENGTH).fill(initPet)
-      }
+    if (!player || !mapGrid.length) return
+    const m = player.currentMap || 'pueblo_inicial'
+    if (isObstacle(pos.x, pos.y, m)) {
+      const cx = Math.floor(MAPS[m].width  / 2)
+      const cy = Math.floor(MAPS[m].height / 2)
+      setPos({ x: cx, y: cy })
+      const pet0 = { x: cx, y: cy + 1 }
+      setPetPos(pet0)
+      posTrail.current = Array(PET_DELAY).fill(pet0)
     }
   }, [player?.currentMap, mapGrid])
 
-  // ─── Pet bounce animation loop ───────────────────────────────────────────────
-  useEffect(() => {
-    let t = 0
-    const loop = () => {
-      t += 0.12
-      petBobRef.current = Math.sin(t) * 3
-      setPetBob(Math.sin(t) * 3)
-      rafRef.current = requestAnimationFrame(loop)
-    }
-    rafRef.current = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(rafRef.current)
-  }, [])
-
-  // ─── Guardado ────────────────────────────────────────────────────────────────
+  // ─── Guardado ──────────────────────────────────────────────────────────────
   const savePosition = useCallback((newPos, newMap) => {
     if (saveTimeout.current) clearTimeout(saveTimeout.current)
     if (!userId) return
-    saveTimeout.current = setTimeout(async () => {
-      try {
-        await authenticatedFetch(`/api/players/${userId}/position`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ currentMap: newMap, x: newPos.x, y: newPos.y })
-        })
-      } catch (e) {}
+    saveTimeout.current = setTimeout(() => {
+      authenticatedFetch(`/api/players/${userId}/position`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentMap: newMap, x: newPos.x, y: newPos.y })
+      }).catch(() => {})
     }, 1000)
   }, [userId, authenticatedFetch])
 
-  // ─── Transición ──────────────────────────────────────────────────────────────
+  // ─── Transición ────────────────────────────────────────────────────────────
   const transitionTo = useCallback((newMap, x, y) => {
     setPlayer(p => ({ ...p, currentMap: newMap }))
     setPos({ x, y })
-    const initPet = { x, y: y + 1 }
-    setPetPos(initPet)
-    posTrail.current = Array(PET_TRAIL_LENGTH).fill(initPet)
+    const pet0 = { x, y: y + 1 }
+    setPetPos(pet0)
+    posTrail.current = Array(PET_DELAY).fill(pet0)
     savePosition({ x, y }, newMap)
   }, [savePosition])
 
-  // ─── Interacciones ───────────────────────────────────────────────────────────
-  const handleInteraction = useCallback((nx, ny, mapName, currentPlayer, currentNpcs) => {
-    if (mapName === 'pueblo_inicial') {
+  // ─── Interacciones ─────────────────────────────────────────────────────────
+  const handleInteraction = useCallback((nx, ny, cMap, pl, npcList) => {
+    if (cMap === 'pueblo_inicial') {
       if (nx === 25 && ny === 25) {
-        setDialog({ text: "Bibliotecario Sabio: Bienvenido al Reino de los Lenguajes. Reúne las 3 insignias para viajar al norte.", type: 'info' })
+        setDialog({ text: 'Bibliotecario: Bienvenido. Reúne las 3 insignias para ir al norte.', type: 'info' })
         return true
       }
       if (nx === 27 && ny === 25) { navigate('/shop'); return true }
-      if (nx === 0  && ny === 25) { transitionTo('mapa_espanol', 50, 98); return true }
-      if (nx === 49 && ny === 25) { transitionTo('mapa_artes',   50, 98); return true }
-      if (nx === 25 && ny === 49) { transitionTo('mapa_ingles',  50, 98); return true }
-      if (nx === 25 && ny === 0) {
-        if (currentPlayer.unlockedFinalMap ||
-            (currentPlayer.badges?.espanol && currentPlayer.badges?.artes && currentPlayer.badges?.ingles)) {
+      if (nx === 0  && ny === Math.floor(MAPS[cMap].height/2)) { transitionTo('mapa_espanol',    Math.floor(MAPS['mapa_espanol'].width/2),   98); return true }
+      if (nx === MAPS[cMap].width-1 && ny === Math.floor(MAPS[cMap].height/2)) { transitionTo('mapa_artes',   Math.floor(MAPS['mapa_artes'].width/2),    98); return true }
+      if (nx === Math.floor(MAPS[cMap].width/2) && ny === MAPS[cMap].height-1) { transitionTo('mapa_ingles',  Math.floor(MAPS['mapa_ingles'].width/2),   98); return true }
+      if (nx === Math.floor(MAPS[cMap].width/2) && ny === 0) {
+        if (pl.unlockedFinalMap || (pl.badges?.espanol && pl.badges?.artes && pl.badges?.ingles)) {
           transitionTo('ciudad_maestros', 50, 98)
         } else {
-          setDialog({ text: "La puerta está sellada. Necesitas las 3 Insignias de conocimiento.", type: 'info' })
+          setDialog({ text: 'La puerta está sellada. Necesitas las 3 Insignias.', type: 'info' })
         }
         return true
       }
     }
-    const npc = currentNpcs.find(n => n.x === nx && n.y === ny)
+
+    const npc = npcList.find(n => n.x === nx && n.y === ny)
     if (npc) {
-      if (currentPlayer.completedBattles?.includes(npc.npcId)) {
-        setDialog({ text: `${npc.name}: Ya tuvimos nuestro duelo. ¡Sigue avanzando!`, type: 'info' })
+      if (pl.completedBattles?.includes(npc.npcId)) {
+        setDialog({ text: `${npc.name}: ¡Ya ganaste! Sigue adelante.`, type: 'info' })
       } else {
-        setDialog({ text: `¡Soy ${npc.name}! ¿Quieres poner a prueba tus conocimientos?`, type: 'battle', npc })
+        setDialog({ text: `¡${npc.name} quiere desafiarte! ¿Aceptas?`, type: 'battle', npc })
       }
       return true
     }
-    if (mapName !== 'pueblo_inicial') {
-      const cx = Math.floor(MAPS[mapName].width  / 2)
-      const cy = Math.floor(MAPS[mapName].height / 2)
+
+    if (cMap !== 'pueblo_inicial') {
+      const cx = Math.floor(MAPS[cMap].width  / 2)
+      const cy = Math.floor(MAPS[cMap].height / 2)
       if (nx === cx && ny === cy) {
-        const defeated = currentNpcs.filter(n => currentPlayer.completedBattles?.includes(n.npcId)).length
-        if (defeated >= 35 && currentPlayer.xp >= 700) {
-          setDialog({ text: "Maestro: ¡Has demostrado tu valía! ¡Prepárate para el reto final!", type: 'info' })
+        const def = npcList.filter(n => pl.completedBattles?.includes(n.npcId)).length
+        if (def >= 35 && pl.xp >= 700) {
+          setDialog({ text: '¡Maestro: Has demostrado tu valía! ¡Prepárate!', type: 'info' })
         } else {
-          setDialog({ text: `Maestro: Aún no estás listo. Vence 35 estudiantes (llevas ${defeated}) y consigue 700 XP.`, type: 'info' })
+          setDialog({ text: `Maestro: Necesitas 35 victorias (tienes ${def}) y 700 XP.`, type: 'info' })
         }
         return true
       }
@@ -258,7 +329,7 @@ function MainMap() {
     return false
   }, [transitionTo, navigate])
 
-  // ─── Movimiento ──────────────────────────────────────────────────────────────
+  // ─── Movimiento ────────────────────────────────────────────────────────────
   const moveRef = useRef(null)
   moveRef.current = { dialog, player, npcs, isObstacle, handleInteraction, savePosition }
 
@@ -270,264 +341,286 @@ function MainMap() {
     setPos(prev => {
       const nx = prev.x + dx
       const ny = prev.y + dy
-      const cMap = pl.currentMap || 'pueblo_inicial'
-      if (interact(nx, ny, cMap, pl, npcList)) { setIsMoving(false); return prev }
-      if (obs(nx, ny, cMap)) { setIsMoving(false); return prev }
-      const next = { x: nx, y: ny }
-      // Actualizar historial de la mascota (Pikachu trail)
+      const m  = pl.currentMap || 'pueblo_inicial'
+      if (interact(nx, ny, m, pl, npcList)) { setIsMoving(false); return prev }
+      if (obs(nx, ny, m)) { setIsMoving(false); return prev }
+      // Actualizar trail de la mascota
       posTrail.current.push({ ...prev })
-      if (posTrail.current.length > PET_TRAIL_LENGTH) posTrail.current.shift()
+      if (posTrail.current.length > PET_DELAY) posTrail.current.shift()
       setPetPos({ ...posTrail.current[0] })
-      save(next, cMap)
+      save({ x: nx, y: ny }, m)
       setWalkFrame(f => (f + 1) % 2)
-      return next
+      return { x: nx, y: ny }
     })
   }, [])
 
-  // ─── Teclado con movimiento suave ────────────────────────────────────────────
+  // ─── Teclado ────────────────────────────────────────────────────────────────
   useEffect(() => {
-    const MOVE_DELAY = 130
+    const SPEED = 130
     const step = () => {
       const k = keysHeld.current
-      if      (k['ArrowUp']    || k['w']) doMove(0, -1, 'up')
-      else if (k['ArrowDown']  || k['s']) doMove(0,  1, 'down')
-      else if (k['ArrowLeft']  || k['a']) doMove(-1, 0, 'left')
-      else if (k['ArrowRight'] || k['d']) doMove(1,  0, 'right')
+      if      (k.ArrowUp    || k.w) doMove(0, -1, 'up')
+      else if (k.ArrowDown  || k.s) doMove(0,  1, 'down')
+      else if (k.ArrowLeft  || k.a) doMove(-1, 0, 'left')
+      else if (k.ArrowRight || k.d) doMove(1,  0, 'right')
       else setIsMoving(false)
     }
-    const onKeyDown = (e) => {
+    const onDown = e => {
       const dirs = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d']
       if (dirs.includes(e.key)) e.preventDefault()
       if (e.key === 'Enter' && moveRef.current.dialog?.type === 'info') { setDialog(null); return }
       if (!keysHeld.current[e.key]) {
-        keysHeld.current[e.key] = true
-        step()
-        moveTimer.current = setInterval(step, MOVE_DELAY)
+        keysHeld.current[e.key] = true; step()
+        moveTimer.current = setInterval(step, SPEED)
       }
     }
-    const onKeyUp = (e) => {
+    const onUp = e => {
       delete keysHeld.current[e.key]
-      const anyDir = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d']
-      if (!anyDir.some(k => keysHeld.current[k])) {
+      if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].some(k => keysHeld.current[k])) {
         clearInterval(moveTimer.current)
         setIsMoving(false)
       }
     }
-    window.addEventListener('keydown', onKeyDown)
-    window.addEventListener('keyup', onKeyUp)
+    window.addEventListener('keydown', onDown)
+    window.addEventListener('keyup',   onUp)
     return () => {
-      window.removeEventListener('keydown', onKeyDown)
-      window.removeEventListener('keyup', onKeyUp)
+      window.removeEventListener('keydown', onDown)
+      window.removeEventListener('keyup',   onUp)
       clearInterval(moveTimer.current)
     }
   }, [doMove])
 
-  // ─── Canvas Renderer ─────────────────────────────────────────────────────────
+  // ─── Game Loop (requestAnimationFrame para animaciones suaves) ─────────────
+  const stateRef = useRef({})
+  stateRef.current = { pos, dir, walkFrame, isMoving, petPos, player, npcs, mapGrid, dialog }
+
   useEffect(() => {
-    if (!canvasRef.current || !tilesetImg || !player) return
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    ctx.imageSmoothingEnabled = false
+    if (!canvasRef.current) return
 
-    const cMap = player.currentMap || 'pueblo_inicial'
-    const mapInfo = MAPS[cMap]
-    const TS = TILE_SIZE * SCALE
+    const loop = () => {
+      tickRef.current++
+      const { pos: p, dir: d, walkFrame: wf, isMoving: mv, petPos: pp, player: pl, npcs: npcList, mapGrid: mg } = stateRef.current
+      if (!pl || !mg.length) { rafRef.current = requestAnimationFrame(loop); return }
 
-    // ─ Cámara centrada en jugador ─
-    let camX = pos.x - Math.floor(VIEWPORT_TILES_X / 2)
-    let camY = pos.y - Math.floor(VIEWPORT_TILES_Y / 2)
-    camX = Math.max(0, Math.min(camX, mapInfo.width  - VIEWPORT_TILES_X))
-    camY = Math.max(0, Math.min(camY, mapInfo.height - VIEWPORT_TILES_Y))
+      const canvas = canvasRef.current
+      const ctx = canvas.getContext('2d')
+      ctx.imageSmoothingEnabled = false
+      const tick = tickRef.current
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+      const cMap  = pl.currentMap || 'pueblo_inicial'
+      const info  = MAPS[cMap]
 
-    // ─ Tiles ─
-    for (let ty = camY; ty < camY + VIEWPORT_TILES_Y + 1 && ty < mapInfo.height; ty++) {
-      for (let tx = camX; tx < camX + VIEWPORT_TILES_X + 1 && tx < mapInfo.width; tx++) {
-        const tileId = mapGrid[ty]?.[tx] ?? TILES.GRASS
-        const src = TILE_SRC[tileId] ?? TILE_SRC[TILES.GRASS]
-        ctx.drawImage(
-          tilesetImg,
-          src.col * TILE_IMG_W, src.row * TILE_IMG_H, TILE_IMG_W, TILE_IMG_H,
-          (tx - camX) * TS, (ty - camY) * TS, TS, TS
-        )
+      // ── Cámara centrada ──
+      let camX = p.x - Math.floor(VW / 2)
+      let camY = p.y - Math.floor(VH / 2)
+      camX = Math.max(0, Math.min(camX, info.width  - VW))
+      camY = Math.max(0, Math.min(camY, info.height - VH))
+
+      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
+
+      // ── Tiles ──
+      for (let ty = camY; ty <= camY + VH && ty < info.height; ty++) {
+        for (let tx = camX; tx <= camX + VW && tx < info.width; tx++) {
+          const tileId = mg[ty]?.[tx] ?? TILES.GRASS
+          const px = (tx - camX) * TS
+          const py = (ty - camY) * TS
+          drawTile(ctx, tileId, px, py, TS, tick)
+        }
       }
-    }
 
-    const draw = (tx, ty, fn) => {
-      const dx = (tx - camX) * TS
-      const dy = (ty - camY) * TS
-      if (dx < -TS || dy < -TS || dx > VIEWPORT_W + TS || dy > VIEWPORT_H + TS) return
-      fn(dx, dy)
-    }
+      // ── Helper: dibujar en un tile si está en pantalla ──
+      const inView = (tx, ty) => {
+        const px = (tx - camX) * TS
+        const py = (ty - camY) * TS
+        return { px, py, visible: px > -TS && py > -TS && px < CANVAS_W + TS && py < CANVAS_H + TS }
+      }
 
-    // ─ Salidas pueblo inicial ─
-    if (cMap === 'pueblo_inicial') {
-      const exits = [
-        { x: 0,  y: 25, color: '#c0392b', label: 'ES' },
-        { x: 49, y: 25, color: '#2980b9', label: 'AR' },
-        { x: 25, y: 49, color: '#e67e22', label: 'EN' },
-        { x: 25, y: 0,  color: '#7f8c8d', label: '👑' },
-      ]
-      exits.forEach(({ x, y, color, label }) => {
-        draw(x, y, (dx, dy) => {
-          // Dibujar portal con borde brillante
-          ctx.fillStyle = color
-          ctx.fillRect(dx, dy, TS, TS)
-          ctx.strokeStyle = '#ffd700'
-          ctx.lineWidth = 3
-          ctx.strokeRect(dx + 2, dy + 2, TS - 4, TS - 4)
+      // ── Salidas pueblo_inicial ──
+      if (cMap === 'pueblo_inicial') {
+        const exits = [
+          { x: 0,              y: Math.floor(info.height/2), icon: '🌹', label: 'ES', bg: '#c0392b' },
+          { x: info.width - 1, y: Math.floor(info.height/2), icon: '🎨', label: 'AR', bg: '#2980b9' },
+          { x: Math.floor(info.width/2), y: info.height - 1, icon: '🌐', label: 'EN', bg: '#e67e22' },
+          { x: Math.floor(info.width/2), y: 0,               icon: '🏆', label: 'CM', bg: '#8e44ad' },
+        ]
+        exits.forEach(({ x, y, icon, label, bg }) => {
+          const { px, py, visible } = inView(x, y)
+          if (!visible) return
+          ctx.fillStyle = bg
+          ctx.fillRect(px, py, TS, TS)
+          ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3
+          ctx.strokeRect(px + 2, py + 2, TS - 4, TS - 4)
+          // Pulso suave
+          ctx.globalAlpha = 0.3 + 0.3 * Math.sin(tick * 0.06)
           ctx.fillStyle = '#fff'
-          ctx.font = `bold ${TS * 0.45}px monospace`
-          ctx.textAlign = 'center'
-          ctx.textBaseline = 'middle'
-          ctx.fillText(label, dx + TS / 2, dy + TS / 2)
+          ctx.fillRect(px + 4, py + 4, TS - 8, TS - 8)
+          ctx.globalAlpha = 1
+          drawEmoji(ctx, icon, px + TS/2, py + TS/2, TS * 0.7)
         })
-      })
-      // NPC Sabio y Mercader
-      draw(25, 25, (dx, dy) => { ctx.font = `${TS * 0.75}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🧙', dx + TS/2, dy + TS/2) })
-      draw(27, 25, (dx, dy) => { ctx.font = `${TS * 0.75}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🏪', dx + TS/2, dy + TS/2) })
-    }
 
-    // ─ Maestro en Academias ─
-    if (cMap !== 'pueblo_inicial') {
-      const cx = Math.floor(mapInfo.width  / 2)
-      const cy = Math.floor(mapInfo.height / 2)
-      draw(cx, cy, (dx, dy) => {
-        ctx.font = `${TS * 0.75}px sans-serif`
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText('👑', dx + TS/2, dy + TS/2)
-      })
-    }
+        // NPCs fijos pueblo
+        const fixedNpcs = [
+          { x: 25, y: Math.floor(info.height/2),     emoji: '🧙' },
+          { x: 27, y: Math.floor(info.height/2),     emoji: '🏪' },
+        ]
+        fixedNpcs.forEach(({ x, y, emoji }) => {
+          const { px, py, visible } = inView(x, y)
+          if (!visible) return
+          // Sombra
+          ctx.fillStyle = 'rgba(0,0,0,0.2)'
+          ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
+          drawEmoji(ctx, emoji, px + TS/2, py + TS/2, TS * 0.75)
+        })
+      }
 
-    // ─ NPCs ─
-    npcs.forEach(npc => {
-      draw(npc.x, npc.y, (dx, dy) => {
-        const defeated = player.completedBattles?.includes(npc.npcId)
-        // Sombra suave debajo
-        ctx.fillStyle = 'rgba(0,0,0,0.25)'
-        ctx.beginPath()
-        ctx.ellipse(dx + TS/2, dy + TS - 4, TS*0.35, 4, 0, 0, Math.PI*2)
-        ctx.fill()
-        ctx.font = `${TS * 0.72}px sans-serif`
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(defeated ? '😵' : '🤓', dx + TS/2, dy + TS/2)
-        // Signo ! si es cercano
-        const dist = Math.abs(pos.x - npc.x) + Math.abs(pos.y - npc.y)
+      // ── NPCs dinámicos ──
+      npcList.forEach(npc => {
+        const { px, py, visible } = inView(npc.x, npc.y)
+        if (!visible) return
+        const defeated = pl.completedBattles?.includes(npc.npcId)
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'
+        ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
+        drawEmoji(ctx, defeated ? '😵' : '🤓', px + TS/2, py + TS/2, TS * 0.72)
+        const dist = Math.abs(p.x - npc.x) + Math.abs(p.y - npc.y)
         if (!defeated && dist <= 2) {
           ctx.fillStyle = '#ff0000'
-          ctx.font = `bold ${TS * 0.5}px monospace`
-          ctx.fillText('!', dx + TS/2, dy - 4)
+          ctx.font = `bold ${TS * 0.45}px monospace`
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+          ctx.fillText('!', px + TS/2, py - 4)
         }
       })
-    })
 
-    // ─ Mascota (Pikachu-style: sombra + rebote) ─
-    draw(petPos.x, petPos.y, (dx, dy) => {
-      const bob = petBobRef.current
-      // Sombra
-      ctx.fillStyle = 'rgba(0,0,0,0.2)'
-      ctx.beginPath()
-      ctx.ellipse(dx + TS/2, dy + TS - 3, TS * 0.3, 3, 0, 0, Math.PI*2)
-      ctx.fill()
-      // Pet icon flotando
-      const petIcon = player.inventory?.equippedPet === 'pet_panda' ? '🐼'
-        : player.inventory?.equippedPet === 'pet_dragon' ? '🐉'
-        : player.inventory?.equippedPet === 'pet_colibri' ? '🐦'
-        : '⭐'
-      ctx.font = `${TS * 0.75}px sans-serif`
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.fillText(petIcon, dx + TS/2, dy + TS/2 + bob)
-    })
-
-    // ─ Jugador (sprite GBC sin fondo blanco) ─
-    draw(pos.x, pos.y, (dx, dy) => {
-      const spriteCanvas = player.character?.gender === 'girl' ? girlSprite : boySprite
-      // Sombra oval debajo del personaje
-      ctx.fillStyle = 'rgba(0,0,0,0.3)'
-      ctx.beginPath()
-      ctx.ellipse(dx + TS/2, dy + TS - 2, TS * 0.35, 4, 0, 0, Math.PI * 2)
-      ctx.fill()
-
-      if (spriteCanvas) {
-        const frames = SPRITE_FRAMES[dir] || SPRITE_FRAMES.down
-        const frame = isMoving ? frames[walkFrame] : frames[0]
-        const sx = frame.col * SPRITE_W
-        const sy = frame.row * SPRITE_H
-        // Dibuja un poco más alto que el tile (como en Pokémon GBC)
-        const drawH = TS * 1.5
-        const drawW = TS * 1.0
-        ctx.drawImage(spriteCanvas, sx, sy, SPRITE_W, SPRITE_H, dx + (TS - drawW)/2, dy - (drawH - TS) + 2, drawW, drawH)
-      } else {
-        // Fallback emoji
-        ctx.font = `${TS * 0.8}px sans-serif`
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(player.character?.gender === 'girl' ? '👧' : '👦', dx + TS/2, dy + TS/2)
+      // ── Maestro en academias ──
+      if (cMap !== 'pueblo_inicial') {
+        const cx = Math.floor(info.width  / 2)
+        const cy = Math.floor(info.height / 2)
+        const { px, py, visible } = inView(cx, cy)
+        if (visible) {
+          const pulse = 0.85 + 0.15 * Math.sin(tick * 0.08)
+          ctx.globalAlpha = pulse
+          drawEmoji(ctx, '👑', px + TS/2, py + TS/2, TS * 0.8)
+          ctx.globalAlpha = 1
+        }
       }
-    })
 
-  }, [pos, dir, walkFrame, isMoving, petPos, petBob, mapGrid, npcs, tilesetImg, boySprite, girlSprite, player])
+      // ── Mascota (Pikachu style: sigue detrás, rebota) ──
+      const bob = Math.sin(tick * 0.12) * 4
+      const petEmoji = PET_EMOJI[pl.inventory?.equippedPet] || '⭐'
+      const { px: petPx, py: petPy, visible: petVis } = inView(pp.x, pp.y)
+      if (petVis) {
+        ctx.fillStyle = 'rgba(0,0,0,0.18)'
+        ctx.beginPath(); ctx.ellipse(petPx+TS/2, petPy+TS-3, TS*0.28, 3, 0, 0, Math.PI*2); ctx.fill()
+        drawEmoji(ctx, petEmoji, petPx + TS/2, petPy + TS/2 + bob, TS * 0.72)
+      }
 
-  // ─── Render ──────────────────────────────────────────────────────────────────
+      // ── Jugador ──
+      const { px: playerPx, py: playerPy } = inView(p.x, p.y)
+      // Sombra
+      ctx.fillStyle = 'rgba(0,0,0,0.28)'
+      ctx.beginPath(); ctx.ellipse(playerPx+TS/2, playerPy+TS-2, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
+
+      const equippedSkin = pl.inventory?.equippedSkin
+      if (equippedSkin && SKIN_EMOJI[equippedSkin]) {
+        // Skin de emoji: dibujamos el emoji como personaje principal
+        const bobChar = mv ? Math.sin(tick * 0.25) * 2 : 0
+        drawEmoji(ctx, SKIN_EMOJI[equippedSkin], playerPx + TS/2, playerPy + TS/2 + bobChar, TS * 0.88)
+      } else {
+        // Sprite sheet boy/girl
+        const spriteImg = pl.character?.gender === 'girl' ? girlImg : boyImg
+        if (spriteImg && spriteImg.naturalWidth > 0) {
+          // Calcular dimensiones reales de la sprite sheet
+          const frameW = spriteImg.naturalWidth  / 4
+          const frameH = spriteImg.naturalHeight / 2
+          const FRAMES = {
+            down:  [{ col: 0, row: 0 }, { col: 1, row: 0 }],
+            up:    [{ col: 2, row: 0 }, { col: 3, row: 0 }],
+            left:  [{ col: 0, row: 1 }, { col: 1, row: 1 }],
+            right: [{ col: 2, row: 1 }, { col: 3, row: 1 }],
+          }
+          const frame = mv ? FRAMES[d][wf] : FRAMES[d][0]
+          const sx = frame.col * frameW
+          const sy = frame.row * frameH
+          // Dibuja el sprite completo con altura mayor (sin cortar)
+          const drawW = TS * 0.95
+          const drawH = TS * 1.55
+          const ox = (TS - drawW) / 2
+          const oy = TS - drawH  // ancla en la base del tile
+          ctx.drawImage(spriteImg, sx, sy, frameW, frameH, playerPx + ox, playerPy + oy, drawW, drawH)
+        } else {
+          // Fallback emoji simple
+          const defaultEmoji = pl.character?.gender === 'girl' ? '👧' : '👦'
+          drawEmoji(ctx, defaultEmoji, playerPx + TS/2, playerPy + TS/2, TS * 0.88)
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(loop)
+    }
+
+    rafRef.current = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [boyImg, girlImg]) // solo se reinicia cuando cargan las imágenes
+
+  // ─── Render ────────────────────────────────────────────────────────────────
   if (!player) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#1a1a2e', color: '#ffd700', fontFamily: 'monospace' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎮</div>
-        <div style={{ fontSize: '0.7rem' }}>Cargando mundo...</div>
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', backgroundColor:'#1a1a2e', color:'#ffd700' }}>
+      <div style={{ textAlign:'center', fontFamily:"'Press Start 2P', monospace", fontSize:'0.6rem' }}>
+        <div style={{ fontSize:'3rem', marginBottom:'1rem' }}>🎮</div>
+        Cargando mundo...
       </div>
     </div>
   )
 
-  const cMap = player.currentMap || 'pueblo_inicial'
+  const cMap    = player.currentMap || 'pueblo_inicial'
   const mapInfo = MAPS[cMap]
-  const defeatedInMap = npcs.filter(n => player.completedBattles?.includes(n.npcId)).length
+  const defeated = npcs.filter(n => player.completedBattles?.includes(n.npcId)).length
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#1a1a2e' }}>
+    <div style={{ display:'flex', flexDirection:'column', height:'100vh', backgroundColor:'#0a0a1a', userSelect:'none' }}>
 
-      {/* HUD */}
-      <div style={{ padding: '5px 10px', backgroundColor: '#0d0d1a', borderBottom: '3px solid #ffd700', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
-        <div style={{ color: '#ffd700', fontSize: '0.4rem', fontFamily: "'Press Start 2P', monospace" }}>
+      {/* ── HUD ── */}
+      <div style={{ padding:'5px 10px', backgroundColor:'#0d0d1a', borderBottom:'3px solid #ffd700', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <div style={{ color:'#ffd700', fontSize:'0.38rem', fontFamily:"'Press Start 2P', monospace" }}>
           {mapInfo.title}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ color: '#7fff00', fontSize: '0.35rem', fontFamily: 'monospace' }}>XP {player.xp} | 💰{player.lingocoins}</span>
+        <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+          <span style={{ color:'#7fff00', fontSize:'0.35rem', fontFamily:'monospace' }}>
+            XP {player.xp} | 💰{player.lingocoins}
+          </span>
           {['espanol','artes','ingles'].map(b => (
-            <div key={b} style={{ width:'8px', height:'8px', borderRadius:'50%', backgroundColor: player.badges?.[b] ? '#ffd700' : '#333', border: '1px solid #ffd700' }} />
+            <div key={b} style={{ width:'8px', height:'8px', borderRadius:'50%', backgroundColor: player.badges?.[b] ? '#ffd700' : '#333', border:'1px solid #ffd700' }} title={b} />
           ))}
-          <button onClick={() => {
-            const cx = Math.floor(mapInfo.width / 2)
-            const cy = Math.floor(mapInfo.height / 2)
-            setPos({ x: cx, y: cy })
-            const ip = { x: cx, y: cy + 1 }
-            setPetPos(ip)
-            posTrail.current = Array(PET_TRAIL_LENGTH).fill(ip)
-          }} style={{ fontSize: '0.3rem', padding: '2px 5px', backgroundColor: '#e74c3c', color: '#fff', border: '1px solid #ffd700', cursor: 'pointer', fontFamily: 'monospace' }}>
+          <button
+            onClick={() => {
+              const cx = Math.floor(mapInfo.width/2), cy = Math.floor(mapInfo.height/2)
+              setPos({ x:cx, y:cy })
+              const pet0 = { x:cx, y:cy+1 }
+              setPetPos(pet0); posTrail.current = Array(PET_DELAY).fill(pet0)
+            }}
+            style={{ fontSize:'0.3rem', padding:'2px 5px', backgroundColor:'#e74c3c', color:'#fff', border:'1px solid #ffd700', cursor:'pointer', fontFamily:'monospace' }}>
             WARP
           </button>
         </div>
       </div>
 
-      {/* Canvas */}
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#1a1a2e', position: 'relative' }}>
-        <div style={{ border: '5px solid #ffd700', boxShadow: '0 0 0 3px #000, 0 0 25px rgba(255,215,0,0.35)', imageRendering: 'pixelated', position: 'relative' }}>
-          <canvas ref={canvasRef} width={VIEWPORT_W} height={VIEWPORT_H} style={{ display: 'block', imageRendering: 'pixelated' }} />
+      {/* ── Canvas ── */}
+      <div style={{ flex:1, display:'flex', justifyContent:'center', alignItems:'center', backgroundColor:'#0a0a1a', position:'relative' }}>
+        <div style={{ border:'5px solid #ffd700', boxShadow:'0 0 0 3px #000, 0 0 30px rgba(255,215,0,0.3)', imageRendering:'pixelated', position:'relative' }}>
+          <canvas ref={canvasRef} width={CANVAS_W} height={CANVAS_H} style={{ display:'block', imageRendering:'pixelated' }} />
 
           {/* Minimapa */}
-          <div style={{ position:'absolute', top:'6px', right:'6px', width:'48px', height:'48px', backgroundColor:'rgba(0,0,0,0.75)', border:'2px solid #ffd700' }}>
-            <div style={{ position:'absolute', left:`${(pos.x/mapInfo.width)*100}%`, top:`${(pos.y/mapInfo.height)*100}%`, width:'4px', height:'4px', backgroundColor:'#ff0000', borderRadius:'50%', transform:'translate(-50%,-50%)' }} />
+          <div style={{ position:'absolute', top:'5px', right:'5px', width:'50px', height:'50px', backgroundColor:'rgba(0,0,0,0.8)', border:'2px solid #ffd700' }}>
+            <div style={{ position:'absolute', left:`${(pos.x/mapInfo.width)*100}%`, top:`${(pos.y/mapInfo.height)*100}%`, width:'4px', height:'4px', backgroundColor:'red', borderRadius:'50%', transform:'translate(-50%,-50%)' }} />
+            {npcs.map(n => (
+              <div key={n.npcId} style={{ position:'absolute', left:`${(n.x/mapInfo.width)*100}%`, top:`${(n.y/mapInfo.height)*100}%`, width:'2px', height:'2px', backgroundColor: player.completedBattles?.includes(n.npcId) ? '#555' : '#ffd700', borderRadius:'50%', transform:'translate(-50%,-50%)' }} />
+            ))}
           </div>
 
-          {/* Barra de progreso NPCs */}
+          {/* Barra de progreso */}
           {cMap !== 'pueblo_inicial' && (
-            <div style={{ position:'absolute', bottom:'4px', left:'4px', right:'4px', backgroundColor:'rgba(0,0,0,0.7)', border:'1px solid #ffd700', padding:'2px 4px' }}>
-              <div style={{ fontSize:'0.3rem', color:'#ffd700', fontFamily:'monospace', marginBottom:'1px' }}>⚔️ {defeatedInMap}/50</div>
+            <div style={{ position:'absolute', bottom:'4px', left:'4px', right:'54px', backgroundColor:'rgba(0,0,0,0.75)', border:'1px solid #ffd700', padding:'2px 5px' }}>
+              <div style={{ color:'#ffd700', fontSize:'0.28rem', fontFamily:'monospace', marginBottom:'1px' }}>⚔️ {defeated}/50</div>
               <div style={{ backgroundColor:'#333', height:'4px', borderRadius:'2px' }}>
-                <div style={{ backgroundColor:'#ffd700', width:`${(defeatedInMap/50)*100}%`, height:'4px', borderRadius:'2px', transition:'width 0.3s' }} />
+                <div style={{ backgroundColor:'#ffd700', width:`${Math.min(100,(defeated/50)*100)}%`, height:'4px', borderRadius:'2px', transition:'width 0.3s' }} />
               </div>
             </div>
           )}
@@ -535,41 +628,42 @@ function MainMap() {
 
         {/* Diálogo */}
         {dialog && (
-          <div style={{ position:'absolute', bottom:'110px', left:'50%', transform:'translateX(-50%)', backgroundColor:'#0d0d1a', border:'4px solid #ffd700', padding:'12px 16px', maxWidth:'380px', width:'88%', zIndex:20, boxShadow:'0 0 20px rgba(255,215,0,0.4)' }}>
-            <p style={{ color:'#fff', fontSize:'0.4rem', lineHeight:'2', margin:0, fontFamily:"'Press Start 2P', monospace" }}>{dialog.text}</p>
+          <div style={{ position:'absolute', bottom:'105px', left:'50%', transform:'translateX(-50%)', backgroundColor:'#0d0d1a', border:'4px solid #ffd700', padding:'12px 16px', maxWidth:'380px', width:'88%', zIndex:20, boxShadow:'0 0 20px rgba(255,215,0,0.4)' }}>
+            <p style={{ color:'#fff', fontSize:'0.38rem', lineHeight:'2', margin:0, fontFamily:"'Press Start 2P', monospace" }}>{dialog.text}</p>
             {dialog.type === 'info' && (
-              <button className="btn-retro" style={{ marginTop:'10px', fontSize:'0.35rem', padding:'4px 10px' }} onClick={() => setDialog(null)}>▶ Continuar</button>
+              <button className="btn-retro" style={{ marginTop:'10px', fontSize:'0.32rem', padding:'4px 10px' }} onClick={() => setDialog(null)}>▶ Continuar</button>
             )}
             {dialog.type === 'battle' && (
               <div style={{ display:'flex', gap:'8px', marginTop:'10px' }}>
-                <button className="btn-retro success" style={{ fontSize:'0.35rem', padding:'4px 10px' }} onClick={() => {
+                <button className="btn-retro success" style={{ fontSize:'0.32rem', padding:'4px 10px' }} onClick={() => {
                   setDialog(null)
                   navigate(`/battle?npcId=${dialog.npc.npcId}&subject=${dialog.npc.subject}&difficulty=${dialog.npc.difficulty||1}&name=${dialog.npc.name}&isBoss=${dialog.npc.isBoss?'true':'false'}`)
                 }}>⚔️ ¡Acepto!</button>
-                <button className="btn-retro" style={{ fontSize:'0.35rem', padding:'4px 10px' }} onClick={() => setDialog(null)}>🏃 Huir</button>
+                <button className="btn-retro" style={{ fontSize:'0.32rem', padding:'4px 10px' }} onClick={() => setDialog(null)}>🏃 Huir</button>
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* D-Pad */}
-      <div style={{ padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', backgroundColor:'#0d0d1a', borderTop:'3px solid #ffd700', zIndex:10 }}>
-        <div style={{ display:'grid', gridTemplateColumns:'44px 44px 44px', gridTemplateRows:'44px 44px 44px', gap:'3px' }}>
-          <div/><DBtn onClick={() => doMove(0,-1,'up')}>▲</DBtn><div/>
-          <DBtn onClick={() => doMove(-1,0,'left')}>◄</DBtn>
-          <div style={{ background:'#1a1a2e', border:'2px solid #333', borderRadius:'4px' }}/>
-          <DBtn onClick={() => doMove(1,0,'right')}>►</DBtn>
-          <div/><DBtn onClick={() => doMove(0,1,'down')}>▼</DBtn><div/>
+      {/* ── D-Pad ── */}
+      <div style={{ padding:'8px 14px', display:'flex', justifyContent:'space-between', alignItems:'center', backgroundColor:'#0d0d1a', borderTop:'3px solid #ffd700' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'42px 42px 42px', gridTemplateRows:'42px 42px 42px', gap:'3px' }}>
+          <div/><DBtn onPress={() => doMove(0,-1,'up')}>▲</DBtn><div/>
+          <DBtn onPress={() => doMove(-1,0,'left')}>◄</DBtn>
+          <div style={{ backgroundColor:'#1a1a2e', border:'2px solid #333', borderRadius:'4px' }}/>
+          <DBtn onPress={() => doMove(1,0,'right')}>►</DBtn>
+          <div/><DBtn onPress={() => doMove(0,1,'down')}>▼</DBtn><div/>
         </div>
 
-        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'6px' }}>
-          <button className="btn-retro" style={{ fontSize:'0.3rem', padding:'4px 8px' }} onClick={() => navigate('/shop')}>🏪 Tienda</button>
-          <button className="btn-retro" style={{ fontSize:'0.3rem', padding:'4px 8px' }} onClick={() => navigate('/inventory')}>🎒 Mochila</button>
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'5px' }}>
+          <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px' }} onClick={() => navigate('/shop')}>🏪 Tienda</button>
+          <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px' }} onClick={() => navigate('/inventory')}>🎒 Mochila</button>
+          <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px' }} onClick={() => navigate('/profile')}>📊 Perfil</button>
         </div>
 
         <button
-          style={{ width:'54px', height:'54px', borderRadius:'50%', backgroundColor:'#e74c3c', border:'3px solid #ffd700', color:'#fff', fontSize:'1rem', cursor:'pointer', boxShadow:'0 4px 0 #922b21', fontWeight:'bold' }}
+          style={{ width:'52px', height:'52px', borderRadius:'50%', backgroundColor:'#c0392b', border:'3px solid #ffd700', color:'#fff', fontSize:'1rem', cursor:'pointer', boxShadow:'0 4px 0 #922b21', fontWeight:'bold' }}
           onClick={() => { if (dialog?.type === 'info') setDialog(null) }}
         >A</button>
       </div>
@@ -577,12 +671,15 @@ function MainMap() {
   )
 }
 
-const DBtn = ({ children, onClick }) => (
-  <button
-    onClick={onClick}
-    onTouchStart={(e) => { e.preventDefault(); onClick() }}
-    style={{ backgroundColor:'#2a2a3e', border:'2px solid #ffd700', color:'#ffd700', cursor:'pointer', borderRadius:'4px', fontSize:'0.9rem', display:'flex', alignItems:'center', justifyContent:'center', touchAction:'manipulation', userSelect:'none', width:'100%', height:'100%' }}
-  >{children}</button>
-)
+// Botón del D-Pad con soporte táctil
+function DBtn({ children, onPress }) {
+  return (
+    <button
+      onClick={onPress}
+      onPointerDown={e => { e.preventDefault(); onPress() }}
+      style={{ backgroundColor:'#1a1a3e', border:'2px solid #ffd700', color:'#ffd700', cursor:'pointer', borderRadius:'6px', fontSize:'1rem', display:'flex', alignItems:'center', justifyContent:'center', touchAction:'manipulation', userSelect:'none', width:'100%', height:'100%', boxShadow:'0 3px 0 #a08000' }}
+    >{children}</button>
+  )
+}
 
 export default MainMap
