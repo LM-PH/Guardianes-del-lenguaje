@@ -390,25 +390,33 @@ function MainMap() {
     }
   }, [doMove])
 
-  // ─── Game Loop (requestAnimationFrame para animaciones suaves) ─────────────
+  // ─── Game Loop (empieza al montar, verifica canvas/player cada frame) ────────
   const stateRef = useRef({})
   stateRef.current = { pos, dir, walkFrame, isMoving, petPos, player, npcs, mapGrid, dialog }
 
   useEffect(() => {
-    if (!canvasRef.current) return
+    let running = true
 
     const loop = () => {
-      tickRef.current++
-      const { pos: p, dir: d, walkFrame: wf, isMoving: mv, petPos: pp, player: pl, npcs: npcList, mapGrid: mg } = stateRef.current
-      if (!pl || !mg.length) { rafRef.current = requestAnimationFrame(loop); return }
+      if (!running) return
 
+      tickRef.current++
+
+      // Esperar a que el canvas y el jugador estén disponibles
       const canvas = canvasRef.current
+      if (!canvas) { rafRef.current = requestAnimationFrame(loop); return }
+
+      const { pos: p, dir: d, walkFrame: wf, isMoving: mv, petPos: pp, player: pl, npcs: npcList, mapGrid: mg } = stateRef.current
+      if (!pl || !mg || !mg.length) { rafRef.current = requestAnimationFrame(loop); return }
+
       const ctx = canvas.getContext('2d')
+      if (!ctx) { rafRef.current = requestAnimationFrame(loop); return }
+
       ctx.imageSmoothingEnabled = false
       const tick = tickRef.current
 
       const cMap  = pl.currentMap || 'pueblo_inicial'
-      const info  = MAPS[cMap]
+      const info  = MAPS[cMap] || MAPS.pueblo_inicial
 
       // ── Cámara centrada ──
       let camX = p.x - Math.floor(VW / 2)
@@ -438,35 +446,29 @@ function MainMap() {
       // ── Salidas pueblo_inicial ──
       if (cMap === 'pueblo_inicial') {
         const exits = [
-          { x: 0,              y: Math.floor(info.height/2), icon: '🌹', label: 'ES', bg: '#c0392b' },
-          { x: info.width - 1, y: Math.floor(info.height/2), icon: '🎨', label: 'AR', bg: '#2980b9' },
-          { x: Math.floor(info.width/2), y: info.height - 1, icon: '🌐', label: 'EN', bg: '#e67e22' },
-          { x: Math.floor(info.width/2), y: 0,               icon: '🏆', label: 'CM', bg: '#8e44ad' },
+          { x: 0,              y: Math.floor(info.height/2), icon: '🌹', bg: '#c0392b' },
+          { x: info.width - 1, y: Math.floor(info.height/2), icon: '🎨', bg: '#2980b9' },
+          { x: Math.floor(info.width/2), y: info.height - 1, icon: '🌐', bg: '#e67e22' },
+          { x: Math.floor(info.width/2), y: 0,               icon: '🏆', bg: '#8e44ad' },
         ]
-        exits.forEach(({ x, y, icon, label, bg }) => {
+        exits.forEach(({ x, y, icon, bg }) => {
           const { px, py, visible } = inView(x, y)
           if (!visible) return
           ctx.fillStyle = bg
           ctx.fillRect(px, py, TS, TS)
           ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3
           ctx.strokeRect(px + 2, py + 2, TS - 4, TS - 4)
-          // Pulso suave
           ctx.globalAlpha = 0.3 + 0.3 * Math.sin(tick * 0.06)
-          ctx.fillStyle = '#fff'
-          ctx.fillRect(px + 4, py + 4, TS - 8, TS - 8)
+          ctx.fillStyle = '#fff'; ctx.fillRect(px + 4, py + 4, TS - 8, TS - 8)
           ctx.globalAlpha = 1
           drawEmoji(ctx, icon, px + TS/2, py + TS/2, TS * 0.7)
         })
-
-        // NPCs fijos pueblo
-        const fixedNpcs = [
-          { x: 25, y: Math.floor(info.height/2),     emoji: '🧙' },
-          { x: 27, y: Math.floor(info.height/2),     emoji: '🏪' },
-        ]
-        fixedNpcs.forEach(({ x, y, emoji }) => {
-          const { px, py, visible } = inView(x, y)
+        // NPCs fijos
+        ;[[Math.floor(info.width/2), Math.floor(info.height/2), '🧙'],
+          [Math.floor(info.width/2) + 2, Math.floor(info.height/2), '🏪']
+        ].forEach(([tx, ty, emoji]) => {
+          const { px, py, visible } = inView(tx, ty)
           if (!visible) return
-          // Sombra
           ctx.fillStyle = 'rgba(0,0,0,0.2)'
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
           drawEmoji(ctx, emoji, px + TS/2, py + TS/2, TS * 0.75)
@@ -492,18 +494,17 @@ function MainMap() {
 
       // ── Maestro en academias ──
       if (cMap !== 'pueblo_inicial') {
-        const cx = Math.floor(info.width  / 2)
-        const cy = Math.floor(info.height / 2)
-        const { px, py, visible } = inView(cx, cy)
+        const cx2 = Math.floor(info.width  / 2)
+        const cy2 = Math.floor(info.height / 2)
+        const { px, py, visible } = inView(cx2, cy2)
         if (visible) {
-          const pulse = 0.85 + 0.15 * Math.sin(tick * 0.08)
-          ctx.globalAlpha = pulse
+          ctx.globalAlpha = 0.85 + 0.15 * Math.sin(tick * 0.08)
           drawEmoji(ctx, '👑', px + TS/2, py + TS/2, TS * 0.8)
           ctx.globalAlpha = 1
         }
       }
 
-      // ── Mascota (Pikachu style: sigue detrás, rebota) ──
+      // ── Mascota (Pikachu-style) ──
       const bob = Math.sin(tick * 0.12) * 4
       const petEmoji = PET_EMOJI[pl.inventory?.equippedPet] || '⭐'
       const { px: petPx, py: petPy, visible: petVis } = inView(pp.x, pp.y)
