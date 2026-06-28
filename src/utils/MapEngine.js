@@ -8,7 +8,8 @@ export const TILES = {
   HOUSE: 4,   // Sólido
   WALL: 5,    // Sólido
   FLOOR: 6,
-  FLOWER: 7
+  FLOWER: 7,
+  HOUSE_DOOR: 8, // Puerta de casa - activa transición
 };
 
 export const SOLID_TILES = [TILES.WATER, TILES.TREE, TILES.HOUSE, TILES.WALL];
@@ -75,25 +76,25 @@ export const generateMap = (mapName, width, height) => {
     grid[y][cx + 1] = TILES.PATH;
   }
 
-  // 4. Casas decorativas en pueblo_inicial (alejadas del camino)
+  // 4. Casas entrables en pueblo_inicial
   if (mapName === 'pueblo_inicial') {
     const housePositions = [
-      { hx: cx - 12, hy: cy - 12 },
-      { hx: cx + 8,  hy: cy - 12 },
-      { hx: cx - 12, hy: cy + 8  },
-      { hx: cx + 8,  hy: cy + 8  },
+      { hx: cx - 12, hy: cy - 12, id: 'house_0' },
+      { hx: cx + 8,  hy: cy - 12, id: 'house_1' },
+      { hx: cx - 12, hy: cy + 8,  id: 'house_2' },
+      { hx: cx + 8,  hy: cy + 8,  id: 'house_3' },
     ];
     housePositions.forEach(({ hx, hy }) => {
-      // Verificar que no colisione con caminos
-      if (hx < 2 || hy < 2 || hx + 4 >= width - 2 || hy + 3 >= height - 2) return;
+      if (hx < 2 || hy < 2 || hx + 4 >= width - 2 || hy + 4 >= height - 2) return;
+      // Paredes de la casa (3 filas de alto)
       for (let dy = 0; dy < 3; dy++) {
         for (let dx = 0; dx < 4; dx++) {
           grid[hy + dy][hx + dx] = TILES.HOUSE;
         }
       }
-      // Puerta de la casa (camino libre)
-      grid[hy + 3][hx + 1] = TILES.PATH;
-      grid[hy + 3][hx + 2] = TILES.PATH;
+      // Puerta de la casa (HOUSE_DOOR)
+      grid[hy + 3][hx + 1] = TILES.HOUSE_DOOR;
+      grid[hy + 3][hx + 2] = TILES.HOUSE_DOOR;
       // Camino de la puerta al camino principal
       for (let d = 4; d < Math.abs(cy - hy) + 1; d++) {
         const py = hy + d;

@@ -152,6 +152,21 @@ function drawTile(ctx, tileId, px, py, size, tick) {
       ctx.fillStyle = '#c8905050'; ctx.fillRect(px + s*0.17, py + s*0.52, s*0.24, s*0.48)
       break
     }
+    case TILES.HOUSE_DOOR: {
+      // Puerta de entrada (parche de camino con marco)
+      ctx.fillStyle = GBC.path1; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = GBC.house2
+      ctx.fillRect(px, py, s, 4) // borde superior
+      ctx.fillRect(px, py, 3, s) // borde izquierdo
+      ctx.fillRect(px + s - 3, py, 3, s) // borde derecho
+      // Indicador visual de puerta
+      ctx.fillStyle = GBC.house3
+      ctx.beginPath(); ctx.arc(px + s/2, py + s * 0.4, s * 0.22, 0, Math.PI * 2); ctx.fill()
+      ctx.fillStyle = '#fff'
+      ctx.font = `bold ${s * 0.3}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillText('▲', px + s/2, py + s * 0.4)
+      break
+    }
     case TILES.WALL: {
       ctx.fillStyle = GBC.wall1; ctx.fillRect(px, py, s, s)
       ctx.fillStyle = GBC.wall2
@@ -220,6 +235,7 @@ function MainMap() {
   const [walkFrame, setWalkFrame]   = useState(0)
   const [isMoving, setIsMoving]     = useState(false)
   const [dialog, setDialog]         = useState(null)
+  const [insideHouse, setInsideHouse] = useState(null) // null | { houseId, npcs }
 
   // Mascota Pikachu-style: historial de posiciones
   const PET_DELAY = 4
@@ -585,6 +601,21 @@ function MainMap() {
         const { px, py, visible } = inView(drawX, drawY)
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
+        
+        ctx.fillStyle = defeated ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.2)'
+        ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-4, TS*0.32, 4, 0, 0, Math.PI*2); ctx.fill()
+        
+        if (npcImg && (npcImg.width > 0 || npcImg.naturalWidth > 0)) {
+          const sw = npcImg.width || npcImg.naturalWidth
+          const frameW = sw / 4
+          // Animar frames del estudiante
+          const animFrame = Math.floor(tick / 12) % 4
+          const frameH = (npcImg.height || npcImg.naturalHeight) * 0.45
+          const drawW = TS * 0.85; const drawH = TS * 1.4
+          ctx.globalAlpha = defeated ? 0.35 : 1
+          ctx.drawImage(npcImg, animFrame * frameW, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
+          ctx.globalAlpha = 1
+        }
         // Sombra
         ctx.fillStyle = 'rgba(0,0,0,0.2)'
         ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
@@ -641,16 +672,10 @@ function MainMap() {
           const hasBossSprite = bossImg && (bossImg.width > 0 || bossImg.naturalWidth > 0)
           if (hasBossSprite) {
             const sw = bossImg.width || bossImg.naturalWidth
-            const sh = bossImg.height || bossImg.naturalHeight
-            if (sw > 0 && sh > 0) {
-              const frameW = sw / 4
-              const frameH = sh / 2
-              const drawW = TS * 1.1 // Un poco más grande para ser jefe
-              const drawH = TS * 1.7
-              const ox = (TS - drawW) / 2
-              const oy = TS - drawH
-              ctx.drawImage(bossImg, 0, 0, frameW, frameH, px + ox, py + oy, drawW, drawH)
-            }
+            const frameW = sw / 4
+            const frameH = (bossImg.height || bossImg.naturalHeight) * 0.45
+            const drawW = TS * 1.15; const drawH = TS * 1.8
+            ctx.drawImage(bossImg, 0, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
           } else {
             drawEmoji(ctx, teacherEmoji, px + TS/2, py + TS/2, TS * 0.9)
           }
@@ -667,19 +692,25 @@ function MainMap() {
         // Seleccionar sprite de mascota correcto
         const petType = pl.inventory?.equippedPet || pl.pet?.type?.toLowerCase() || pl.pet?.id?.toLowerCase() || ''
         let petSpriteImg = null
+        const isFlying = petType.includes('buho') || petType.includes('búho') || petType.includes('owl') || petType.includes('periquit') || petType.includes('colib')
         if (petType.includes('perrit') || petType.includes('dog')) petSpriteImg = petDogImgRef.current
         else if (petType.includes('gatit') || petType.includes('cat')) petSpriteImg = petCatImgRef.current
         else if (petType.includes('zorrit') || petType.includes('fox')) petSpriteImg = petFoxImgRef.current
-        else if (petType.includes('buho') || petType.includes('búho') || petType.includes('owl')) petSpriteImg = petOwlImgRef.current
+        else if (isFlying) petSpriteImg = petOwlImgRef.current
         else petSpriteImg = petDogImgRef.current // Default
 
         if (petSpriteImg && (petSpriteImg.width > 0 || petSpriteImg.naturalWidth > 0)) {
           const sw = petSpriteImg.width || petSpriteImg.naturalWidth
           const sh = petSpriteImg.height || petSpriteImg.naturalHeight
-          const frameW = sw / 4; const frameH = sh
-          const drawW = TS * 0.7; const drawH = TS * 0.7
+          const frameW = sw / 4
+          // Para mascotas voladoras: frame fijo y bobbeo vertical fuerte
+          // Para cuadrúpedos: ciclar frames de caminar
+          const petAnimFrame = isFlying ? Math.floor(tick / 8) % 4 : Math.floor(tick / 6) % 4
+          const petFrameH = sh * 0.5 // El animal ocupa el 50% superior del frame
+          const flyBob = isFlying ? Math.sin(tick * 0.15) * 8 : 0
+          const drawW = TS * 0.72; const drawH = TS * 0.72
           const ox = (TS - drawW) / 2
-          ctx.drawImage(petSpriteImg, 0, 0, frameW, frameH, petPx + ox, petPy + TS - drawH + bob, drawW, drawH)
+          ctx.drawImage(petSpriteImg, petAnimFrame * frameW, 0, frameW, petFrameH, petPx + ox, petPy + TS - drawH + bob + flyBob, drawW, drawH)
         }
       }
 
