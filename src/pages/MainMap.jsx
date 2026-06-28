@@ -99,7 +99,7 @@ function MainMap() {
   const mapGrid = useMemo(() => generateMap(player?.currentMap || 'pueblo_inicial', MAPS[player?.currentMap || 'pueblo_inicial'].width, MAPS[player?.currentMap || 'pueblo_inicial'].height), [player?.currentMap])
 
   // Validar si es obstáculo
-  const isObstacle = (nx, ny, mapName) => {
+  const isObstacle = useCallback((nx, ny, mapName) => {
     const mapInfo = MAPS[mapName];
     if (nx < 0 || ny < 0 || nx >= mapInfo.width || ny >= mapInfo.height) return true;
     
@@ -107,7 +107,22 @@ function MainMap() {
     if (SOLID_TILES.includes(tileId)) return true;
     
     return false;
-  }
+  }, [mapGrid]);
+
+  // Anti-stuck: Si al cargar el mapa el jugador está en un obstáculo (ej. árboles antiguos), moverlo al centro
+  useEffect(() => {
+    if (player && mapGrid.length > 0) {
+      if (isObstacle(pos.x, pos.y, player.currentMap)) {
+        const cx = Math.floor(MAPS[player.currentMap].width / 2);
+        const cy = Math.floor(MAPS[player.currentMap].height / 2);
+        setPos({ x: cx, y: cy });
+        setPetPos({ x: cx, y: cy - 1 });
+        posHistory.current = [{ x: cx, y: cy - 1 }];
+        savePosition({ x: cx, y: cy }, player.currentMap);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player?.currentMap, mapGrid]);
 
   // Interacciones
   const handleInteraction = (nx, ny, mapName) => {
