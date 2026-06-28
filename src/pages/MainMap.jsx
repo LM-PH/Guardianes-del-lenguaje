@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useCallback, useRef, useContext } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
+import { generateMap, TILES, SOLID_TILES } from '../utils/MapEngine'
 
 const TILE_SIZE = 24;
 
 // Definición de mapas
 const MAPS = {
-  pueblo_inicial: { width: 15, height: 15, color: '#8bc34a', title: 'Pueblo Inicial' },
-  mapa_espanol: { width: 50, height: 50, color: '#e57373', title: 'Mapa de Español' },
-  mapa_artes: { width: 50, height: 50, color: '#64b5f6', title: 'Mapa de Artes' },
-  mapa_ingles: { width: 50, height: 50, color: '#ffb74d', title: 'Mapa de Inglés' },
-  ciudad_maestros: { width: 50, height: 50, color: '#9e9e9e', title: 'Ciudad de los Maestros' },
+  pueblo_inicial: { width: 50, height: 50, color: '#8bc34a', title: 'Pueblo Inicial' },
+  mapa_espanol: { width: 100, height: 100, color: '#e57373', title: 'Mapa de Español' },
+  mapa_artes: { width: 100, height: 100, color: '#64b5f6', title: 'Mapa de Artes' },
+  mapa_ingles: { width: 100, height: 100, color: '#ffb74d', title: 'Mapa de Inglés' },
+  ciudad_maestros: { width: 100, height: 100, color: '#9e9e9e', title: 'Ciudad de los Maestros' },
 }
 
 function MainMap() {
@@ -20,10 +21,10 @@ function MainMap() {
   const [npcs, setNpcs] = useState([])
   const [currentMapData, setCurrentMapData] = useState(MAPS.pueblo_inicial)
   
-  const [pos, setPos] = useState({ x: 5, y: 5 })
+  const [pos, setPos] = useState({ x: 25, y: 25 })
   const [dir, setDir] = useState('down')
-  const [petPos, setPetPos] = useState({ x: 5, y: 4 })
-  const posHistory = useRef([{ x: 5, y: 4 }])
+  const [petPos, setPetPos] = useState({ x: 25, y: 24 })
+  const posHistory = useRef([{ x: 25, y: 24 }])
   
   const [dialog, setDialog] = useState(null)
   const [battleNpc, setBattleNpc] = useState(null)
@@ -94,34 +95,34 @@ function MainMap() {
     }, 1000)
   }, [userId, authenticatedFetch])
 
+  // Generar grid local usando MapEngine (Memorizado para no regenerar en cada render)
+  const mapGrid = useMemo(() => generateMap(player?.currentMap || 'pueblo_inicial', MAPS[player?.currentMap || 'pueblo_inicial'].width, MAPS[player?.currentMap || 'pueblo_inicial'].height), [player?.currentMap])
+
   // Validar si es obstáculo
   const isObstacle = (nx, ny, mapName) => {
     const mapInfo = MAPS[mapName];
     if (nx < 0 || ny < 0 || nx >= mapInfo.width || ny >= mapInfo.height) return true;
-    if (nx === 0 || ny === 0 || nx === mapInfo.width - 1 || ny === mapInfo.height - 1) {
-       if (mapName === 'pueblo_inicial') {
-         // ES (0,7), AR (14,7), EN (7,14), Ciudad Maestros (7,0)
-         if ((nx === 0 && ny === 7) || (nx === 14 && ny === 7) || (nx === 7 && ny === 14) || (nx === 7 && ny === 0)) return false;
-       }
-       return true; 
-    }
+    
+    const tileId = mapGrid[ny]?.[nx];
+    if (SOLID_TILES.includes(tileId)) return true;
+    
     return false;
   }
 
   // Interacciones
   const handleInteraction = (nx, ny, mapName) => {
-    if (mapName === 'pueblo_inicial' && nx === 7 && ny === 7) {
+    if (mapName === 'pueblo_inicial' && nx === 25 && ny === 25) {
       setDialog({ text: "Bibliotecario Sabio: Bienvenido al Reino de los Lenguajes. Reúne las 3 insignias para poder viajar al norte, a la Ciudad de los Maestros.", type: 'info' })
       return true;
     }
 
     if (mapName === 'pueblo_inicial') {
-      if (nx === 0 && ny === 7) { transitionTo('mapa_espanol', 2, 2); return true; }
-      if (nx === 14 && ny === 7) { transitionTo('mapa_artes', 2, 2); return true; }
-      if (nx === 7 && ny === 14) { transitionTo('mapa_ingles', 2, 2); return true; }
-      if (nx === 7 && ny === 0) { 
+      if (nx === 0 && ny === 25) { transitionTo('mapa_espanol', 50, 98); return true; }
+      if (nx === 49 && ny === 25) { transitionTo('mapa_artes', 50, 98); return true; }
+      if (nx === 25 && ny === 49) { transitionTo('mapa_ingles', 50, 98); return true; }
+      if (nx === 25 && ny === 0) { 
         if (player.unlockedFinalMap || (player.badges.espanol && player.badges.artes && player.badges.ingles)) {
-          transitionTo('ciudad_maestros', 2, 2);
+          transitionTo('ciudad_maestros', 50, 98);
         } else {
           setDialog({ text: "La puerta a la Ciudad de los Maestros está sellada. Necesitas las 3 Insignias para pasar.", type: 'info' })
         }
@@ -130,7 +131,7 @@ function MainMap() {
     }
 
     // Interacción con Mercader
-    if (mapName === 'pueblo_inicial' && nx === 10 && ny === 25) {
+    if (mapName === 'pueblo_inicial' && nx === 27 && ny === 25) {
       navigate('/shop');
       return true;
     }
@@ -151,15 +152,16 @@ function MainMap() {
     }
 
     // Transición a Ciudad de los Maestros desde Pueblo Inicial
-    if (mapName === 'pueblo_inicial' && nx === 25 && ny === 48) {
+    if (mapName === 'pueblo_inicial' && nx === 25 && ny === 0) {
       if (player.badges.espanol && player.badges.artes && player.badges.ingles) {
         setDialog({
           type: 'info',
           text: 'Las tres insignias han abierto el camino hacia la Ciudad de los Maestros.',
           onClose: () => {
-            savePosition(25, 2, 'ciudad_maestros');
-            setMapName('ciudad_maestros');
-            setPos({ x: 25, y: 2 });
+            savePosition(50, 98, 'ciudad_maestros');
+            setPlayer(p => ({ ...p, currentMap: 'ciudad_maestros' }));
+            setCurrentMapData(MAPS['ciudad_maestros']);
+            setPos({ x: 50, y: 98 });
           }
         });
       } else {
@@ -172,7 +174,7 @@ function MainMap() {
     }
 
     // Interacción con Maestros
-    if (Math.abs(25 - nx) <= 1 && Math.abs(25 - ny) <= 1) {
+    if (Math.abs(50 - nx) <= 1 && Math.abs(50 - ny) <= 1) {
       if (mapName === 'mapa_espanol' || mapName === 'mapa_artes' || mapName === 'mapa_ingles' || mapName === 'ciudad_maestros') {
         let subject = '';
         let teacherId = '';
@@ -370,71 +372,62 @@ function MainMap() {
             transition: 'left 0.2s linear, top 0.2s linear'
           }}>
 
-            {/* Renderizar paredes del perímetro (simplificado) */}
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: TILE_SIZE, backgroundColor: '#333' }}></div>
-            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: TILE_SIZE, backgroundColor: '#333' }}></div>
-            <div style={{ position: 'absolute', top: 0, left: 0, width: TILE_SIZE, height: '100%', backgroundColor: '#333' }}></div>
-            <div style={{ position: 'absolute', top: 0, right: 0, width: TILE_SIZE, height: '100%', backgroundColor: '#333' }}></div>
+            {/* Renderizar Grid Generado */}
+            {mapGrid.map((row, y) => row.map((tileId, x) => {
+              // Optimizacion: Solo renderizar si está cerca de la cámara (culling)
+              if (
+                x * TILE_SIZE < camX - TILE_SIZE * 2 ||
+                x * TILE_SIZE > camX + viewportW + TILE_SIZE * 2 ||
+                y * TILE_SIZE < camY - TILE_SIZE * 2 ||
+                y * TILE_SIZE > camY + viewportH + TILE_SIZE * 2
+              ) return null;
+
+              let tileClass = 'tile tile-grass';
+              if (tileId === TILES.WATER) tileClass = 'tile tile-water';
+              if (tileId === TILES.TREE) tileClass = 'tile tile-tree';
+              if (tileId === TILES.PATH) tileClass = 'tile tile-path';
+              if (tileId === TILES.HOUSE) tileClass = 'tile tile-house';
+              if (tileId === TILES.WALL) tileClass = 'tile tile-wall';
+              if (tileId === TILES.FLOOR) tileClass = 'tile tile-floor';
+              if (tileId === TILES.FLOWER) tileClass = 'tile tile-flower';
+
+              return (
+                <div key={`${x}-${y}`} className={tileClass} style={{ left: x * TILE_SIZE, top: y * TILE_SIZE }}></div>
+              );
+            }))}
 
             {/* Salidas en Pueblo Inicial */}
             {player.currentMap === 'pueblo_inicial' && (
               <>
-                <div style={{ position: 'absolute', top: 7*TILE_SIZE, left: 0, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#e64a4a', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center' }}>ES</div>
-                <div style={{ position: 'absolute', top: 7*TILE_SIZE, left: 14*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#4a90e2', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center' }}>AR</div>
-                <div style={{ position: 'absolute', top: 14*TILE_SIZE, left: 7*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#f5a623', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center' }}>EN</div>
+                <div style={{ position: 'absolute', top: 25*TILE_SIZE, left: 0, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#e64a4a', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center', zIndex: 1 }}>ES</div>
+                <div style={{ position: 'absolute', top: 25*TILE_SIZE, left: 49*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#4a90e2', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center', zIndex: 1 }}>AR</div>
+                <div style={{ position: 'absolute', top: 49*TILE_SIZE, left: 25*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#f5a623', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center', zIndex: 1 }}>EN</div>
                 
                 {/* Salida Norte a Ciudad Maestros */}
-                <div style={{ position: 'absolute', top: 0, left: 7*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#9e9e9e', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center', border: (player.badges.espanol && player.badges.artes && player.badges.ingles) ? '2px solid gold' : '2px solid black' }}>👑</div>
+                <div style={{ position: 'absolute', top: 0, left: 25*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#9e9e9e', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center', border: (player.badges.espanol && player.badges.artes && player.badges.ingles) ? '2px solid gold' : '2px solid black', zIndex: 1 }}>👑</div>
                 
                 {/* NPC Sabio */}
-                <div style={{ position: 'absolute', top: 7*TILE_SIZE, left: 7*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#ab47bc', display: 'flex', alignItems: 'center', justifyContent:'center' }}>🧙</div>
+                <div style={{ position: 'absolute', top: 25*TILE_SIZE, left: 25*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#ab47bc', display: 'flex', alignItems: 'center', justifyContent:'center', zIndex: 2 }}>🧙</div>
 
                 {/* NPC Mercader */}
-                <div style={{ position: 'absolute', top: 25*TILE_SIZE, left: 10*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#795548', display: 'flex', alignItems: 'center', justifyContent:'center', fontSize: '12px' }}>🏪</div>
+                <div style={{ position: 'absolute', top: 25*TILE_SIZE, left: 27*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#795548', display: 'flex', alignItems: 'center', justifyContent:'center', fontSize: '12px', zIndex: 2 }}>🏪</div>
               </>
             )}
 
             {/* Cofres Secretos */}
             {player.currentMap !== 'pueblo_inicial' && !player.inventory?.openedChests?.includes(`${player.currentMap}_chest_1`) && (
-              <div style={{ position: 'absolute', top: 5*TILE_SIZE, left: 5*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#ffeb3b', display: 'flex', alignItems: 'center', justifyContent:'center', fontSize: '12px' }}>🧰</div>
+              <div style={{ position: 'absolute', top: 5*TILE_SIZE, left: 5*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#ffeb3b', display: 'flex', alignItems: 'center', justifyContent:'center', fontSize: '12px', zIndex: 2 }}>🧰</div>
             )}
 
             {/* Maestro en Escuelas */}
             {player.currentMap !== 'pueblo_inicial' && (
               <div style={{ 
                 position: 'absolute', 
-                top: Math.floor(currentMapData.height/2)*TILE_SIZE, 
-                left: Math.floor(currentMapData.width/2)*TILE_SIZE, 
+                top: 50*TILE_SIZE, 
+                left: 50*TILE_SIZE, 
                 width: TILE_SIZE, height: TILE_SIZE, 
-                backgroundColor: '#fbc02d', display: 'flex', alignItems: 'center', justifyContent:'center', border: '2px solid #000'
+                backgroundColor: '#fbc02d', display: 'flex', alignItems: 'center', justifyContent:'center', border: '2px solid #000', zIndex: 2
               }}>👑</div>
-            )}
-
-            {/* NPC Boss */}
-            {(player.currentMap === 'mapa_espanol' || player.currentMap === 'mapa_artes' || player.currentMap === 'mapa_ingles') && (
-              <>
-                {/* 5x5 School Area */}
-                {(() => {
-                  const tiles = [];
-                  const schoolColors = {
-                    'mapa_espanol': '#8d6e63',
-                    'mapa_artes': '#e91e63',
-                    'mapa_ingles': '#1e88e5'
-                  };
-                  const color = schoolColors[player.currentMap];
-                  for(let y=23; y<=27; y++) {
-                    for(let x=23; x<=27; x++) {
-                      if (x===25 && y===25) continue; // Centro reservado
-                      tiles.push(
-                        <div key={`school-${x}-${y}`} style={{ position: 'absolute', top: y*TILE_SIZE, left: x*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: color, opacity: 0.3 }}></div>
-                      );
-                    }
-                  }
-                  return tiles;
-                })()}
-                {/* Boss Sprite at 25, 25 */}
-                <div style={{ position: 'absolute', top: 25*TILE_SIZE, left: 25*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#ffca28', display: 'flex', alignItems: 'center', justifyContent:'center', border: '2px solid #000' }}>👑</div>
-              </>
             )}
             
             {/* NPCs Dinámicos */}
