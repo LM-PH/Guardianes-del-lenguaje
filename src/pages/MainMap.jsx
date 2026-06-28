@@ -578,9 +578,9 @@ function MainMap() {
           if (libImg && (libImg.width > 0 || libImg.naturalWidth > 0)) {
             const sw = libImg.width || libImg.naturalWidth
             const sh = libImg.height || libImg.naturalHeight
-            // Cada frame ocupa sw/4 de ancho, sh/4 de alto (el personaje está en la parte superior)
+            // Cada frame ocupa sw/4 de ancho, sh*0.45 de alto
             const frameW = sw / 4
-            const frameH = sh / 4
+            const frameH = sh * 0.45
             const drawW = TS * 1.0; const drawH = TS * 1.6
             ctx.drawImage(libImg, 0, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
           }
@@ -634,7 +634,7 @@ function MainMap() {
           const sw = npcImg.width || npcImg.naturalWidth
           const sh = npcImg.height || npcImg.naturalHeight
           const frameW = sw / 4
-          const frameH = sh / 4
+          const frameH = sh * 0.45
           const animFrame = Math.floor(tick / 12) % 4
           const drawW = TS * 0.9; const drawH = TS * 1.5
           ctx.globalAlpha = defeated ? 0.35 : 1
@@ -678,7 +678,7 @@ function MainMap() {
           if (hasBossSprite) {
             const sw = bossImg.width || bossImg.naturalWidth
             const frameW = sw / 4
-            const frameH = (bossImg.height || bossImg.naturalHeight) / 4
+            const frameH = (bossImg.height || bossImg.naturalHeight) * 0.45
             const drawW = TS * 1.15; const drawH = TS * 1.8
             ctx.drawImage(bossImg, 0, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
           } else {
@@ -711,7 +711,7 @@ function MainMap() {
           // Para mascotas voladoras: frame fijo y bobbeo vertical fuerte
           // Para cuadrúpedos: ciclar frames de caminar
           const petAnimFrame = isFlying ? Math.floor(tick / 8) % 4 : Math.floor(tick / 6) % 4
-          const petFrameH = sh / 4
+          const petFrameH = sh * 0.45
           const flyBob = isFlying ? Math.sin(tick * 0.15) * 8 : 0
           const drawW = TS * 0.72; const drawH = TS * 0.72
           const ox = (TS - drawW) / 2
@@ -734,7 +734,7 @@ function MainMap() {
           const sh = spriteImg.height || spriteImg.naturalHeight
           if (sw > 0 && sh > 0) {
             const frameW = sw / 4
-            const frameH = sh / 4
+            const frameH = sh / 2
             const FRAMES = {
               down:  [{ col: 0, row: 0 }, { col: 1, row: 0 }],
               up:    [{ col: 2, row: 0 }, { col: 3, row: 0 }],
@@ -746,10 +746,7 @@ function MainMap() {
             const drawH = TS * 1.55
             const ox = (TS - drawW) / 2
             const oy = TS - drawH
-            // El jugador también es un sprite de 1 fila de 4 frames, la config de 'row: 1' podría no aplicar 
-            // si el sprite del jugador es como los demás (1x4). Ajustaremos el row a 0 por si acaso.
-            const targetRow = (frameH === sh / 4) ? 0 : frame.row; 
-            ctx.drawImage(spriteImg, frame.col * frameW, targetRow * frameH, frameW, frameH,
+            ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
               playerPx + ox, playerPy + oy, drawW, drawH)
           } else {
             drawEmoji(ctx, pl.character?.gender === 'girl' ? '👧' : '👦', playerPx + TS/2, playerPy + TS/2, TS * 0.88)
