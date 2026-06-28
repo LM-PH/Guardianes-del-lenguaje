@@ -194,14 +194,13 @@ function drawEmoji(ctx, emoji, px, py, size) {
 
 // ─── Hook imagen (para el sprite sheet) ───────────────────────────────────────
 function useImage(src) {
-  const [img, setImg] = useState(null)
+  const imgRef = useRef(null)
   useEffect(() => {
     const i = new Image()
     i.src = src
-    i.onload = () => setImg(i)
-    i.onerror = () => setImg(null)
+    i.onload = () => { imgRef.current = i }
   }, [src])
-  return img
+  return imgRef
 }
 
 // ─── Componente Principal ──────────────────────────────────────────────────────
@@ -231,8 +230,8 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets con fondo transparente
-  const boyImg  = useImage('/sprites/boy.png')
-  const girlImg = useImage('/sprites/girl.png')
+  const girlImgRef = useImage('/sprites/girl.png')
+  const boyImgRef = useImage('/sprites/boy.png')
 
   // ─── Cargar jugador ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -547,7 +546,7 @@ function MainMap() {
         }
         const hash = (npc.name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
         const isGirl = Math.abs(hash) % 2 !== 0;
-        const npcImg = isGirl ? girlImg : boyImg;
+        const npcImg = isGirl ? girlImgRef.current : boyImgRef.current;
         const { px, py, visible } = inView(drawX, drawY)
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
@@ -601,7 +600,7 @@ function MainMap() {
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-2, TS*0.38, 5, 0, 0, Math.PI*2); ctx.fill()
           const hashBoss = cMap.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
           const bossIsGirl = Math.abs(hashBoss) % 2 !== 0;
-          const bossImg = bossIsGirl ? girlImg : boyImg;
+          const bossImg = bossIsGirl ? girlImgRef.current : boyImgRef.current;
 
           const hasBossSprite = bossImg && (bossImg.width > 0 || bossImg.naturalWidth > 0)
           if (hasBossSprite) {
@@ -641,7 +640,7 @@ function MainMap() {
 
         // Ignoramos skin de emoji y usamos el sprite sheet
         // (Podríamos borrar esta rama si ya no usaremos la skin de emoji en el mapa principal)
-        const spriteImg = pl.character?.gender === 'girl' ? girlImg : boyImg
+        const spriteImg = pl.character?.gender === 'girl' ? girlImgRef.current : boyImgRef.current
         const hasSprite = spriteImg && (spriteImg.width > 0 || spriteImg.naturalWidth > 0)
         if (hasSprite) {
           const sw = spriteImg.width || spriteImg.naturalWidth

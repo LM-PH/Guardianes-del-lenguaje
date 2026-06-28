@@ -53,6 +53,7 @@ body {
   margin: 1rem;
   border-radius: var(--border-radius-retro);
   box-shadow: 4px 4px 0px var(--gbc-gray);
+  color: var(--gbc-black);
 }
 
 /* Botones retro */
