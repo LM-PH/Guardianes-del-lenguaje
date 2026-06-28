@@ -121,7 +121,7 @@ function Shop() {
         {/* Mostrador y Vendedor */}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', position: 'relative' }}>
           {/* Vendedor animado */}
-          <div className="sprite-walk-front" style={{ width: '80px', height: '80px', backgroundImage: `url('/sprites/girl.png')`, backgroundSize: '400% 200%', imageRendering: 'pixelated', position: 'relative', zIndex: 1, marginBottom: '20px' }}></div>
+          <div className="sprite-walk-front" style={{ width: '80px', height: '80px', backgroundImage: `url('/sprites/shopkeeper.png')`, backgroundSize: '400% 100%', imageRendering: 'pixelated', position: 'relative', zIndex: 1, marginBottom: '20px' }}></div>
           {/* El Mostrador */}
           <div style={{ position: 'absolute', bottom: '0', width: '200px', height: '40px', backgroundColor: '#8d6e63', borderTop: '4px solid #5d4037', borderLeft: '4px solid #5d4037', borderRight: '4px solid #5d4037', zIndex: 2, borderTopLeftRadius: '4px', borderTopRightRadius: '4px' }}></div>
         </div>

@@ -229,9 +229,20 @@ function MainMap() {
 
   const saveTimeout = useRef(null)
 
-  // Sprite sheets con fondo transparente
+  // Sprite sheets principales
   const girlImgRef = useImage('/sprites/girl.png')
   const boyImgRef = useImage('/sprites/boy.png')
+  // Sprites NPC
+  const librarianImgRef = useImage('/sprites/librarian.png')
+  const grandmasterImgRef = useImage('/sprites/grandmaster.png')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png')
+  const studentImgRef = useImage('/sprites/student.png')
+  const shopBuildingImgRef = useImage('/sprites/shop_building.png')
+  // Sprites Mascotas
+  const petDogImgRef = useImage('/sprites/pet_perrito.png')
+  const petCatImgRef = useImage('/sprites/pet_gatito.png')
+  const petFoxImgRef = useImage('/sprites/pet_zorrito.png')
+  const petOwlImgRef = useImage('/sprites/pet_buho.png')
 
   // ─── Cargar jugador ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -569,7 +580,8 @@ function MainMap() {
         }
         const hash = (npc.name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
         const isGirl = Math.abs(hash) % 2 !== 0;
-        const npcImg = isGirl ? girlImgRef.current : boyImgRef.current;
+        // Usar sprite de estudiante
+        const npcImg = studentImgRef.current || (isGirl ? girlImgRef.current : boyImgRef.current);
         const { px, py, visible } = inView(drawX, drawY)
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
@@ -623,7 +635,8 @@ function MainMap() {
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-2, TS*0.38, 5, 0, 0, Math.PI*2); ctx.fill()
           const hashBoss = cMap.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
           const bossIsGirl = Math.abs(hashBoss) % 2 !== 0;
-          const bossImg = bossIsGirl ? girlImgRef.current : boyImgRef.current;
+          // Usar sprite de gran maestro para el boss
+          const bossImg = grandmasterImgRef.current || (bossIsGirl ? girlImgRef.current : boyImgRef.current);
 
           const hasBossSprite = bossImg && (bossImg.width > 0 || bossImg.naturalWidth > 0)
           if (hasBossSprite) {
@@ -650,17 +663,23 @@ function MainMap() {
       if (petVis) {
         ctx.fillStyle = 'rgba(0,0,0,0.18)'
         ctx.beginPath(); ctx.ellipse(petPx+TS/2, petPy+TS-3, TS*0.28, 3, 0, 0, Math.PI*2); ctx.fill()
-        
-        // Usamos el sprite escalado como mascota temporal en vez de emoji
-        const pImg = boyImgRef.current
-        if (pImg && (pImg.width > 0 || pImg.naturalWidth > 0)) {
-           const frameW = (pImg.width || pImg.naturalWidth) / 4;
-           const frameH = (pImg.height || pImg.naturalHeight) / 2;
-           const drawW = TS * 0.55; 
-           const drawH = TS * 0.85;
-           const ox = (TS - drawW) / 2;
-           const oy = TS - drawH;
-           ctx.drawImage(pImg, 0, 0, frameW, frameH, petPx + ox, petPy + oy + bob, drawW, drawH);
+
+        // Seleccionar sprite de mascota correcto
+        const petType = pl.inventory?.equippedPet || pl.pet?.type?.toLowerCase() || pl.pet?.id?.toLowerCase() || ''
+        let petSpriteImg = null
+        if (petType.includes('perrit') || petType.includes('dog')) petSpriteImg = petDogImgRef.current
+        else if (petType.includes('gatit') || petType.includes('cat')) petSpriteImg = petCatImgRef.current
+        else if (petType.includes('zorrit') || petType.includes('fox')) petSpriteImg = petFoxImgRef.current
+        else if (petType.includes('buho') || petType.includes('búho') || petType.includes('owl')) petSpriteImg = petOwlImgRef.current
+        else petSpriteImg = petDogImgRef.current // Default
+
+        if (petSpriteImg && (petSpriteImg.width > 0 || petSpriteImg.naturalWidth > 0)) {
+          const sw = petSpriteImg.width || petSpriteImg.naturalWidth
+          const sh = petSpriteImg.height || petSpriteImg.naturalHeight
+          const frameW = sw / 4; const frameH = sh
+          const drawW = TS * 0.7; const drawH = TS * 0.7
+          const ox = (TS - drawW) / 2
+          ctx.drawImage(petSpriteImg, 0, 0, frameW, frameH, petPx + ox, petPy + TS - drawH + bob, drawW, drawH)
         }
       }
 
