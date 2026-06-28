@@ -28,9 +28,78 @@ const SKIN_EMOJI = {
   skin_sabio:        '🧙',
 }
 const PET_EMOJI = {
+  // Shop pets
   pet_panda:   '🐼',
   pet_dragon:  '🐉',
   pet_colibri: '🐦',
+  // Starting pets
+  perrito:     '🐶',
+  gatito:      '🐱',
+  zorrito:     '🦊',
+  conejito:    '🐰',
+  'búho':      '🦉',
+  buho:        '🦉',
+  tortuguita:  '🐢',
+  periquito:   '🦜',
+}
+
+// Emojis de estudiantes (personas reales)
+const STUDENT_EMOJIS = ['👦','👧','👨','👩','🧑','👱‍♂️','👱‍♀️','🧔','🧕','👲','🙋‍♂️','🙋‍♀️']
+const getStudentEmoji = (npcId) => {
+  const hash = (npcId || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0)
+  return STUDENT_EMOJIS[Math.abs(hash) % STUDENT_EMOJIS.length]
+}
+
+// Emoji de maestro según mapa
+const TEACHER_EMOJI = {
+  mapa_espanol:    '👩‍🏫',
+  mapa_artes:      '🧑‍🎨',
+  mapa_ingles:     '👨‍🏫',
+  ciudad_maestros: '🧙‍♂️',
+}
+
+// ─── Quitar fondo blanco del sprite (transparencia dinámica) ──────────────────
+function removeWhiteBg(img) {
+  try {
+    const c = document.createElement('canvas')
+    c.width = img.naturalWidth || img.width
+    c.height = img.naturalHeight || img.height
+    if (c.width === 0 || c.height === 0) return null
+    const ctx = c.getContext('2d')
+    ctx.drawImage(img, 0, 0)
+    const id = ctx.getImageData(0, 0, c.width, c.height)
+    const d = id.data
+
+    // Tomar el primer pixel (0,0) como color de fondo a remover
+    const rBg = d[0], gBg = d[1], bBg = d[2], aBg = d[3]
+
+    if (aBg > 0) {
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i], g = d[i+1], b = d[i+2]
+        // Distancia euclidiana de color
+        const dist = Math.sqrt((r - rBg) ** 2 + (g - gBg) ** 2 + (b - bBg) ** 2)
+        if (dist < 40) {
+          d[i+3] = 0 // Transparentar
+        }
+      }
+      ctx.putImageData(id, 0, 0)
+    }
+    return c
+  } catch (e) {
+    console.error("Error transparency filter:", e)
+    return null // Retorna null para usar emoji fallback en vez de imagen con fondo blanco
+  }
+}
+
+function useSpriteImage(src) {
+  const [cvs, setCvs] = useState(null)
+  useEffect(() => {
+    const img = new Image()
+    img.src = src
+    img.onload  = () => setCvs(removeWhiteBg(img))
+    img.onerror = () => setCvs(null)
+  }, [src])
+  return cvs
 }
 
 // ─── Dibujado de tiles (programático, sin imágenes externas) ─────────────────
@@ -203,9 +272,9 @@ function MainMap() {
 
   const saveTimeout = useRef(null)
 
-  // Sprite sheets (fallback si no carga → emoji)
-  const boyImg  = useImage('/sprites/boy.png')
-  const girlImg = useImage('/sprites/girl.png')
+  // Sprite sheets con fondo transparente
+  const boyImg  = useSpriteImage('/sprites/boy.png')
+  const girlImg = useSpriteImage('/sprites/girl.png')
 
   // ─── Cargar jugador ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -316,12 +385,20 @@ function MainMap() {
     if (cMap !== 'pueblo_inicial') {
       const cx = Math.floor(MAPS[cMap].width  / 2)
       const cy = Math.floor(MAPS[cMap].height / 2)
+
+      // Salida sur de vuelta al pueblo
+      if (ny >= MAPS[cMap].height - 1) {
+        transitionTo('pueblo_inicial', Math.floor(MAPS.pueblo_inicial.width/2), Math.floor(MAPS.pueblo_inicial.height/2))
+        return true
+      }
+
       if (nx === cx && ny === cy) {
         const def = npcList.filter(n => pl.completedBattles?.includes(n.npcId)).length
         if (def >= 35 && pl.xp >= 700) {
-          setDialog({ text: '¡Maestro: Has demostrado tu valía! ¡Prepárate!', type: 'info' })
+          const teacherName = cMap === 'ciudad_maestros' ? 'Gran Maestro' : 'Maestro'
+          setDialog({ text: `¡${teacherName}: Has demostrado tu valía! ¡Prepárate para el reto final!`, type: 'info' })
         } else {
-          setDialog({ text: `Maestro: Necesitas 35 victorias (tienes ${def}) y 700 XP.`, type: 'info' })
+          setDialog({ text: `Maestro: Necesitas 35 victorias (tienes ${def}) y 700 XP (tienes ${pl.xp}).`, type: 'info' })
         }
         return true
       }
@@ -475,38 +552,82 @@ function MainMap() {
         })
       }
 
-      // ── NPCs dinámicos ──
+      // ── Salida sur en sub-mapas de vuelta al pueblo ──
+      if (cMap !== 'pueblo_inicial') {
+        const portalX = Math.floor(info.width / 2)
+        const portalY = info.height - 1
+        const { px, py, visible } = inView(portalX, portalY)
+        if (visible) {
+          ctx.fillStyle = '#c0392b'
+          ctx.fillRect(px - TS, py, TS * 3, TS)
+          ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3
+          ctx.strokeRect(px - TS + 2, py + 2, TS * 3 - 4, TS - 4)
+          ctx.fillStyle = '#fff'
+          ctx.font = `bold ${TS * 0.33}px monospace`
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+          ctx.fillText('🚪 SALIDA AL PUEBLO', px + TS/2, py + TS/2)
+        }
+      }
+
+      // ── NPCs dinámicos (estudiantes como personas) ──
       npcList.forEach(npc => {
-        const { px, py, visible } = inView(npc.x, npc.y)
+        // Si el NPC está en un tile sólido (árbol), buscar el tile libre más cercano
+        let drawX = npc.x, drawY = npc.y
+        if (mg[npc.y]?.[npc.x] !== undefined && SOLID_TILES.includes(mg[npc.y]?.[npc.x])) {
+          // Buscar tile libre en espiral
+          outer: for (let r = 1; r <= 5; r++) {
+            for (let dy2 = -r; dy2 <= r; dy2++) {
+              for (let dx2 = -r; dx2 <= r; dx2++) {
+                const tx2 = npc.x + dx2, ty2 = npc.y + dy2
+                if (tx2 >= 0 && ty2 >= 0 && tx2 < info.width && ty2 < info.height &&
+                    !SOLID_TILES.includes(mg[ty2]?.[tx2])) {
+                  drawX = tx2; drawY = ty2; break outer
+                }
+              }
+            }
+          }
+        }
+        const { px, py, visible } = inView(drawX, drawY)
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
+        // Sombra
         ctx.fillStyle = 'rgba(0,0,0,0.2)'
         ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
-        drawEmoji(ctx, defeated ? '😵' : '🤓', px + TS/2, py + TS/2, TS * 0.72)
-        const dist = Math.abs(p.x - npc.x) + Math.abs(p.y - npc.y)
+        // Emoji de persona única por NPC
+        const studentEmoji = defeated ? '😵' : getStudentEmoji(npc.npcId)
+        drawEmoji(ctx, studentEmoji, px + TS/2, py + TS/2, TS * 0.82)
+        const dist = Math.abs(p.x - drawX) + Math.abs(p.y - drawY)
         if (!defeated && dist <= 2) {
           ctx.fillStyle = '#ff0000'
           ctx.font = `bold ${TS * 0.45}px monospace`
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-          ctx.fillText('!', px + TS/2, py - 4)
+          ctx.fillText('!', px + TS/2, py - 6)
         }
       })
 
-      // ── Maestro en academias ──
+      // ── Maestro en academias (con su emoji correcto) ──
       if (cMap !== 'pueblo_inicial') {
         const cx2 = Math.floor(info.width  / 2)
         const cy2 = Math.floor(info.height / 2)
         const { px, py, visible } = inView(cx2, cy2)
         if (visible) {
-          ctx.globalAlpha = 0.85 + 0.15 * Math.sin(tick * 0.08)
-          drawEmoji(ctx, '👑', px + TS/2, py + TS/2, TS * 0.8)
+          const teacherEmoji = TEACHER_EMOJI[cMap] || '🧑‍🏫'
+          // Halo dorado pulsante
+          ctx.globalAlpha = 0.3 + 0.2 * Math.sin(tick * 0.08)
+          ctx.fillStyle = '#ffd700'
+          ctx.beginPath(); ctx.arc(px+TS/2, py+TS/2, TS*0.55, 0, Math.PI*2); ctx.fill()
           ctx.globalAlpha = 1
+          // Sombra
+          ctx.fillStyle = 'rgba(0,0,0,0.3)'
+          ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-2, TS*0.38, 5, 0, 0, Math.PI*2); ctx.fill()
+          drawEmoji(ctx, teacherEmoji, px + TS/2, py + TS/2, TS * 0.9)
         }
       }
 
       // ── Mascota (Pikachu-style) ──
       const bob = Math.sin(tick * 0.12) * 4
-      const petEmoji = PET_EMOJI[pl.inventory?.equippedPet] || '⭐'
+      const petType = pl.inventory?.equippedPet || pl.pet?.type?.toLowerCase() || pl.pet?.id?.toLowerCase()
+      const petEmoji = PET_EMOJI[petType] || '⭐'
       const { px: petPx, py: petPy, visible: petVis } = inView(pp.x, pp.y)
       if (petVis) {
         ctx.fillStyle = 'rgba(0,0,0,0.18)'
@@ -526,31 +647,35 @@ function MainMap() {
         const bobChar = mv ? Math.sin(tick * 0.25) * 2 : 0
         drawEmoji(ctx, SKIN_EMOJI[equippedSkin], playerPx + TS/2, playerPy + TS/2 + bobChar, TS * 0.88)
       } else {
-        // Sprite sheet boy/girl
+        // Sprite sheet boy/girl (con fondo transparente)
         const spriteImg = pl.character?.gender === 'girl' ? girlImg : boyImg
-        if (spriteImg && spriteImg.naturalWidth > 0) {
-          // Calcular dimensiones reales de la sprite sheet
-          const frameW = spriteImg.naturalWidth  / 4
-          const frameH = spriteImg.naturalHeight / 2
-          const FRAMES = {
-            down:  [{ col: 0, row: 0 }, { col: 1, row: 0 }],
-            up:    [{ col: 2, row: 0 }, { col: 3, row: 0 }],
-            left:  [{ col: 0, row: 1 }, { col: 1, row: 1 }],
-            right: [{ col: 2, row: 1 }, { col: 3, row: 1 }],
+        // Canvas de sprite (ya sin fondo blanco), o Image con width
+        const hasSprite = spriteImg && (spriteImg.width > 0 || spriteImg.naturalWidth > 0)
+        if (hasSprite) {
+          const sw = spriteImg.width || spriteImg.naturalWidth
+          const sh = spriteImg.height || spriteImg.naturalHeight
+          if (sw > 0 && sh > 0) {
+            const frameW = sw / 4
+            const frameH = sh / 2
+            const FRAMES = {
+              down:  [{ col: 0, row: 0 }, { col: 1, row: 0 }],
+              up:    [{ col: 2, row: 0 }, { col: 3, row: 0 }],
+              left:  [{ col: 0, row: 1 }, { col: 1, row: 1 }],
+              right: [{ col: 2, row: 1 }, { col: 3, row: 1 }],
+            }
+            const frame = mv ? FRAMES[d][wf] : FRAMES[d][0]
+            const drawW = TS * 0.95
+            const drawH = TS * 1.55
+            const ox = (TS - drawW) / 2
+            const oy = TS - drawH
+            ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
+              playerPx + ox, playerPy + oy, drawW, drawH)
+          } else {
+            drawEmoji(ctx, pl.character?.gender === 'girl' ? '👧' : '👦', playerPx + TS/2, playerPy + TS/2, TS * 0.88)
           }
-          const frame = mv ? FRAMES[d][wf] : FRAMES[d][0]
-          const sx = frame.col * frameW
-          const sy = frame.row * frameH
-          // Dibuja el sprite completo con altura mayor (sin cortar)
-          const drawW = TS * 0.95
-          const drawH = TS * 1.55
-          const ox = (TS - drawW) / 2
-          const oy = TS - drawH  // ancla en la base del tile
-          ctx.drawImage(spriteImg, sx, sy, frameW, frameH, playerPx + ox, playerPy + oy, drawW, drawH)
         } else {
-          // Fallback emoji simple
-          const defaultEmoji = pl.character?.gender === 'girl' ? '👧' : '👦'
-          drawEmoji(ctx, defaultEmoji, playerPx + TS/2, playerPy + TS/2, TS * 0.88)
+          // Fallback emoji mientras carga
+          drawEmoji(ctx, pl.character?.gender === 'girl' ? '👧' : '👦', playerPx + TS/2, playerPy + TS/2, TS * 0.88)
         }
       }
 
@@ -558,8 +683,8 @@ function MainMap() {
     }
 
     rafRef.current = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(rafRef.current)
-  }, [boyImg, girlImg]) // solo se reinicia cuando cargan las imágenes
+    return () => { running = false; cancelAnimationFrame(rafRef.current) }
+  }, []) // Arranca al montar; usa stateRef para todo
 
   // ─── Render ────────────────────────────────────────────────────────────────
   if (!player) return (
@@ -590,6 +715,13 @@ function MainMap() {
           {['espanol','artes','ingles'].map(b => (
             <div key={b} style={{ width:'8px', height:'8px', borderRadius:'50%', backgroundColor: player.badges?.[b] ? '#ffd700' : '#333', border:'1px solid #ffd700' }} title={b} />
           ))}
+          {cMap !== 'pueblo_inicial' && (
+            <button
+              onClick={() => transitionTo('pueblo_inicial', 25, 25)}
+              style={{ fontSize:'0.3rem', padding:'2px 5px', backgroundColor:'#2980b9', color:'#fff', border:'1px solid #ffd700', cursor:'pointer', fontFamily:'monospace' }}>
+              🏡 PUEBLO
+            </button>
+          )}
           <button
             onClick={() => {
               const cx = Math.floor(mapInfo.width/2), cy = Math.floor(mapInfo.height/2)
@@ -658,6 +790,9 @@ function MainMap() {
         </div>
 
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'5px' }}>
+          {cMap !== 'pueblo_inicial' && (
+            <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px', backgroundColor:'#2980b9', color:'#fff' }} onClick={() => transitionTo('pueblo_inicial', 25, 25)}>🏡 Pueblo</button>
+          )}
           <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px' }} onClick={() => navigate('/shop')}>🏪 Tienda</button>
           <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px' }} onClick={() => navigate('/inventory')}>🎒 Mochila</button>
           <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px' }} onClick={() => navigate('/profile')}>📊 Perfil</button>
