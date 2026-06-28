@@ -545,15 +545,36 @@ function MainMap() {
             }
           }
         }
+        const hash = (npc.name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
+        const isGirl = Math.abs(hash) % 2 !== 0;
+        const npcImg = isGirl ? girlImg : boyImg;
         const { px, py, visible } = inView(drawX, drawY)
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
         // Sombra
         ctx.fillStyle = 'rgba(0,0,0,0.2)'
         ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
-        // Emoji de persona única por NPC
-        const studentEmoji = defeated ? '😵' : getStudentEmoji(npc.npcId)
-        drawEmoji(ctx, studentEmoji, px + TS/2, py + TS/2, TS * 0.82)
+        // Sprite Enemigo
+        const hasSprite = npcImg && (npcImg.width > 0 || npcImg.naturalWidth > 0)
+        if (hasSprite) {
+          const sw = npcImg.width || npcImg.naturalWidth
+          const sh = npcImg.height || npcImg.naturalHeight
+          if (sw > 0 && sh > 0) {
+            const frameW = sw / 4
+            const frameH = sh / 2
+            const drawW = TS * 0.95
+            const drawH = TS * 1.55
+            const ox = (TS - drawW) / 2
+            const oy = TS - drawH
+            ctx.globalAlpha = defeated ? 0.3 : 1
+            ctx.drawImage(npcImg, 0, 0, frameW, frameH, px + ox, py + oy, drawW, drawH)
+            ctx.globalAlpha = 1
+          }
+        } else {
+          // Fallback emoji
+          const studentEmoji = defeated ? '😵' : getStudentEmoji(npc.npcId)
+          drawEmoji(ctx, studentEmoji, px + TS/2, py + TS/2, TS * 0.82)
+        }
         const dist = Math.abs(p.x - drawX) + Math.abs(p.y - drawY)
         if (!defeated && dist <= 2) {
           ctx.fillStyle = '#ff0000'
@@ -578,7 +599,26 @@ function MainMap() {
           // Sombra
           ctx.fillStyle = 'rgba(0,0,0,0.3)'
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-2, TS*0.38, 5, 0, 0, Math.PI*2); ctx.fill()
-          drawEmoji(ctx, teacherEmoji, px + TS/2, py + TS/2, TS * 0.9)
+          const hashBoss = cMap.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
+          const bossIsGirl = Math.abs(hashBoss) % 2 !== 0;
+          const bossImg = bossIsGirl ? girlImg : boyImg;
+
+          const hasBossSprite = bossImg && (bossImg.width > 0 || bossImg.naturalWidth > 0)
+          if (hasBossSprite) {
+            const sw = bossImg.width || bossImg.naturalWidth
+            const sh = bossImg.height || bossImg.naturalHeight
+            if (sw > 0 && sh > 0) {
+              const frameW = sw / 4
+              const frameH = sh / 2
+              const drawW = TS * 1.1 // Un poco más grande para ser jefe
+              const drawH = TS * 1.7
+              const ox = (TS - drawW) / 2
+              const oy = TS - drawH
+              ctx.drawImage(bossImg, 0, 0, frameW, frameH, px + ox, py + oy, drawW, drawH)
+            }
+          } else {
+            drawEmoji(ctx, teacherEmoji, px + TS/2, py + TS/2, TS * 0.9)
+          }
         }
       }
 
@@ -599,15 +639,9 @@ function MainMap() {
       ctx.fillStyle = 'rgba(0,0,0,0.28)'
       ctx.beginPath(); ctx.ellipse(playerPx+TS/2, playerPy+TS-2, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
 
-      const equippedSkin = pl.inventory?.equippedSkin
-      if (equippedSkin && SKIN_EMOJI[equippedSkin]) {
-        // Skin de emoji: dibujamos el emoji como personaje principal
-        const bobChar = mv ? Math.sin(tick * 0.25) * 2 : 0
-        drawEmoji(ctx, SKIN_EMOJI[equippedSkin], playerPx + TS/2, playerPy + TS/2 + bobChar, TS * 0.88)
-      } else {
-        // Sprite sheet boy/girl (con fondo transparente)
+        // Ignoramos skin de emoji y usamos el sprite sheet
+        // (Podríamos borrar esta rama si ya no usaremos la skin de emoji en el mapa principal)
         const spriteImg = pl.character?.gender === 'girl' ? girlImg : boyImg
-        // Canvas de sprite (ya sin fondo blanco), o Image con width
         const hasSprite = spriteImg && (spriteImg.width > 0 || spriteImg.naturalWidth > 0)
         if (hasSprite) {
           const sw = spriteImg.width || spriteImg.naturalWidth
@@ -635,7 +669,6 @@ function MainMap() {
           // Fallback emoji mientras carga
           drawEmoji(ctx, pl.character?.gender === 'girl' ? '👧' : '👦', playerPx + TS/2, playerPy + TS/2, TS * 0.88)
         }
-      }
 
       rafRef.current = requestAnimationFrame(loop)
     }
