@@ -103,29 +103,55 @@ function Shop() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#2b2b2b', color: '#fff', minHeight: '100vh', padding: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#2b2b2b', color: '#fff', height: '100vh', overflow: 'hidden' }}>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ margin: 0, textShadow: '2px 2px #000' }}>🏪 Tienda del Lenguaje</h1>
-        <div className="rpg-box" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px' }}>
-          <span>Tus fondos:</span>
-          <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#ffeb3b' }}>💰 {player.lingocoins} LC</span>
+      {/* HEADER: MOSTRADOR Y VENDEDOR (ESTILO POKÉMON) */}
+      <div style={{ flex: '0 0 45%', backgroundColor: '#f8f8f8', borderBottom: '4px solid #111', display: 'flex', flexDirection: 'column', backgroundImage: 'linear-gradient(#e0e0e0 1px, transparent 1px)', backgroundSize: '100% 20px', fontFamily: '"Press Start 2P", cursive', padding: '10px' }}>
+        
+        {/* Top Info */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div className="rpg-box" style={{ margin: 0, padding: '10px', display: 'inline-block' }}>
+            <span style={{ fontSize: '0.8rem', color: '#000' }}>TIENDA LINGO</span>
+          </div>
+          <div className="rpg-box" style={{ margin: 0, padding: '10px', display: 'inline-block' }}>
+            <span style={{ fontSize: '0.8rem', color: '#000' }}>💰 {player.lingocoins} LC</span>
+          </div>
+        </div>
+
+        {/* Mostrador y Vendedor */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', position: 'relative' }}>
+          {/* Vendedor animado */}
+          <div className="sprite-walk-front" style={{ width: '80px', height: '80px', backgroundImage: `url('/sprites/girl.png')`, backgroundSize: '400% 200%', imageRendering: 'pixelated', position: 'relative', zIndex: 1, marginBottom: '20px' }}></div>
+          {/* El Mostrador */}
+          <div style={{ position: 'absolute', bottom: '0', width: '200px', height: '40px', backgroundColor: '#8d6e63', borderTop: '4px solid #5d4037', borderLeft: '4px solid #5d4037', borderRight: '4px solid #5d4037', zIndex: 2, borderTopLeftRadius: '4px', borderTopRightRadius: '4px' }}></div>
+        </div>
+
+        {/* Diálogo del Vendedor */}
+        <div className="rpg-box" style={{ margin: 0, marginTop: '10px', padding: '10px', height: '60px', display: 'flex', alignItems: 'center' }}>
+          <p style={{ margin: 0, fontSize: '0.7rem', color: '#000', lineHeight: '1.4' }}>
+            ¡Hola! Tenemos los mejores artículos. ¿Qué vas a llevar hoy?
+          </p>
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <button className="btn-retro" style={{ backgroundColor: activeTab === 'skins' ? '#ffeb3b' : '', color: activeTab === 'skins' ? '#000' : '' }} onClick={() => setActiveTab('skins')}>Trajes</button>
-        <button className="btn-retro" style={{ backgroundColor: activeTab === 'pets' ? '#ffeb3b' : '', color: activeTab === 'pets' ? '#000' : '' }} onClick={() => setActiveTab('pets')}>Mascotas</button>
-        <button className="btn-retro" style={{ backgroundColor: activeTab === 'titles' ? '#ffeb3b' : '', color: activeTab === 'titles' ? '#000' : '' }} onClick={() => setActiveTab('titles')}>Títulos</button>
-      </div>
+      {/* FOOTER: CATÁLOGO */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: 'var(--gbc-white)', padding: '10px', overflowY: 'auto' }}>
+        
+        <div style={{ display: 'flex', gap: '5px', marginBottom: '15px' }}>
+          <button className="btn-retro" style={{ margin: 0, backgroundColor: activeTab === 'skins' ? '#ffeb3b' : '', color: activeTab === 'skins' ? '#000' : '' }} onClick={() => setActiveTab('skins')}>Trajes</button>
+          <button className="btn-retro" style={{ margin: 0, backgroundColor: activeTab === 'pets' ? '#ffeb3b' : '', color: activeTab === 'pets' ? '#000' : '' }} onClick={() => setActiveTab('pets')}>Mascotas</button>
+          <button className="btn-retro" style={{ margin: 0, backgroundColor: activeTab === 'titles' ? '#ffeb3b' : '', color: activeTab === 'titles' ? '#000' : '' }} onClick={() => setActiveTab('titles')}>Títulos</button>
+        </div>
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
-        {renderCatalogList()}
-      </div>
+        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '5px' }}>
+          {renderCatalogList()}
+        </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '20px' }}>
-        <button className="btn-retro" onClick={() => navigate('/inventory')}>🎒 Ir al Inventario</button>
-        <button className="btn-retro success" onClick={() => navigate('/map')}>🗺️ Volver al Mapa</button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', gap: '10px' }}>
+          <button className="btn-retro" style={{ margin: 0, backgroundColor: '#9e9e9e' }} onClick={() => navigate('/inventory')}>🎒 INVENTARIO</button>
+          <button className="btn-retro" style={{ margin: 0, backgroundColor: '#f44336' }} onClick={() => navigate('/map')}>SALIR</button>
+        </div>
+
       </div>
 
     </div>

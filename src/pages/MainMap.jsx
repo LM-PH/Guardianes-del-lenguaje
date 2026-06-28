@@ -498,14 +498,37 @@ function MainMap() {
           drawEmoji(ctx, icon, px + TS/2, py + TS/2, TS * 0.7)
         })
         // NPCs fijos
-        ;[[Math.floor(info.width/2), Math.floor(info.height/2), '🧙'],
-          [Math.floor(info.width/2) + 2, Math.floor(info.height/2), '🏪']
-        ].forEach(([tx, ty, emoji]) => {
+        ;[
+          { tx: Math.floor(info.width/2), ty: Math.floor(info.height/2), type: 'librarian' },
+          { tx: Math.floor(info.width/2) + 2, ty: Math.floor(info.height/2), type: 'shop' }
+        ].forEach(({tx, ty, type}) => {
           const { px, py, visible } = inView(tx, ty)
           if (!visible) return
           ctx.fillStyle = 'rgba(0,0,0,0.2)'
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
-          drawEmoji(ctx, emoji, px + TS/2, py + TS/2, TS * 0.75)
+          
+          const img = type === 'librarian' ? boyImgRef.current : girlImgRef.current
+          if (img && (img.width > 0 || img.naturalWidth > 0)) {
+            const sw = img.width || img.naturalWidth
+            const sh = img.height || img.naturalHeight
+            if (sw > 0 && sh > 0) {
+              const frameW = sw / 4
+              const frameH = sh / 2
+              const drawW = TS * 0.95
+              const drawH = TS * 1.55
+              const ox = (TS - drawW) / 2
+              const oy = TS - drawH
+              
+              if (type === 'shop') {
+                ctx.fillStyle = '#ffeb3b';
+                ctx.font = `bold ${TS * 0.25}px monospace`;
+                ctx.textAlign = 'center';
+                ctx.fillText('TIENDA', px + TS/2, py - 10);
+              }
+              
+              ctx.drawImage(img, 0, 0, frameW, frameH, px + ox, py + oy, drawW, drawH)
+            }
+          }
         })
       }
 
@@ -623,13 +646,22 @@ function MainMap() {
 
       // ── Mascota (Pikachu-style) ──
       const bob = Math.sin(tick * 0.12) * 4
-      const petType = pl.inventory?.equippedPet || pl.pet?.type?.toLowerCase() || pl.pet?.id?.toLowerCase()
-      const petEmoji = PET_EMOJI[petType] || '⭐'
       const { px: petPx, py: petPy, visible: petVis } = inView(pp.x, pp.y)
       if (petVis) {
         ctx.fillStyle = 'rgba(0,0,0,0.18)'
         ctx.beginPath(); ctx.ellipse(petPx+TS/2, petPy+TS-3, TS*0.28, 3, 0, 0, Math.PI*2); ctx.fill()
-        drawEmoji(ctx, petEmoji, petPx + TS/2, petPy + TS/2 + bob, TS * 0.72)
+        
+        // Usamos el sprite escalado como mascota temporal en vez de emoji
+        const pImg = boyImgRef.current
+        if (pImg && (pImg.width > 0 || pImg.naturalWidth > 0)) {
+           const frameW = (pImg.width || pImg.naturalWidth) / 4;
+           const frameH = (pImg.height || pImg.naturalHeight) / 2;
+           const drawW = TS * 0.55; 
+           const drawH = TS * 0.85;
+           const ox = (TS - drawW) / 2;
+           const oy = TS - drawH;
+           ctx.drawImage(pImg, 0, 0, frameW, frameH, petPx + ox, petPy + oy + bob, drawW, drawH);
+        }
       }
 
       // ── Jugador ──

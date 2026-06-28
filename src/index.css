@@ -56,6 +56,21 @@ body {
   color: var(--gbc-black);
 }
 
+@keyframes walk {
+  0% { background-position-x: 0%; }
+  100% { background-position-x: 133.333%; }
+}
+
+.sprite-walk-front {
+  animation: walk 0.8s steps(4) infinite;
+  background-position-y: 0%;
+}
+
+.sprite-walk-back {
+  animation: walk 0.8s steps(4) infinite;
+  background-position-y: 100%;
+}
+
 /* Botones retro */
 .btn-retro {
   font-family: 'Press Start 2P', cursive;
