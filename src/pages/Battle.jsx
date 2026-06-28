@@ -321,7 +321,7 @@ function Battle() {
             <div style={{ backgroundColor: '#111', padding: '2px 4px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
               <span style={{ color: '#ffd700', fontSize: '0.4rem', fontWeight: 'bold', marginRight: '4px' }}>HP</span>
               <div style={{ flex: 1, backgroundColor: '#555', height: '6px', borderRadius: '3px', border: '1px solid #fff', overflow: 'hidden' }}>
-                <div className="retro-hp-bar" style={{ width: \`\${(enemyHp / maxEnemyHp) * 100}%\`, height: '100%', backgroundColor: enemyHp > maxEnemyHp * 0.5 ? '#60b044' : enemyHp > maxEnemyHp * 0.2 ? '#f1c40f' : '#e74c3c' }}></div>
+                <div className="retro-hp-bar" style={{ width: `${(enemyHp / maxEnemyHp) * 100}%`, height: '100%', backgroundColor: enemyHp > maxEnemyHp * 0.5 ? '#60b044' : enemyHp > maxEnemyHp * 0.2 ? '#f1c40f' : '#e74c3c' }}></div>
               </div>
             </div>
           </div>
@@ -332,7 +332,7 @@ function Battle() {
             {isBoss ? (
               <div style={{ position: 'relative', zIndex: 1, fontSize: '3rem', marginBottom: '20px' }}>{isFinalBoss ? '🧙‍♂️' : (subject === 'artes' ? '🧑‍🎨' : (subject === 'ingles' ? '👨‍🏫' : '👩‍🏫'))}</div>
             ) : (
-              <div style={{ position: 'relative', zIndex: 1, width: '50px', height: '50px', marginBottom: '15px', backgroundImage: \`url('/sprites/\${getEnemySprite(npcName)}.png')\`, backgroundSize: '400% 200%', backgroundPosition: '0% 0%', imageRendering: 'pixelated' }}></div>
+              <div style={{ position: 'relative', zIndex: 1, width: '50px', height: '50px', marginBottom: '15px', backgroundImage: `url('/sprites/${getEnemySprite(npcName)}.png')`, backgroundSize: '400% 200%', backgroundPosition: '0% 0%', imageRendering: 'pixelated' }}></div>
             )}
           </div>
         </div>
@@ -342,7 +342,7 @@ function Battle() {
           {/* Sprite Jugador */}
           <div style={{ position: 'relative', width: '100px', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && !feedback.isCorrect ? 'shake 0.5s' : 'none' }}>
             <div style={{ position: 'absolute', bottom: '10px', width: '90px', height: '22px', backgroundColor: '#a5d6a7', borderRadius: '50%', border: '2px solid #81c784' }}></div>
-            <div style={{ position: 'relative', zIndex: 1, width: '64px', height: '64px', marginBottom: '10px', backgroundImage: \`url('/sprites/\${player.character.gender === 'girl' ? 'girl.png' : 'boy.png'}')\`, backgroundSize: '400% 200%', backgroundPosition: '66.6% 0%', imageRendering: 'pixelated' }}>
+            <div style={{ position: 'relative', zIndex: 1, width: '64px', height: '64px', marginBottom: '10px', backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl.png' : 'boy.png'}')`, backgroundSize: '400% 200%', backgroundPosition: '66.6% 0%', imageRendering: 'pixelated' }}>
                {player.inventory?.equippedSkin && (
                  <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '1.2rem', backgroundColor: '#fff', borderRadius: '50%', border: '2px solid #111', width: '28px', height: '28px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                    {getSkinEmoji(player.inventory.equippedSkin)}
@@ -360,7 +360,7 @@ function Battle() {
             <div style={{ backgroundColor: '#111', padding: '2px 4px', borderRadius: '8px', display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
               <span style={{ color: '#ffd700', fontSize: '0.4rem', fontWeight: 'bold', marginRight: '4px' }}>HP</span>
               <div style={{ flex: 1, backgroundColor: '#555', height: '6px', borderRadius: '3px', border: '1px solid #fff', overflow: 'hidden' }}>
-                <div className="retro-hp-bar" style={{ width: \`\${playerHp}%\`, height: '100%', backgroundColor: playerHp > 50 ? '#60b044' : playerHp > 20 ? '#f1c40f' : '#e74c3c' }}></div>
+                <div className="retro-hp-bar" style={{ width: `${playerHp}%`, height: '100%', backgroundColor: playerHp > 50 ? '#60b044' : playerHp > 20 ? '#f1c40f' : '#e74c3c' }}></div>
               </div>
             </div>
             <div style={{ textAlign: 'right', fontSize: '0.55rem', fontWeight: 'bold' }}>
