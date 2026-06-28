@@ -148,44 +148,45 @@ function drawTile(ctx, tileId, px, py, size, tick) {
       })
       break
     }
+    case 10: // TILES.HOUSE
     case TILES.HOUSE: {
+      const hw = s * 4;
+      const hh = s * 3;
       // Pared exterior
-      ctx.fillStyle = GBC.housew; ctx.fillRect(px, py, s, s)
-      // Franja de techo rojo (GBA style)
-      ctx.fillStyle = GBC.house1; ctx.fillRect(px, py, s, s * 0.42)
-      ctx.fillStyle = GBC.house2; ctx.fillRect(px, py, s, s * 0.07)
+      ctx.fillStyle = GBC.housew; ctx.fillRect(px, py, hw, hh)
+      // Techo rojo grande
+      ctx.fillStyle = GBC.house1; ctx.fillRect(px, py, hw, hh * 0.4)
+      ctx.fillStyle = GBC.house2; ctx.fillRect(px, py, hw, hh * 0.05)
       // Borde inferior del techo en sombra
-      ctx.fillStyle = '#8b0000'; ctx.fillRect(px, py + s * 0.42, s, 3)
-      // Ventana (azul cielo)
-      ctx.fillStyle = '#546e7a'; ctx.fillRect(px + s*0.55, py + s*0.5, s*0.32, s*0.28)
-      ctx.fillStyle = '#b3e5fc'; ctx.fillRect(px + s*0.57, py + s*0.52, s*0.28, s*0.24)
-      // Cruz ventana
-      ctx.fillStyle = '#546e7a'
-      ctx.fillRect(px + s*0.71, py + s*0.52, 2, s*0.24) // vertical
-      ctx.fillRect(px + s*0.57, py + s*0.63, s*0.28, 2) // horizontal
-      // Puerta
-      ctx.fillStyle = '#4e342e'; ctx.fillRect(px + s*0.14, py + s*0.5, s*0.3, s*0.5)
-      ctx.fillStyle = '#6d4c41'; ctx.fillRect(px + s*0.16, py + s*0.52, s*0.26, s*0.48)
-      // Pomo de puerta
-      ctx.fillStyle = '#ffd700'
-      ctx.beginPath(); ctx.arc(px + s*0.37, py + s*0.76, 3, 0, Math.PI*2); ctx.fill()
+      ctx.fillStyle = '#8b0000'; ctx.fillRect(px, py + hh * 0.4, hw, 5)
+      
+      // Dos ventanas grandes
+      ctx.fillStyle = '#546e7a'; 
+      ctx.fillRect(px + hw*0.15, py + hh*0.5, hw*0.2, hh*0.25)
+      ctx.fillRect(px + hw*0.65, py + hh*0.5, hw*0.2, hh*0.25)
+      ctx.fillStyle = '#b3e5fc'; 
+      ctx.fillRect(px + hw*0.16, py + hh*0.52, hw*0.18, hh*0.21)
+      ctx.fillRect(px + hw*0.66, py + hh*0.52, hw*0.18, hh*0.21)
+      
+      // Puerta central (que coincide con hx+1 y hx+2 en la grilla que son HOUSE_DOOR)
+      ctx.fillStyle = '#4e342e'; ctx.fillRect(px + s, py + hh*0.6, s*2, hh*0.4)
+      ctx.fillStyle = '#6d4c41'; ctx.fillRect(px + s + 2, py + hh*0.62, s*2 - 4, hh*0.38)
+      
+      // Cartel encima de la puerta
+      ctx.fillStyle = '#ffeb3b'; ctx.fillRect(px + s + s*0.2, py + hh*0.5, s*1.6, hh*0.08)
+      ctx.fillStyle = '#000'; ctx.font = `bold ${s * 0.25}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillText('ACADEMIA', px + hw/2, py + hh*0.54)
+      
       break
     }
     case TILES.HOUSE_DOOR: {
-      // Tile de entrada a la casa - camino especial con borde
-      ctx.fillStyle = GBC.path1; ctx.fillRect(px, py, s, s)
-      // Líneas de entrada como baldosas
-      ctx.fillStyle = GBC.path2
-      ctx.fillRect(px, py, s, 3)
-      ctx.fillRect(px, py, 3, s)
-      ctx.fillRect(px + s - 3, py, 3, s)
-      // Alfombra de entrada
-      ctx.fillStyle = '#ef5350'
-      ctx.fillRect(px + s*0.2, py + s*0.6, s*0.6, s*0.35)
-      // Texto pequeño ENTER
-      ctx.fillStyle = '#fff'
-      ctx.font = `bold ${s * 0.2}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-      ctx.fillText('ENTRAR', px + s/2, py + s * 0.77)
+      // No dibuja nada por encima, la puerta ya la dibuja el tile HOUSE
+      break
+    }
+    case TILES.HOUSE_EXIT: {
+      ctx.fillStyle = '#795548'; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = '#000'; ctx.font = `bold ${s * 0.3}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillText('SALIDA', px + s/2, py + s/2)
       break
     }
     case TILES.WALL: {
@@ -359,6 +360,19 @@ function MainMap() {
 
   // ─── Interacciones ─────────────────────────────────────────────────────────
   const handleInteraction = useCallback((nx, ny, cMap, pl, npcList) => {
+    // Check doors for all maps
+    const mapGrid = MAPS[cMap]?.grid
+    if (mapGrid) {
+      if (mapGrid[ny]?.[nx] === TILES.HOUSE_DOOR) {
+        transitionTo('interior_casa', 6, 10)
+        return true
+      }
+      if (mapGrid[ny]?.[nx] === TILES.HOUSE_EXIT) {
+        transitionTo('pueblo_inicial', 18, 18) // Approximate exit
+        return true
+      }
+    }
+
     if (cMap === 'pueblo_inicial') {
       if (nx === 25 && ny === 25) {
         setDialog({ text: 'Bibliotecario: Bienvenido. Reúne las 3 insignias para ir al norte.', type: 'info' })
@@ -708,14 +722,63 @@ function MainMap() {
           const sw = petSpriteImg.width || petSpriteImg.naturalWidth
           const sh = petSpriteImg.height || petSpriteImg.naturalHeight
           const frameW = sw / 4
-          // Para mascotas voladoras: frame fijo y bobbeo vertical fuerte
-          // Para cuadrúpedos: ciclar frames de caminar
-          const petAnimFrame = isFlying ? Math.floor(tick / 8) % 4 : Math.floor(tick / 6) % 4
-          const petFrameH = sh * 0.45
+          // Para mascotas, usaremos dibujo en canvas para animar patitas de forma perfecta
           const flyBob = isFlying ? Math.sin(tick * 0.15) * 8 : 0
           const drawW = TS * 0.72; const drawH = TS * 0.72
           const ox = (TS - drawW) / 2
-          ctx.drawImage(petSpriteImg, petAnimFrame * frameW, 0, frameW, petFrameH, petPx + ox, petPy + TS - drawH + bob + flyBob, drawW, drawH)
+          
+          ctx.save()
+          ctx.translate(petPx + ox + drawW/2, petPy + TS - drawH + bob + flyBob + drawH/2)
+          
+          // Animar patas
+          const legSwing = Math.sin(tick * 0.4) * 5
+          
+          if (pl.pet === 'buho') {
+             // Búho
+             ctx.fillStyle = '#795548'
+             ctx.beginPath(); ctx.ellipse(0, 0, 12, 16, 0, 0, Math.PI*2); ctx.fill()
+             // Ojos
+             ctx.fillStyle = '#fff'
+             ctx.beginPath(); ctx.arc(-4, -4, 4, 0, Math.PI*2); ctx.arc(4, -4, 4, 0, Math.PI*2); ctx.fill()
+             ctx.fillStyle = '#000'
+             ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI*2); ctx.arc(4, -4, 2, 0, Math.PI*2); ctx.fill()
+             // Alas
+             ctx.fillStyle = '#5D4037'
+             const wingBob = isFlying ? Math.sin(tick * 0.6) * 10 : 0
+             ctx.beginPath(); ctx.ellipse(-14, 0 + wingBob, 4, 10, -Math.PI/6, 0, Math.PI*2); ctx.fill()
+             ctx.beginPath(); ctx.ellipse(14, 0 + wingBob, 4, 10, Math.PI/6, 0, Math.PI*2); ctx.fill()
+          } else if (pl.pet === 'perrito') {
+             // Perro
+             ctx.fillStyle = '#FFB300'
+             ctx.fillRect(-10, -5, 20, 12) // cuerpo
+             ctx.fillRect(-14, -12, 10, 10) // cabeza
+             // Patas
+             ctx.fillStyle = '#FFA000'
+             ctx.fillRect(-10 + legSwing, 7, 4, 8)
+             ctx.fillRect(-4 - legSwing, 7, 4, 8)
+             ctx.fillRect(6 + legSwing, 7, 4, 8)
+             ctx.fillRect(2 - legSwing, 7, 4, 8)
+             // Orejas
+             ctx.fillStyle = '#FF8F00'
+             ctx.fillRect(-16, -14, 4, 6)
+          } else {
+             // Gato (zorrito usa color distinto)
+             ctx.fillStyle = pl.pet === 'zorrito' ? '#E64A19' : '#9E9E9E'
+             ctx.beginPath(); ctx.arc(-8, -8, 8, 0, Math.PI*2); ctx.fill() // cabeza
+             ctx.fillRect(-6, -4, 16, 10) // cuerpo
+             // Cola
+             ctx.lineWidth = 3
+             ctx.strokeStyle = pl.pet === 'zorrito' ? '#BF360C' : '#757575'
+             ctx.beginPath(); ctx.moveTo(10, 0); ctx.quadraticCurveTo(16 + legSwing, -10, 12, -15); ctx.stroke()
+             // Patas
+             ctx.fillStyle = pl.pet === 'zorrito' ? '#D84315' : '#616161'
+             ctx.fillRect(-6 + legSwing, 6, 3, 6)
+             ctx.fillRect(0 - legSwing, 6, 3, 6)
+             ctx.fillRect(7 + legSwing, 6, 3, 6)
+             // Orejas puntiagudas
+             ctx.beginPath(); ctx.moveTo(-14, -14); ctx.lineTo(-10, -6); ctx.lineTo(-6, -14); ctx.fill()
+          }
+          ctx.restore()
         }
       }
 

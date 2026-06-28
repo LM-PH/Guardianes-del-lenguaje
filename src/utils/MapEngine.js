@@ -5,14 +5,15 @@ export const TILES = {
   WATER: 1,   // Sólido
   TREE: 2,    // Sólido
   PATH: 3,
-  HOUSE: 4,   // Sólido
-  WALL: 5,    // Sólido
+  WALL: 5,
   FLOOR: 6,
   FLOWER: 7,
   HOUSE_DOOR: 8, // Puerta de casa - activa transición
+  HOUSE_EXIT: 9, // Salida de la casa
+  HOUSE: 10,     // Esquina superior izquierda de la casa
 };
 
-export const SOLID_TILES = [TILES.WATER, TILES.TREE, TILES.HOUSE, TILES.WALL];
+export const SOLID_TILES = [TILES.WATER, TILES.TREE, TILES.WALL, TILES.HOUSE];
 
 const noise = (x, y, seed) => {
   const n = Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453;
@@ -86,10 +87,11 @@ export const generateMap = (mapName, width, height) => {
     ];
     housePositions.forEach(({ hx, hy }) => {
       if (hx < 2 || hy < 2 || hx + 4 >= width - 2 || hy + 4 >= height - 2) return;
-      // Paredes de la casa (3 filas de alto)
+      // Paredes de la casa (3 filas de alto x 4 de ancho)
       for (let dy = 0; dy < 3; dy++) {
         for (let dx = 0; dx < 4; dx++) {
-          grid[hy + dy][hx + dx] = TILES.HOUSE;
+          if (dx === 0 && dy === 0) grid[hy + dy][hx + dx] = TILES.HOUSE;
+          else grid[hy + dy][hx + dx] = TILES.WALL;
         }
       }
       // Puerta de la casa (HOUSE_DOOR)
@@ -132,6 +134,24 @@ export const generateMap = (mapName, width, height) => {
       grid[y][cx]     = TILES.FLOOR;
       grid[y][cx + 1] = TILES.FLOOR;
     }
+  }
+
+  // 6. Interior de casa
+  if (mapName === 'interior_casa') {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+          grid[y][x] = TILES.WALL;
+        } else {
+          grid[y][x] = TILES.FLOOR; // Piso de madera
+        }
+      }
+    }
+    // Puerta de salida
+    grid[height - 1][cx] = TILES.HOUSE_EXIT;
+    grid[height - 1][cx - 1] = TILES.HOUSE_EXIT;
+    grid[height - 2][cx] = TILES.FLOOR;
+    grid[height - 2][cx - 1] = TILES.FLOOR;
   }
 
   return grid;
