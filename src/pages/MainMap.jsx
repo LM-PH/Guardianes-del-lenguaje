@@ -3,40 +3,89 @@ import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import { generateMap, TILES, SOLID_TILES } from '../utils/MapEngine'
 
-const TILE_SIZE = 24;
+// ─── Constantes ────────────────────────────────────────────────────────────────
+const TILE_SIZE = 16;           // píxeles en canvas (tamaño GBC real)
+const SCALE = 3;                // escalado total (1 tile → 48px en pantalla)
+const VIEWPORT_TILES_X = 10;   // cuántos tiles se ven horizontalmente
+const VIEWPORT_TILES_Y = 9;    // cuántos tiles se ven verticalmente
+const VIEWPORT_W = VIEWPORT_TILES_X * TILE_SIZE * SCALE;
+const VIEWPORT_H = VIEWPORT_TILES_Y * TILE_SIZE * SCALE;
+
+// Sprite sheet layout: 4 cols × 2 rows, cada frame 256x256 (la imagen generada es 1024x512)
+// Col 0=down0, 1=down1, 2=up0, 3=up1 | Row 0=arriba, 1=lados
+const SPRITE_W = 256;   // ancho de cada frame en la imagen generada
+const SPRITE_H = 512;   // alto de cada frame en la imagen generada
+
+// Frames por dirección [col, row] en la sprite sheet
+const SPRITE_FRAMES = {
+  down:  [{ col: 0, row: 0 }, { col: 1, row: 0 }],
+  up:    [{ col: 2, row: 0 }, { col: 3, row: 0 }],
+  left:  [{ col: 0, row: 1 }, { col: 1, row: 1 }],
+  right: [{ col: 2, row: 1 }, { col: 3, row: 1 }],
+}
+
+// Tileset layout: 4 cols × 2 rows, cada tile ~256px (imagen 1024x512)
+// [col, row]: GRASS=0,0 | WATER=1,0 | TREE=2,0 | PATH=3,0 | FLOWER=0,1 | HOUSE=1,1 | WALL=2,1 | FLOOR=3,1
+const TILE_SRC = {
+  [TILES.GRASS]:  { col: 0, row: 0 },
+  [TILES.WATER]:  { col: 1, row: 0 },
+  [TILES.TREE]:   { col: 2, row: 0 },
+  [TILES.PATH]:   { col: 3, row: 0 },
+  [TILES.FLOWER]: { col: 0, row: 1 },
+  [TILES.HOUSE]:  { col: 1, row: 1 },
+  [TILES.WALL]:   { col: 2, row: 1 },
+  [TILES.FLOOR]:  { col: 3, row: 1 },
+}
+const TILE_IMG_SIZE = 256;  // tamaño de cada tile en la imagen generada
 
 // Definición de mapas
 const MAPS = {
-  pueblo_inicial: { width: 50, height: 50, color: '#8bc34a', title: 'Pueblo Inicial' },
-  mapa_espanol: { width: 100, height: 100, color: '#e57373', title: 'Mapa de Español' },
-  mapa_artes: { width: 100, height: 100, color: '#64b5f6', title: 'Mapa de Artes' },
-  mapa_ingles: { width: 100, height: 100, color: '#ffb74d', title: 'Mapa de Inglés' },
-  ciudad_maestros: { width: 100, height: 100, color: '#9e9e9e', title: 'Ciudad de los Maestros' },
+  pueblo_inicial:  { width: 50,  height: 50,  title: 'Pueblo Inicial' },
+  mapa_espanol:    { width: 100, height: 100, title: 'Mapa de Español' },
+  mapa_artes:      { width: 100, height: 100, title: 'Mapa de Artes' },
+  mapa_ingles:     { width: 100, height: 100, title: 'Mapa de Inglés' },
+  ciudad_maestros: { width: 100, height: 100, title: 'Ciudad de los Maestros' },
 }
 
+// ─── Hook para precargar imágenes ──────────────────────────────────────────────
+function useImage(src) {
+  const [img, setImg] = useState(null)
+  useEffect(() => {
+    const i = new Image()
+    i.src = src
+    i.onload = () => setImg(i)
+  }, [src])
+  return img
+}
+
+// ─── Componente Principal ──────────────────────────────────────────────────────
 function MainMap() {
   const navigate = useNavigate()
   const { userId, authenticatedFetch } = useContext(AuthContext)
+  const canvasRef = useRef(null)
+  const animFrameRef = useRef(null)
+  const keysHeld = useRef({})
+  const moveTimer = useRef(null)
+
   const [player, setPlayer] = useState(null)
   const [npcs, setNpcs] = useState([])
-  const [currentMapData, setCurrentMapData] = useState(MAPS.pueblo_inicial)
-  
   const [pos, setPos] = useState({ x: 25, y: 25 })
   const [dir, setDir] = useState('down')
+  const [walkFrame, setWalkFrame] = useState(0)
   const [petPos, setPetPos] = useState({ x: 25, y: 24 })
   const posHistory = useRef([{ x: 25, y: 24 }])
-  
   const [dialog, setDialog] = useState(null)
-  const [battleNpc, setBattleNpc] = useState(null)
   const saveTimeout = useRef(null)
 
-  // Cargar Jugador
+  // Imágenes precargadas
+  const tilesetImg  = useImage('/tiles/tileset.png')
+  const boyImg      = useImage('/sprites/boy.png')
+  const girlImg     = useImage('/sprites/girl.png')
+
+  // ─── Cargar jugador ──────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!userId) {
-      navigate('/');
-      return;
-    }
-    const fetchPlayer = async () => {
+    if (!userId) { navigate('/'); return; }
+    const load = async () => {
       try {
         const res = await authenticatedFetch(`/api/players/${userId}`)
         if (res.ok) {
@@ -46,576 +95,434 @@ function MainMap() {
             setPos(data.position)
             setPetPos({ x: data.position.x, y: data.position.y - 1 })
             posHistory.current = [{ x: data.position.x, y: data.position.y - 1 }]
-            setCurrentMapData(MAPS[data.currentMap] || MAPS.pueblo_inicial)
           }
-        } else {
-          navigate('/create')
-        }
-      } catch (err) {
-        console.error('Error', err)
-      }
+        } else { navigate('/create') }
+      } catch (e) { console.error(e) }
     }
-    fetchPlayer()
+    load()
   }, [navigate])
 
-  // Cargar NPCs del mapa actual
+  // ─── Cargar NPCs ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!player || player.currentMap === 'pueblo_inicial') {
-      setNpcs([]); // Pueblo inicial solo tiene al bibliotecario hardcodeado
-      return;
-    }
-    const fetchNpcs = async () => {
-      try {
-        const res = await fetch(`/api/npcs/${player.currentMap}`)
-        if (res.ok) {
-          const data = await res.json()
-          setNpcs(data)
-        }
-      } catch (err) {
-        console.error('Error NPCs', err)
-      }
-    }
-    fetchNpcs()
+    if (!player || player.currentMap === 'pueblo_inicial') { setNpcs([]); return; }
+    fetch(`/api/npcs/${player.currentMap}`)
+      .then(r => r.json()).then(d => setNpcs(d)).catch(() => {})
   }, [player?.currentMap])
 
-  // Guardado
+  // ─── Mapa generado ───────────────────────────────────────────────────────────
+  const mapGrid = useMemo(() =>
+    generateMap(
+      player?.currentMap || 'pueblo_inicial',
+      MAPS[player?.currentMap || 'pueblo_inicial'].width,
+      MAPS[player?.currentMap || 'pueblo_inicial'].height
+    ), [player?.currentMap])
+
+  // ─── Colisiones ──────────────────────────────────────────────────────────────
+  const isObstacle = useCallback((nx, ny, mapName) => {
+    const info = MAPS[mapName]
+    if (nx < 0 || ny < 0 || nx >= info.width || ny >= info.height) return true
+    return SOLID_TILES.includes(mapGrid[ny]?.[nx])
+  }, [mapGrid])
+
+  // Anti-stuck
+  useEffect(() => {
+    if (player && mapGrid.length > 0) {
+      if (isObstacle(pos.x, pos.y, player.currentMap || 'pueblo_inicial')) {
+        const cx = Math.floor(MAPS[player.currentMap || 'pueblo_inicial'].width / 2)
+        const cy = Math.floor(MAPS[player.currentMap || 'pueblo_inicial'].height / 2)
+        setPos({ x: cx, y: cy })
+        setPetPos({ x: cx, y: cy - 1 })
+        posHistory.current = [{ x: cx, y: cy - 1 }]
+      }
+    }
+  }, [player?.currentMap, mapGrid])
+
+  // ─── Guardado ────────────────────────────────────────────────────────────────
   const savePosition = useCallback((newPos, newMap) => {
     if (saveTimeout.current) clearTimeout(saveTimeout.current)
-    if (!userId) return;
+    if (!userId) return
     saveTimeout.current = setTimeout(async () => {
       try {
-        triggerSaveEvent('saving')
         await authenticatedFetch(`/api/players/${userId}/position`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ currentMap: newMap, x: newPos.x, y: newPos.y })
         })
-        triggerSaveEvent('saved')
-      } catch (err) {}
+      } catch (e) {}
     }, 1000)
   }, [userId, authenticatedFetch])
 
-  // Generar grid local usando MapEngine (Memorizado para no regenerar en cada render)
-  const mapGrid = useMemo(() => generateMap(player?.currentMap || 'pueblo_inicial', MAPS[player?.currentMap || 'pueblo_inicial'].width, MAPS[player?.currentMap || 'pueblo_inicial'].height), [player?.currentMap])
-
-  // Validar si es obstáculo
-  const isObstacle = useCallback((nx, ny, mapName) => {
-    const mapInfo = MAPS[mapName];
-    if (nx < 0 || ny < 0 || nx >= mapInfo.width || ny >= mapInfo.height) return true;
-    
-    const tileId = mapGrid[ny]?.[nx];
-    if (SOLID_TILES.includes(tileId)) return true;
-    
-    return false;
-  }, [mapGrid]);
-
-  // Anti-stuck: Si al cargar el mapa el jugador está en un obstáculo (ej. árboles antiguos), moverlo al centro
-  useEffect(() => {
-    if (player && mapGrid.length > 0) {
-      if (isObstacle(pos.x, pos.y, player.currentMap)) {
-        const cx = Math.floor(MAPS[player.currentMap].width / 2);
-        const cy = Math.floor(MAPS[player.currentMap].height / 2);
-        setPos({ x: cx, y: cy });
-        setPetPos({ x: cx, y: cy - 1 });
-        posHistory.current = [{ x: cx, y: cy - 1 }];
-        savePosition({ x: cx, y: cy }, player.currentMap);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [player?.currentMap, mapGrid]);
-
-  // Interacciones
-  const handleInteraction = (nx, ny, mapName) => {
-    if (mapName === 'pueblo_inicial' && nx === 25 && ny === 25) {
-      setDialog({ text: "Bibliotecario Sabio: Bienvenido al Reino de los Lenguajes. Reúne las 3 insignias para poder viajar al norte, a la Ciudad de los Maestros.", type: 'info' })
-      return true;
-    }
-
-    if (mapName === 'pueblo_inicial') {
-      if (nx === 0 && ny === 25) { transitionTo('mapa_espanol', 50, 98); return true; }
-      if (nx === 49 && ny === 25) { transitionTo('mapa_artes', 50, 98); return true; }
-      if (nx === 25 && ny === 49) { transitionTo('mapa_ingles', 50, 98); return true; }
-      if (nx === 25 && ny === 0) { 
-        if (player.unlockedFinalMap || (player.badges.espanol && player.badges.artes && player.badges.ingles)) {
-          transitionTo('ciudad_maestros', 50, 98);
-        } else {
-          setDialog({ text: "La puerta a la Ciudad de los Maestros está sellada. Necesitas las 3 Insignias para pasar.", type: 'info' })
-        }
-        return true; 
-      }
-    }
-
-    // Interacción con Mercader
-    if (mapName === 'pueblo_inicial' && nx === 27 && ny === 25) {
-      navigate('/shop');
-      return true;
-    }
-
-    // Interacción con Cofres
-    if (mapName !== 'pueblo_inicial' && nx === 5 && ny === 5) {
-      if (!player.inventory?.openedChests?.includes(`${mapName}_chest_1`)) {
-        setDialog({
-          type: 'info',
-          text: '¡Has encontrado un cofre oculto! Contiene 100 Lingocoins.',
-          onClose: async () => {
-            // Dar monedas y marcar cofre (Simulación local por rapidez)
-            alert("Has obtenido 100 LC");
-          }
-        });
-      }
-      return true;
-    }
-
-    // Transición a Ciudad de los Maestros desde Pueblo Inicial
-    if (mapName === 'pueblo_inicial' && nx === 25 && ny === 0) {
-      if (player.badges.espanol && player.badges.artes && player.badges.ingles) {
-        setDialog({
-          type: 'info',
-          text: 'Las tres insignias han abierto el camino hacia la Ciudad de los Maestros.',
-          onClose: () => {
-            savePosition(50, 98, 'ciudad_maestros');
-            setPlayer(p => ({ ...p, currentMap: 'ciudad_maestros' }));
-            setCurrentMapData(MAPS['ciudad_maestros']);
-            setPos({ x: 50, y: 98 });
-          }
-        });
-      } else {
-        setDialog({
-          type: 'info',
-          text: 'Una fuerza misteriosa te impide el paso. Solo aquellos con las tres insignias pueden entrar a la Ciudad de los Maestros.'
-        });
-      }
-      return true;
-    }
-
-    // Interacción con Maestros
-    if (Math.abs(50 - nx) <= 1 && Math.abs(50 - ny) <= 1) {
-      if (mapName === 'mapa_espanol' || mapName === 'mapa_artes' || mapName === 'mapa_ingles' || mapName === 'ciudad_maestros') {
-        let subject = '';
-        let teacherId = '';
-        if (mapName === 'mapa_espanol') { subject = 'espanol'; teacherId = 'maestro_espanol'; }
-        if (mapName === 'mapa_artes') { subject = 'artes'; teacherId = 'maestro_artes'; }
-        if (mapName === 'mapa_ingles') { subject = 'ingles'; teacherId = 'maestro_ingles'; }
-        if (mapName === 'ciudad_maestros') { subject = 'integrador'; teacherId = 'gran_maestro_lenguaje'; }
-
-        // Validar requisitos
-        const victoriesInRealm = player.victoriesBySubject?.[subject] || 0;
-        const requiredVictories = 35;
-        const requiredXp = mapName === 'ciudad_maestros' ? 2500 : 700;
-
-        if (victoriesInRealm < requiredVictories || player.xp < requiredXp) {
-          setDialog({
-            type: 'info',
-            text: mapName === 'ciudad_maestros'
-              ? `Aún debes demostrar mayor dominio antes de ingresar a la Gran Academia. Necesitas 35 victorias aquí (tienes ${victoriesInRealm}) y 2500 XP (tienes ${player.xp}).`
-              : `Aún no estás listo para enfrentar al Maestro. Necesitas derrotar al menos 35 estudiantes (llevas ${victoriesInRealm}) y reunir 700 XP (llevas ${player.xp}) en este reino.`
-          });
-        } else {
-          setDialog({
-            type: 'battle',
-            npc: {
-              npcId: teacherId,
-              subject: subject,
-              name: mapName === 'ciudad_maestros' ? 'Gran Maestro del Lenguaje' : 'El Maestro',
-              isBoss: true,
-              isFinalBoss: mapName === 'ciudad_maestros'
-            }
-          });
-        }
-        return true;
-      }
-    }
-
-    const npc = npcs.find(n => n.x === nx && n.y === ny);
-    if (npc) {
-      if (player.completedBattles.includes(npc.npcId)) {
-        setDialog({ text: `${npc.name}: Ya hemos tenido nuestro enfrentamiento. Sigue avanzando en tu aventura.`, type: 'info' })
-      } else {
-        setDialog({ text: `Soy ${npc.name}, de la zona ${npc.zone}. ¿Quieres poner a prueba tus conocimientos?`, type: 'battle', npc })
-      }
-      return true;
-    }
-
-    // Colisión Maestro
-    if (mapName !== 'pueblo_inicial' && nx === Math.floor(MAPS[mapName].width/2) && ny === Math.floor(MAPS[mapName].height/2)) {
-      if (mapName === 'ciudad_maestros') {
-        const defeatedInMap = npcs.filter(n => player.completedBattles.includes(n.npcId)).length;
-        if (defeatedInMap >= 35 && player.xp >= 2500) {
-          setDialog({ text: "GRAN MAESTRO DEL LENGUAJE: Has reunido el conocimiento de los tres reinos. ¡Prepárate para la batalla final!", type: 'info' })
-        } else {
-          setDialog({ text: `GRAN MAESTRO DEL LENGUAJE: Aún no estás listo. Vence a 35 estudiantes integradores (tienes ${defeatedInMap}) y consigue 2500 XP en total (tienes ${player.xp}).`, type: 'info' })
-        }
-      } else {
-        const subject = mapName.split('_')[1];
-        const defeatedInMap = npcs.filter(n => player.completedBattles.includes(n.npcId)).length;
-        if (defeatedInMap >= 35 && player.xp >= 700) {
-          setDialog({ text: "Maestro: Has demostrado tu valía. ¡Prepárate para la batalla final de esta escuela!", type: 'info' })
-        } else {
-          setDialog({ text: `Maestro: Aún no estás listo. Vence a 35 estudiantes (tienes ${defeatedInMap}) y consigue 700 XP en total (tienes ${player.xp}).`, type: 'info' })
-        }
-      }
-      return true;
-    }
-
-    return false;
-  }
-
-  const transitionTo = (newMap, x, y) => {
-    // Por ahora el usuario pidió solo mostrar "Esta ruta estará disponible pronto" 
-    // pero luego dice "Crear estudiantes repartidos por los mapas... Total 150".
-    // Así que SÍ debemos hacer la transición.
+  // ─── Transición de mapa ──────────────────────────────────────────────────────
+  const transitionTo = useCallback((newMap, x, y) => {
     setPlayer(p => ({ ...p, currentMap: newMap }))
-    setCurrentMapData(MAPS[newMap])
     setPos({ x, y })
-    setPetPos({ x, y: y-1 })
-    posHistory.current = [{ x, y: y-1 }]
+    setPetPos({ x, y: y - 1 })
+    posHistory.current = [{ x, y: y - 1 }]
     savePosition({ x, y }, newMap)
-  }
+  }, [savePosition])
 
-  const move = useCallback((dx, dy, newDir) => {
-    if (dialog) return;
+  // ─── Interacciones ───────────────────────────────────────────────────────────
+  const handleInteraction = useCallback((nx, ny, mapName, currentPlayer, currentNpcs) => {
+    if (mapName === 'pueblo_inicial') {
+      if (nx === 25 && ny === 25) {
+        setDialog({ text: "Bibliotecario Sabio: Bienvenido al Reino de los Lenguajes. Reúne las 3 insignias para viajar al norte.", type: 'info' })
+        return true
+      }
+      if (nx === 0 && ny === 25)  { transitionTo('mapa_espanol', 50, 98); return true }
+      if (nx === 49 && ny === 25) { transitionTo('mapa_artes', 50, 98); return true }
+      if (nx === 25 && ny === 49) { transitionTo('mapa_ingles', 50, 98); return true }
+      if (nx === 25 && ny === 0) {
+        if (currentPlayer.unlockedFinalMap || (currentPlayer.badges?.espanol && currentPlayer.badges?.artes && currentPlayer.badges?.ingles)) {
+          transitionTo('ciudad_maestros', 50, 98)
+        } else {
+          setDialog({ text: "La puerta está sellada. Necesitas las 3 Insignias.", type: 'info' })
+        }
+        return true
+      }
+    }
+    const npc = currentNpcs.find(n => n.x === nx && n.y === ny)
+    if (npc) {
+      if (currentPlayer.completedBattles?.includes(npc.npcId)) {
+        setDialog({ text: `${npc.name}: Ya tuvimos nuestro duelo. ¡Sigue avanzando!`, type: 'info' })
+      } else {
+        setDialog({ text: `¡Soy ${npc.name}! ¿Quieres poner a prueba tus conocimientos?`, type: 'battle', npc })
+      }
+      return true
+    }
+    if (mapName !== 'pueblo_inicial' && nx === Math.floor(MAPS[mapName].width/2) && ny === Math.floor(MAPS[mapName].height/2)) {
+      const defeated = currentNpcs.filter(n => currentPlayer.completedBattles?.includes(n.npcId)).length
+      if (defeated >= 35 && currentPlayer.xp >= 700) {
+        setDialog({ text: "Maestro: ¡Has demostrado tu valía! ¡Prepárate para el reto final!", type: 'info' })
+      } else {
+        setDialog({ text: `Maestro: Aún no estás listo. Vence a 35 estudiantes (llevas ${defeated}) y consigue 700 XP.`, type: 'info' })
+      }
+      return true
+    }
+    return false
+  }, [transitionTo])
 
+  // ─── Movimiento ──────────────────────────────────────────────────────────────
+  const moveRef = useRef(null)
+  moveRef.current = { dialog, player, npcs, isObstacle, handleInteraction, savePosition, pos }
+
+  const doMove = useCallback((dx, dy, newDir) => {
+    const { dialog: dlg, player: pl, npcs: npcList, isObstacle: obs, handleInteraction: interact, savePosition: save } = moveRef.current
+    if (dlg || !pl) return
     setDir(newDir)
     setPos(prev => {
-      const nx = prev.x + dx;
-      const ny = prev.y + dy;
-      const cMap = player.currentMap || 'pueblo_inicial';
-
-      if (handleInteraction(nx, ny, cMap)) return prev;
-      if (isObstacle(nx, ny, cMap)) return prev;
-      
-      const nextPos = { x: nx, y: ny };
-      posHistory.current.push(prev);
-      if (posHistory.current.length > 1) {
-        setPetPos(posHistory.current.shift());
-      }
-      
-      savePosition(nextPos, cMap);
-      return nextPos;
+      const nx = prev.x + dx
+      const ny = prev.y + dy
+      const cMap = pl.currentMap || 'pueblo_inicial'
+      if (interact(nx, ny, cMap, pl, npcList)) return prev
+      if (obs(nx, ny, cMap)) return prev
+      const next = { x: nx, y: ny }
+      posHistory.current.push(prev)
+      if (posHistory.current.length > 1) setPetPos(posHistory.current.shift())
+      save(next, cMap)
+      setWalkFrame(f => (f + 1) % 2)
+      return next
     })
-  }, [dialog, savePosition, player, npcs])
+  }, [])
 
-  // Teclado
+  // ─── Teclado (con repetición suave) ─────────────────────────────────────────
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      switch(e.key) {
-        case 'ArrowUp': case 'w': move(0, -1, 'up'); break;
-        case 'ArrowDown': case 's': move(0, 1, 'down'); break;
-        case 'ArrowLeft': case 'a': move(-1, 0, 'left'); break;
-        case 'ArrowRight': case 'd': move(1, 0, 'right'); break;
-        case 'Enter': 
-          if(dialog && dialog.type === 'info') setDialog(null);
-          break;
-        default: break;
+    const MOVE_DELAY = 140 // ms entre pasos
+
+    const step = () => {
+      if (keysHeld.current['ArrowUp']    || keysHeld.current['w']) doMove(0, -1, 'up')
+      else if (keysHeld.current['ArrowDown']  || keysHeld.current['s']) doMove(0,  1, 'down')
+      else if (keysHeld.current['ArrowLeft']  || keysHeld.current['a']) doMove(-1, 0, 'left')
+      else if (keysHeld.current['ArrowRight'] || keysHeld.current['d']) doMove(1,  0, 'right')
+    }
+
+    const onKeyDown = (e) => {
+      const dirs = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d']
+      if (dirs.includes(e.key)) e.preventDefault()
+      if (e.key === 'Enter' && moveRef.current.dialog?.type === 'info') { setDialog(null); return }
+      if (!keysHeld.current[e.key]) {
+        keysHeld.current[e.key] = true
+        step()
+        moveTimer.current = setInterval(step, MOVE_DELAY)
       }
     }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [move, dialog])
-
-  const getDirClass = (d) => {
-    switch(d) {
-      case 'left': return 'scaleX(-1)';
-      case 'right': return 'scaleX(1)';
-      default: return 'none';
+    const onKeyUp = (e) => {
+      delete keysHeld.current[e.key]
+      if (!Object.keys(keysHeld.current).some(k => ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(k))) {
+        clearInterval(moveTimer.current)
+      }
     }
-  }
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+      clearInterval(moveTimer.current)
+    }
+  }, [doMove])
 
-  if (!player) return <div style={{ padding: '2rem', textAlign: 'center' }}>Cargando mapa...</div>
+  // ─── Canvas Renderer ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!canvasRef.current || !tilesetImg || !player) return
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    ctx.imageSmoothingEnabled = false  // ¡pixel-perfect GBC!
 
-  // Calcular cámara (centrar jugador)
-  const mapW = currentMapData.width * TILE_SIZE;
-  const mapH = currentMapData.height * TILE_SIZE;
-  const viewportW = 300; // tamaño de vista aprox
-  const viewportH = 300;
-  
-  let camX = (pos.x * TILE_SIZE) - (viewportW / 2) + (TILE_SIZE / 2);
-  let camY = (pos.y * TILE_SIZE) - (viewportH / 2) + (TILE_SIZE / 2);
-  
-  // Limitar cámara
-  if (camX < 0) camX = 0;
-  if (camY < 0) camY = 0;
-  if (camX > mapW - viewportW) camX = mapW - viewportW;
-  if (camY > mapH - viewportH) camY = mapH - viewportH;
+    const cMap = player.currentMap || 'pueblo_inicial'
+    const mapInfo = MAPS[cMap]
 
-  const defeatedInMap = npcs.filter(n => player.completedBattles.includes(n.npcId)).length;
-  const mapProgress = npcs.length > 0 ? Math.round((defeatedInMap / npcs.length) * 100) : 0;
+    // Cámara centrada en el jugador
+    let camTileX = pos.x - Math.floor(VIEWPORT_TILES_X / 2)
+    let camTileY = pos.y - Math.floor(VIEWPORT_TILES_Y / 2)
+    camTileX = Math.max(0, Math.min(camTileX, mapInfo.width  - VIEWPORT_TILES_X))
+    camTileY = Math.max(0, Math.min(camTileY, mapInfo.height - VIEWPORT_TILES_Y))
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    // Dibujar tiles
+    for (let ty = camTileY; ty < camTileY + VIEWPORT_TILES_Y + 1 && ty < mapInfo.height; ty++) {
+      for (let tx = camTileX; tx < camTileX + VIEWPORT_TILES_X + 1 && tx < mapInfo.width; tx++) {
+        const tileId = mapGrid[ty]?.[tx] ?? TILES.GRASS
+        const src = TILE_SRC[tileId] || TILE_SRC[TILES.GRASS]
+        const sx = src.col * TILE_IMG_SIZE
+        const sy = src.row * TILE_IMG_SIZE
+        const dx = (tx - camTileX) * TILE_SIZE * SCALE
+        const dy = (ty - camTileY) * TILE_SIZE * SCALE
+        ctx.drawImage(tilesetImg, sx, sy, TILE_IMG_SIZE, TILE_IMG_SIZE, dx, dy, TILE_SIZE * SCALE, TILE_SIZE * SCALE)
+      }
+    }
+
+    // Dibujar salidas en pueblo_inicial
+    if (cMap === 'pueblo_inicial') {
+      const exits = [
+        { x: 0, y: 25, color: '#e64a4a', label: 'ES' },
+        { x: 49, y: 25, color: '#4a90e2', label: 'AR' },
+        { x: 25, y: 49, color: '#f5a623', label: 'EN' },
+        { x: 25, y: 0,  color: '#9e9e9e', label: '👑' },
+      ]
+      exits.forEach(({ x, y, color, label }) => {
+        const dx = (x - camTileX) * TILE_SIZE * SCALE
+        const dy = (y - camTileY) * TILE_SIZE * SCALE
+        if (dx < 0 || dy < 0 || dx > VIEWPORT_W || dy > VIEWPORT_H) return
+        ctx.fillStyle = color
+        ctx.fillRect(dx, dy, TILE_SIZE * SCALE, TILE_SIZE * SCALE)
+        ctx.fillStyle = '#fff'
+        ctx.font = `bold ${TILE_SIZE * SCALE * 0.5}px monospace`
+        ctx.textAlign = 'center'
+        ctx.fillText(label, dx + TILE_SIZE * SCALE / 2, dy + TILE_SIZE * SCALE * 0.7)
+      })
+    }
+
+    // Dibujar NPCs
+    npcs.forEach(npc => {
+      const dx = (npc.x - camTileX) * TILE_SIZE * SCALE
+      const dy = (npc.y - camTileY) * TILE_SIZE * SCALE
+      if (dx < -TILE_SIZE * SCALE || dy < -TILE_SIZE * SCALE || dx > VIEWPORT_W || dy > VIEWPORT_H) return
+      const isDefeated = player.completedBattles?.includes(npc.npcId)
+      ctx.fillStyle = isDefeated ? '#9e9e9e' : '#ffd700'
+      ctx.fillRect(dx + 2, dy + 2, TILE_SIZE * SCALE - 4, TILE_SIZE * SCALE - 4)
+      ctx.font = `${TILE_SIZE * SCALE * 0.6}px sans-serif`
+      ctx.textAlign = 'center'
+      ctx.fillText(isDefeated ? '😵' : '🤓', dx + TILE_SIZE * SCALE / 2, dy + TILE_SIZE * SCALE * 0.75)
+    })
+
+    // Dibujar NPC Sabio y Mercader en pueblo inicial
+    if (cMap === 'pueblo_inicial') {
+      [[25, 25, '🧙'], [27, 25, '🏪']].forEach(([tx, ty, icon]) => {
+        const dx = (tx - camTileX) * TILE_SIZE * SCALE
+        const dy = (ty - camTileY) * TILE_SIZE * SCALE
+        ctx.font = `${TILE_SIZE * SCALE * 0.7}px sans-serif`
+        ctx.textAlign = 'center'
+        ctx.fillText(icon, dx + TILE_SIZE * SCALE / 2, dy + TILE_SIZE * SCALE * 0.8)
+      })
+    }
+
+    // Dibujar Mascota
+    const petDx = (petPos.x - camTileX) * TILE_SIZE * SCALE
+    const petDy = (petPos.y - camTileY) * TILE_SIZE * SCALE
+    ctx.font = `${TILE_SIZE * SCALE * 0.7}px sans-serif`
+    ctx.textAlign = 'center'
+    const petIcon = player.inventory?.equippedPet === 'pet_panda' ? '🐼' : player.inventory?.equippedPet === 'pet_dragon' ? '🐉' : player.inventory?.equippedPet === 'pet_colibri' ? '🐦' : '🐾'
+    ctx.fillText(petIcon, petDx + TILE_SIZE * SCALE / 2, petDy + TILE_SIZE * SCALE * 0.85)
+
+    // Dibujar Jugador con sprite GBC
+    const spriteImg = player.character?.gender === 'girl' ? girlImg : boyImg
+    const pdx = (pos.x - camTileX) * TILE_SIZE * SCALE
+    const pdy = (pos.y - camTileY) * TILE_SIZE * SCALE
+    if (spriteImg) {
+      const frames = SPRITE_FRAMES[dir] || SPRITE_FRAMES.down
+      const frame = frames[walkFrame]
+      const sx = frame.col * SPRITE_W
+      const sy = frame.row * SPRITE_H
+      // Dibujar centrado y un poco más grande
+      const drawW = TILE_SIZE * SCALE * 1.1
+      const drawH = TILE_SIZE * SCALE * 1.6
+      const offX = (TILE_SIZE * SCALE - drawW) / 2
+      const offY = (TILE_SIZE * SCALE - drawH) + 4
+      ctx.drawImage(spriteImg, sx, sy, SPRITE_W, SPRITE_H, pdx + offX, pdy + offY, drawW, drawH)
+    } else {
+      // Fallback emoji mientras cargan los sprites
+      ctx.font = `${TILE_SIZE * SCALE * 0.8}px sans-serif`
+      ctx.textAlign = 'center'
+      ctx.fillText(player.character?.gender === 'girl' ? '👧' : '👦', pdx + TILE_SIZE * SCALE / 2, pdy + TILE_SIZE * SCALE * 0.85)
+    }
+
+  }, [pos, dir, walkFrame, petPos, mapGrid, npcs, tilesetImg, boyImg, girlImg, player])
+
+  if (!player) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#1a1a2e', color: '#fff', fontFamily: 'monospace' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎮</div>
+        <div>Cargando mundo...</div>
+      </div>
+    </div>
+  )
+
+  const cMap = player.currentMap || 'pueblo_inicial'
+  const mapInfo = MAPS[cMap]
+  const defeatedInMap = npcs.filter(n => player.completedBattles?.includes(n.npcId)).length
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#5a5a5a' }}>
-      
-      {/* HUD SUPERIOR */}
-      <div style={{ padding: '5px 10px', backgroundColor: 'var(--gbc-white)', borderBottom: '4px solid var(--gbc-black)', zIndex: 10 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: '0.7rem', margin: 0, color: 'var(--gbc-primary)' }}>{currentMapData.title}</h2>
-          <div style={{ fontSize: '0.6rem', display: 'flex', alignItems: 'center' }}>
-            XP: {player.xp} | {player.title}
-            <button className="btn-retro" style={{ fontSize: '0.5rem', padding: '2px 5px', marginLeft: '10px', backgroundColor: '#ffca28' }} onClick={() => {
-              const cx = Math.floor(MAPS[player.currentMap].width / 2);
-              const cy = Math.floor(MAPS[player.currentMap].height / 2);
-              setPos({ x: cx, y: cy });
-              setPetPos({ x: cx, y: cy - 1 });
-              posHistory.current = [{ x: cx, y: cy - 1 }];
-              savePosition({ x: cx, y: cy }, player.currentMap);
-            }}>¡Ayuda! Me atasqué</button>
-          </div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#1a1a2e', fontFamily: "'Press Start 2P', monospace" }}>
+
+      {/* HUD */}
+      <div style={{ padding: '6px 12px', backgroundColor: '#0d0d1a', borderBottom: '3px solid #ffd700', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
+        <div style={{ color: '#ffd700', fontSize: '0.5rem' }}>{mapInfo.title}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ color: '#7fff00', fontSize: '0.45rem' }}>XP: {player.xp}</span>
+          <button
+            style={{ fontSize: '0.35rem', padding: '2px 6px', backgroundColor: '#ff4444', color: '#fff', border: '2px solid #ffd700', cursor: 'pointer', fontFamily: 'monospace' }}
+            onClick={() => {
+              const cx = Math.floor(mapInfo.width / 2)
+              const cy = Math.floor(mapInfo.height / 2)
+              setPos({ x: cx, y: cy })
+              setPetPos({ x: cx, y: cy - 1 })
+              posHistory.current = [{ x: cx, y: cy - 1 }]
+            }}
+          >WARP</button>
         </div>
-        
-        {player.currentMap !== 'pueblo_inicial' && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', fontSize: '0.55rem' }}>
-            <span>Derrotados: {defeatedInMap}/50 ({mapProgress}%)</span>
-            <span>
-              Insignias: 
-              <span style={{ opacity: player.badges.espanol ? 1 : 0.2 }}> ES </span>
-              <span style={{ opacity: player.badges.artes ? 1 : 0.2 }}> AR </span>
-              <span style={{ opacity: player.badges.ingles ? 1 : 0.2 }}> EN </span>
-            </span>
-          </div>
-        )}
       </div>
 
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden', position: 'relative' }}>
-        
-        {/* Contenedor Vista */}
-        <div style={{ 
-          width: `${viewportW}px`, 
-          height: `${viewportH}px`,
+      {/* Canvas + overlay */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#1a1a2e', position: 'relative' }}>
+
+        {/* Marco estilo GBC */}
+        <div style={{
+          border: '6px solid #ffd700',
+          boxShadow: '0 0 0 3px #000, 0 0 30px rgba(255,215,0,0.3)',
           position: 'relative',
-          overflow: 'hidden',
-          border: '4px solid #000',
-          backgroundColor: currentMapData.color,
-          transform: 'scale(1.2)'
+          imageRendering: 'pixelated'
         }}>
-          
-          {/* El Mapa en sí que se mueve */}
+          <canvas
+            ref={canvasRef}
+            width={VIEWPORT_W}
+            height={VIEWPORT_H}
+            style={{ display: 'block', imageRendering: 'pixelated' }}
+          />
+
+          {/* Minimapa */}
           <div style={{
-            position: 'absolute',
-            left: -camX,
-            top: -camY,
-            width: `${mapW}px`,
-            height: `${mapH}px`,
-            transition: 'left 0.2s linear, top 0.2s linear'
+            position: 'absolute', top: '6px', right: '6px',
+            width: '50px', height: '50px',
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            border: '2px solid #ffd700',
           }}>
-
-            {/* Renderizar Grid Generado */}
-            {mapGrid.map((row, y) => row.map((tileId, x) => {
-              // Optimizacion: Solo renderizar si está cerca de la cámara (culling)
-              if (
-                x * TILE_SIZE < camX - TILE_SIZE * 2 ||
-                x * TILE_SIZE > camX + viewportW + TILE_SIZE * 2 ||
-                y * TILE_SIZE < camY - TILE_SIZE * 2 ||
-                y * TILE_SIZE > camY + viewportH + TILE_SIZE * 2
-              ) return null;
-
-              let tileClass = 'tile tile-grass';
-              if (tileId === TILES.WATER) tileClass = 'tile tile-water';
-              if (tileId === TILES.TREE) tileClass = 'tile tile-tree';
-              if (tileId === TILES.PATH) tileClass = 'tile tile-path';
-              if (tileId === TILES.HOUSE) tileClass = 'tile tile-house';
-              if (tileId === TILES.WALL) tileClass = 'tile tile-wall';
-              if (tileId === TILES.FLOOR) tileClass = 'tile tile-floor';
-              if (tileId === TILES.FLOWER) tileClass = 'tile tile-flower';
-
-              return (
-                <div key={`${x}-${y}`} className={tileClass} style={{ left: x * TILE_SIZE, top: y * TILE_SIZE }}></div>
-              );
-            }))}
-
-            {/* Salidas en Pueblo Inicial */}
-            {player.currentMap === 'pueblo_inicial' && (
-              <>
-                <div style={{ position: 'absolute', top: 25*TILE_SIZE, left: 0, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#e64a4a', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center', zIndex: 1 }}>ES</div>
-                <div style={{ position: 'absolute', top: 25*TILE_SIZE, left: 49*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#4a90e2', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center', zIndex: 1 }}>AR</div>
-                <div style={{ position: 'absolute', top: 49*TILE_SIZE, left: 25*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#f5a623', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center', zIndex: 1 }}>EN</div>
-                
-                {/* Salida Norte a Ciudad Maestros */}
-                <div style={{ position: 'absolute', top: 0, left: 25*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#9e9e9e', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent:'center', border: (player.badges.espanol && player.badges.artes && player.badges.ingles) ? '2px solid gold' : '2px solid black', zIndex: 1 }}>👑</div>
-                
-                {/* NPC Sabio */}
-                <div style={{ position: 'absolute', top: 25*TILE_SIZE, left: 25*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#ab47bc', display: 'flex', alignItems: 'center', justifyContent:'center', zIndex: 2 }}>🧙</div>
-
-                {/* NPC Mercader */}
-                <div style={{ position: 'absolute', top: 25*TILE_SIZE, left: 27*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#795548', display: 'flex', alignItems: 'center', justifyContent:'center', fontSize: '12px', zIndex: 2 }}>🏪</div>
-              </>
-            )}
-
-            {/* Cofres Secretos */}
-            {player.currentMap !== 'pueblo_inicial' && !player.inventory?.openedChests?.includes(`${player.currentMap}_chest_1`) && (
-              <div style={{ position: 'absolute', top: 5*TILE_SIZE, left: 5*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, backgroundColor: '#ffeb3b', display: 'flex', alignItems: 'center', justifyContent:'center', fontSize: '12px', zIndex: 2 }}>🧰</div>
-            )}
-
-            {/* Maestro en Escuelas */}
-            {player.currentMap !== 'pueblo_inicial' && (
-              <div style={{ 
-                position: 'absolute', 
-                top: 50*TILE_SIZE, 
-                left: 50*TILE_SIZE, 
-                width: TILE_SIZE, height: TILE_SIZE, 
-                backgroundColor: '#fbc02d', display: 'flex', alignItems: 'center', justifyContent:'center', border: '2px solid #000', zIndex: 2
-              }}>👑</div>
-            )}
-            
-            {/* NPCs Dinámicos */}
-            {npcs.map(npc => {
-              const isDefeated = player.completedBattles.includes(npc.npcId);
-              // Verificar cercanía para !
-              const isNear = Math.abs(pos.x - npc.x) <= 1 && Math.abs(pos.y - npc.y) <= 1;
-
-              return (
-                <div key={npc.npcId} style={{
-                  position: 'absolute',
-                  left: npc.x * TILE_SIZE,
-                  top: npc.y * TILE_SIZE,
-                  width: TILE_SIZE,
-                  height: TILE_SIZE,
-                  backgroundColor: isDefeated ? '#9e9e9e' : '#ffeb3b', // Gris si está derrotado
-                  border: '1px solid #000',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  fontSize: '12px'
-                }}>
-                  {isDefeated ? '😵' : '🤓'}
-                  {isNear && !isDefeated && (
-                    <div style={{ position: 'absolute', top: '-15px', color: 'red', fontWeight: 'bold' }}>!</div>
-                  )}
-                </div>
-              )
-            })}
-
-            {/* Mascota */}
             <div style={{
               position: 'absolute',
-              left: petPos.x * TILE_SIZE,
-              top: petPos.y * TILE_SIZE,
-              width: TILE_SIZE,
-              height: TILE_SIZE,
-              backgroundColor: 'var(--gbc-secondary)',
+              left: `${(pos.x / mapInfo.width) * 100}%`,
+              top: `${(pos.y / mapInfo.height) * 100}%`,
+              width: '4px', height: '4px',
+              backgroundColor: '#ff0000',
               borderRadius: '50%',
-              transition: 'left 0.2s, top 0.2s',
-              zIndex: 2,
-              display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px'
-            }}>
-              🐾
-            </div>
+              transform: 'translate(-50%,-50%)'
+            }} />
+          </div>
 
-            {/* Jugador */}
-            <div style={{
-              position: 'absolute',
-              left: pos.x * TILE_SIZE,
-              top: pos.y * TILE_SIZE,
-              width: TILE_SIZE,
-              height: TILE_SIZE,
-              backgroundColor: player.character.gender === 'boy' ? '#2196f3' : '#e91e63',
-              boxShadow: '0 4px 8px rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '20px',
-              zIndex: 3,
-              transform: getDirClass(dir),
-              transition: 'left 0.2s, top 0.2s'
-            }}>
-              {(() => {
-                const eqSkin = player.inventory?.equippedSkin;
-                if (eqSkin === 'skin_explorador') return '🤠';
-                if (eqSkin === 'skin_bibliotecario') return '🤓';
-                if (eqSkin === 'skin_artista') return '🧑‍🎨';
-                if (eqSkin === 'skin_traductor') return '🗣️';
-                if (eqSkin === 'skin_maestro') return '🧑‍🏫';
-                if (eqSkin === 'skin_sabio') return '🧙';
-                return player.character.gender === 'boy' ? '👦' : '👧';
-              })()}
-            </div>
-          
-            {/* Mascota (Sigue al jugador) */}
-            <div
-              style={{
-                position: 'absolute',
-                top: (petPos.y * TILE_SIZE),
-                left: (petPos.x * TILE_SIZE),
-                width: TILE_SIZE,
-                height: TILE_SIZE,
-                transition: 'left 0.2s, top 0.2s',
-                zIndex: 2,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '15px'
-              }}
-            >
-              {(() => {
-                const eqPet = player.inventory?.equippedPet;
-                if (eqPet === 'pet_panda') return '🐼';
-                if (eqPet === 'pet_dragon') return '🐉';
-                if (eqPet === 'pet_colibri') return '🐦';
-                return '🐾';
-              })()}
-            </div>
+          {/* Badges */}
+          <div style={{ position: 'absolute', top: '6px', left: '6px', display: 'flex', gap: '2px' }}>
+            {['espanol', 'artes', 'ingles'].map(b => (
+              <div key={b} style={{
+                width: '10px', height: '10px',
+                backgroundColor: player.badges?.[b] ? '#ffd700' : '#333',
+                border: '1px solid #ffd700',
+                borderRadius: '50%'
+              }} title={b} />
+            ))}
           </div>
         </div>
 
-        {/* Minimapa */}
-        <div style={{
-          position: 'absolute', top: '10px', right: '10px',
-          width: '60px', height: '60px',
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          border: '2px solid #fff',
-          zIndex: 15
-        }}>
-          {/* Jugador en minimapa */}
-          <div style={{
-            position: 'absolute',
-            left: `${(pos.x / currentMapData.width) * 100}%`,
-            top: `${(pos.y / currentMapData.height) * 100}%`,
-            width: '4px', height: '4px', backgroundColor: 'red', borderRadius: '50%'
-          }}></div>
-        </div>
-
-        {/* Diálogos UI */}
+        {/* Diálogo */}
         {dialog && (
-          <div className="rpg-box" style={{
-            position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
-            width: '90%', maxWidth: '400px', zIndex: 20
+          <div style={{
+            position: 'absolute', bottom: '120px',
+            left: '50%', transform: 'translateX(-50%)',
+            backgroundColor: '#0d0d1a',
+            border: '4px solid #ffd700',
+            padding: '12px 16px',
+            maxWidth: '380px', width: '90%',
+            zIndex: 20,
+            boxShadow: '0 0 20px rgba(255,215,0,0.4)'
           }}>
-            <p style={{ fontSize: '0.6rem' }}>{dialog.text}</p>
-            
+            <p style={{ color: '#fff', fontSize: '0.45rem', lineHeight: '1.8', margin: 0 }}>{dialog.text}</p>
             {dialog.type === 'info' && (
-              <button className="btn-retro" style={{ padding: '5px', marginTop: '10px' }} onClick={() => setDialog(null)}>Continuar</button>
+              <button className="btn-retro" style={{ marginTop: '10px', fontSize: '0.4rem', padding: '4px 10px' }} onClick={() => setDialog(null)}>Continuar ▶</button>
             )}
-
             {dialog.type === 'battle' && (
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button className="btn-retro success" style={{ padding: '5px' }} onClick={() => {
-                  setDialog(null);
-                  navigate(`/battle?npcId=${dialog.npc.npcId}&subject=${dialog.npc.subject}&difficulty=${dialog.npc.difficulty || 1}&name=${dialog.npc.name}&isBoss=${dialog.npc.isBoss ? 'true' : 'false'}`);
-                }}>Sí</button>
-                <button className="btn-retro" style={{ padding: '5px', backgroundColor: 'var(--gbc-primary)' }} onClick={() => setDialog(null)}>No</button>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                <button className="btn-retro success" style={{ fontSize: '0.4rem', padding: '4px 10px' }} onClick={() => {
+                  setDialog(null)
+                  navigate(`/battle?npcId=${dialog.npc.npcId}&subject=${dialog.npc.subject}&difficulty=${dialog.npc.difficulty || 1}&name=${dialog.npc.name}&isBoss=${dialog.npc.isBoss ? 'true' : 'false'}`)
+                }}>¡Acepto! ⚔️</button>
+                <button className="btn-retro" style={{ fontSize: '0.4rem', padding: '4px 10px' }} onClick={() => setDialog(null)}>Huir 🏃</button>
               </div>
             )}
           </div>
         )}
-
       </div>
 
-      {/* D-Pad para táctil */}
-      <div style={{ padding: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'var(--gbc-white)', borderTop: '4px solid var(--gbc-black)', zIndex: 10 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '5px' }}>
-          <div></div>
-          <button className="btn-retro" style={{ padding: '15px' }} onClick={() => move(0, -1, 'up')}>⬆️</button>
-          <div></div>
-          <button className="btn-retro" style={{ padding: '15px' }} onClick={() => move(-1, 0, 'left')}>⬅️</button>
-          <button className="btn-retro" style={{ padding: '15px' }} onClick={() => move(0, 1, 'down')}>⬇️</button>
-          <button className="btn-retro" style={{ padding: '15px' }} onClick={() => move(1, 0, 'right')}>➡️</button>
+      {/* D-Pad táctil */}
+      <div style={{ padding: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0d0d1a', borderTop: '3px solid #ffd700', zIndex: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '48px 48px 48px', gridTemplateRows: '48px 48px 48px', gap: '4px' }}>
+          <div/>
+          <button style={dpadStyle} onTouchStart={()=>doMove(0,-1,'up')} onClick={()=>doMove(0,-1,'up')}>▲</button>
+          <div/>
+          <button style={dpadStyle} onTouchStart={()=>doMove(-1,0,'left')} onClick={()=>doMove(-1,0,'left')}>◄</button>
+          <div style={{ backgroundColor: '#1a1a2e', border: '2px solid #333', borderRadius: '4px' }}/>
+          <button style={dpadStyle} onTouchStart={()=>doMove(1,0,'right')} onClick={()=>doMove(1,0,'right')}>►</button>
+          <div/>
+          <button style={dpadStyle} onTouchStart={()=>doMove(0,1,'down')} onClick={()=>doMove(0,1,'down')}>▼</button>
+          <div/>
         </div>
-        
-        <div style={{ marginLeft: '40px' }}>
-          <button className="btn-retro success" style={{ padding: '20px', borderRadius: '50%' }} onClick={() => { if(dialog && dialog.type === 'info') setDialog(null) }}>A</button>
+
+        {/* Stats compactos */}
+        <div style={{ textAlign: 'center', color: '#ffd700', fontSize: '0.35rem', lineHeight: '2' }}>
+          <div>💰 {player.lingocoins} LC</div>
+          {cMap !== 'pueblo_inicial' && <div>⚔️ {defeatedInMap}/50</div>}
+          <button className="btn-retro" style={{ fontSize: '0.3rem', padding: '3px 6px', marginTop: '4px' }} onClick={() => navigate('/shop')}>🏪</button>
+          <button className="btn-retro" style={{ fontSize: '0.3rem', padding: '3px 6px', marginTop: '4px', marginLeft: '4px' }} onClick={() => navigate('/inventory')}>🎒</button>
         </div>
+
+        <button
+          style={{ ...dpadStyle, width: '52px', height: '52px', borderRadius: '50%', backgroundColor: '#e91e63', fontSize: '0.7rem' }}
+          onClick={() => { if (dialog?.type === 'info') setDialog(null) }}
+        >A</button>
       </div>
 
     </div>
   )
+}
+
+const dpadStyle = {
+  backgroundColor: '#2a2a3e',
+  border: '2px solid #ffd700',
+  color: '#ffd700',
+  cursor: 'pointer',
+  borderRadius: '4px',
+  fontSize: '0.8rem',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  touchAction: 'manipulation',
+  userSelect: 'none',
 }
 
 export default MainMap
