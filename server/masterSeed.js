@@ -9,28 +9,38 @@ dotenv.config();
 
 const TILE_SIZE = 32;
 
-// Configuraciones de Mapas y Zonas
 const mapConfigs = {
+  pueblo_inicial: {
+    mapName: 'pueblo_inicial',
+    width: 50, height: 50,
+    subject: 'espanol', // usan pool de español para empezar
+    zones: ['Ortografía', 'Comprensión lectora'],
+    counts: [10, 10]
+  },
   espanol: {
     mapName: 'mapa_espanol',
+    width: 100, height: 100,
     subject: 'espanol',
     zones: ['Ortografía', 'Comprensión lectora', 'Literatura', 'Producción de textos'],
     counts: [15, 15, 10, 10]
   },
   artes: {
     mapName: 'mapa_artes',
+    width: 100, height: 100,
     subject: 'artes',
     zones: ['Artes visuales', 'Música', 'Danza', 'Teatro'],
     counts: [15, 15, 10, 10]
   },
   ingles: {
     mapName: 'mapa_ingles',
+    width: 100, height: 100,
     subject: 'ingles',
     zones: ['Vocabulary', 'Grammar', 'Reading', 'Listening'],
     counts: [15, 15, 10, 10]
   },
   integrador: {
     mapName: 'ciudad_maestros',
+    width: 100, height: 100,
     subject: 'integrador',
     zones: ['Comunicación Escrita', 'Comunicación Artística', 'Comunicación Internacional', 'Interpretación y Análisis', 'Retos Integradores'],
     counts: [10, 10, 10, 10, 10]
@@ -78,8 +88,8 @@ const generateNPCsAndQuestions = async () => {
             const qId = `q_${npcCounter}_${questionCounter++}`;
             questionIdsForNpc.push(qId);
             
-            // Elegir pregunta del pool ciclando
-            const poolIndex = q % zonePool.length;
+            // Elegir pregunta aleatoria del pool para evitar repeticiones en el mismo orden
+            const poolIndex = Math.floor(Math.random() * Math.max(1, zonePool.length));
             const poolQuestion = zonePool[poolIndex] || {
               question: `Pregunta de práctica sobre ${zoneName} #${q + 1}`,
               options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
@@ -105,13 +115,16 @@ const generateNPCsAndQuestions = async () => {
             });
           }
 
+          // Distribuir correctamente por el tamaño real del mapa, evitando los bordes
+          const w = config.width - 4;
+          const h = config.height - 4;
           allNpcs.push({
             npcId: npcId,
             name: `Estudiante ${npcCounter}`,
             map: config.mapName,
             zone: zoneName,
-            x: Math.floor(Math.random() * 48) + 1,
-            y: Math.floor(Math.random() * 48) + 1,
+            x: Math.floor(Math.random() * w) + 2,
+            y: Math.floor(Math.random() * h) + 2,
             subject: config.subject,
             difficulty: difficulty,
             xpReward: xpReward,

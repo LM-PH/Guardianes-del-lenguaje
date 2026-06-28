@@ -2,320 +2,248 @@
 const questionsPool = {
   espanol: {
     "Ortografía": [
-      {
-        question: "¿Cuál de las siguientes palabras está escrita correctamente?",
-        options: ["Hervir", "Herbir", "Erving", "Ervir"],
-        correctAnswer: 0,
-        explanation: "El verbo 'hervir' se escribe con 'h' y 'v'."
-      },
-      {
-        question: "Selecciona la palabra que lleva tilde por ser aguda terminada en vocal:",
-        options: ["Café", "Mesa", "Árbol", "Lápiz"],
-        correctAnswer: 0,
-        explanation: "Café es una palabra aguda que termina en vocal, por lo tanto debe llevar tilde."
-      },
-      {
-        question: "Identifica la opción que utiliza correctamente los signos de interrogación:",
-        options: ["¿Cómo estás?", "Cómo estás?", "¿Cómo estás", "Cómo estás!"],
-        correctAnswer: 0,
-        explanation: "En español se deben usar obligatoriamente los signos de apertura (¿) y de cierre (?)."
-      }
+      { question: "¿Cuál de las siguientes palabras está escrita correctamente?", options: ["Hervir", "Herbir", "Erving", "Ervir"], correctAnswer: 0, explanation: "El verbo 'hervir' se escribe con 'h' y 'v'." },
+      { question: "Selecciona la palabra que lleva tilde por ser aguda terminada en vocal:", options: ["Café", "Mesa", "Árbol", "Lápiz"], correctAnswer: 0, explanation: "Café es una palabra aguda que termina en vocal, por lo tanto debe llevar tilde." },
+      { question: "Identifica la opción que utiliza correctamente los signos de interrogación:", options: ["¿Cómo estás?", "Cómo estás?", "¿Cómo estás", "Cómo estás!"], correctAnswer: 0, explanation: "En español se deben usar obligatoriamente los signos de apertura (¿) y de cierre (?)." },
+      { question: "¿Qué palabra está mal escrita?", options: ["Desición", "Decisión", "Excepción", "Colección"], correctAnswer: 0, explanation: "La forma correcta es 'Decisión'." },
+      { question: "La palabra 'Murciélago' es:", options: ["Sobresdrújula", "Esdrújula", "Grave", "Aguda"], correctAnswer: 1, explanation: "Las palabras esdrújulas tienen la sílaba tónica en la antepenúltima sílaba y siempre llevan tilde." },
+      { question: "¿Cuál es el plural correcto de 'Luz'?", options: ["Luzes", "Luses", "Luces", "Lúces"], correctAnswer: 2, explanation: "Las palabras que terminan en 'z' cambian a 'c' en su forma plural." },
+      { question: "Elige la palabra escrita correctamente con b/v:", options: ["Bíbora", "Vívo", "Víboro", "Víbora"], correctAnswer: 3, explanation: "Víbora se escribe con 'v' y luego con 'b'." },
+      { question: "¿Qué palabra necesita una tilde diacrítica?", options: ["Tu (pronombre)", "Te (pronombre)", "Mi (nota musical)", "Tu (posesivo)"], correctAnswer: 0, explanation: "Tú (pronombre) lleva tilde para diferenciarse de tu (posesivo)." },
+      { question: "¿Cuál de estas palabras es grave?", options: ["Corazón", "Cáscara", "Difícil", "Camión"], correctAnswer: 2, explanation: "Difícil es grave porque su sílaba tónica es la penúltima." },
+      { question: "Señala la opción correcta:", options: ["Había una vez...", "Abía una vez...", "Habia una vez...", "Avía una vez..."], correctAnswer: 0, explanation: "Había viene del verbo haber (con h y b) y lleva tilde por el hiato." },
+      { question: "¿Cómo se escribe el número 16?", options: ["Diez y seis", "Diesiseis", "Dieciseis", "Dieciséis"], correctAnswer: 3, explanation: "Se escribe en una sola palabra y lleva tilde por ser aguda terminada en 's'." },
+      { question: "¿Cuál oración está correctamente puntuada?", options: ["Juan, ven aquí.", "Juan ven aquí.", "Juan ven, aquí.", ",Juan ven aquí."], correctAnswer: 0, explanation: "Se usa coma para separar el vocativo (Juan) del resto de la oración." }
     ],
     "Comprensión lectora": [
-      {
-        question: "Si decimos: 'El perro corre feliz por el parque persiguiendo su pelota'. ¿Quién persigue la pelota?",
-        options: ["El perro", "El parque", "La pelota", "El dueño"],
-        correctAnswer: 0,
-        explanation: "El sujeto que realiza la acción en la oración es 'el perro'."
-      },
-      {
-        question: "En la frase: 'La lluvia caía sin cesar, inundando las calles'. ¿Qué significa 'sin cesar'?",
-        options: ["Que no se detenía", "Que llovía poco", "Que hacía sol", "Que era divertido"],
-        correctAnswer: 0,
-        explanation: "'Sin cesar' significa de forma continua, sin interrupción o pausa."
-      },
-      {
-        question: "Lee: 'Sofía preparó un pastel de fresa para el cumpleaños de su madre'. ¿Para quién es el pastel?",
-        options: ["Para la madre de Sofía", "Para Sofía", "Para las amigas", "Para el padre"],
-        correctAnswer: 0,
-        explanation: "El texto especifica textualmente que el pastel fue preparado para el cumpleaños de su madre."
-      }
+      { question: "Si decimos: 'El perro corre feliz por el parque persiguiendo su pelota'. ¿Quién persigue la pelota?", options: ["El perro", "El parque", "La pelota", "El dueño"], correctAnswer: 0, explanation: "El sujeto que realiza la acción en la oración es 'el perro'." },
+      { question: "En la frase: 'La lluvia caía sin cesar, inundando las calles'. ¿Qué significa 'sin cesar'?", options: ["Que no se detenía", "Que llovía poco", "Que hacía sol", "Que era divertido"], correctAnswer: 0, explanation: "'Sin cesar' significa de forma continua, sin interrupción o pausa." },
+      { question: "Lee: 'Sofía preparó un pastel de fresa para el cumpleaños de su madre'. ¿Para quién es el pastel?", options: ["Para la madre de Sofía", "Para Sofía", "Para las amigas", "Para el padre"], correctAnswer: 0, explanation: "El texto especifica textualmente que el pastel fue preparado para el cumpleaños de su madre." },
+      { question: "Lee: 'El águila voló alto y divisó a su presa'. ¿Qué hizo el águila después de volar?", options: ["Se durmió", "Bebió agua", "Divisó a su presa", "Volvió al nido"], correctAnswer: 2, explanation: "El texto indica que divisó a su presa tras volar alto." },
+      { question: "Si un texto trata sobre cómo hacer una cometa, su propósito es:", options: ["Entretener", "Informar", "Instruir", "Argumentar"], correctAnswer: 2, explanation: "Los textos que explican cómo hacer algo tienen un propósito instructivo." },
+      { question: "Lee: 'Estaba exhausto tras correr el maratón'. ¿Qué significa 'exhausto'?", options: ["Feliz", "Muy cansado", "Rápido", "Enojado"], correctAnswer: 1, explanation: "Exhausto significa estar sumamente cansado o agotado." },
+      { question: "En la oración 'La gigantesca ola destruyó el castillo de arena', el adjetivo es:", options: ["Ola", "Castillo", "Gigantesca", "Arena"], correctAnswer: 2, explanation: "'Gigantesca' describe cómo era la ola, por tanto es el adjetivo." },
+      { question: "Una moraleja se encuentra principalmente en:", options: ["Las noticias", "Las fábulas", "Los poemas", "Las cartas"], correctAnswer: 1, explanation: "Las fábulas son historias cortas que dejan una enseñanza o moraleja." },
+      { question: "¿Cuál es el antónimo de 'Oscuro'?", options: ["Tenebroso", "Negro", "Luminoso", "Opaco"], correctAnswer: 2, explanation: "El antónimo (lo contrario) de oscuro es luminoso o claro." },
+      { question: "Lee: 'A pesar del frío, salieron a jugar'. Esto indica que:", options: ["El frío les impidió jugar", "Hacía calor", "Jugaron aunque hacía frío", "No les gusta el frío"], correctAnswer: 2, explanation: "La frase 'A pesar de' indica una concesión; la acción ocurrió de todos modos." },
+      { question: "¿Qué parte de un libro cuenta la historia de la vida real de una persona?", options: ["Biografía", "Cuento", "Novela", "Poesía"], correctAnswer: 0, explanation: "La biografía es el relato de la historia de vida de una persona." },
+      { question: "El personaje principal de una historia se llama:", options: ["Antagonista", "Protagonista", "Autor", "Narrador"], correctAnswer: 1, explanation: "El protagonista es el personaje central alrededor del cual gira la trama." }
     ],
     "Literatura": [
-      {
-        question: "¿Qué tipo de texto suele escribirse en verso y expresar sentimientos o emociones del autor?",
-        options: ["Poema", "Noticia", "Receta de cocina", "Manual de instrucciones"],
-        correctAnswer: 0,
-        explanation: "El poema es la composición poética escrita en verso para transmitir sensaciones y emociones."
-      },
-      {
-        question: "¿Cuál de los siguientes es un subgénero narrativo que relata historias fantásticas con animales y una moraleja?",
-        options: ["Fábula", "Poesía", "Ensayo científico", "Crónica periodística"],
-        correctAnswer: 0,
-        explanation: "La fábula cuenta relatos ficticios breves con fines didácticos (moraleja) y personajes animales."
-      },
-      {
-        question: "¿Quién es el autor de la famosa novela clásica 'Don Quijote de la Mancha'?",
-        options: ["Miguel de Cervantes", "Gabriel García Márquez", "Federico García Lorca", "Pablo Neruda"],
-        correctAnswer: 0,
-        explanation: "Miguel de Cervantes Saavedra es el autor de esta joya de la literatura universal."
-      }
+      { question: "¿Qué tipo de texto suele escribirse en verso y expresar sentimientos o emociones del autor?", options: ["Poema", "Noticia", "Receta de cocina", "Manual de instrucciones"], correctAnswer: 0, explanation: "El poema es la composición poética escrita en verso para transmitir sensaciones y emociones." },
+      { question: "¿Cuál de los siguientes es un subgénero narrativo que relata historias fantásticas con animales y una moraleja?", options: ["Fábula", "Poesía", "Ensayo científico", "Crónica periodística"], correctAnswer: 0, explanation: "La fábula cuenta relatos ficticios breves con fines didácticos (moraleja) y personajes animales." },
+      { question: "¿Quién es el autor de la famosa novela clásica 'Don Quijote de la Mancha'?", options: ["Miguel de Cervantes", "Gabriel García Márquez", "Federico García Lorca", "Pablo Neruda"], correctAnswer: 0, explanation: "Miguel de Cervantes Saavedra es el autor de esta joya de la literatura universal." },
+      { question: "¿Cómo se llama la figura literaria que compara dos cosas usando 'como'?", options: ["Metáfora", "Símil", "Hipérbole", "Personificación"], correctAnswer: 1, explanation: "El símil o comparación establece una relación de semejanza usando nexos como 'como', 'cual', etc." },
+      { question: "¿Qué figura literaria consiste en exagerar la realidad?", options: ["Hipérbole", "Metáfora", "Símil", "Ironía"], correctAnswer: 0, explanation: "La hipérbole es una figura retórica que consiste en una exageración intencionada." },
+      { question: "¿A qué género pertenece una obra escrita para ser representada por actores?", options: ["Épico", "Lírico", "Dramático", "Didáctico"], correctAnswer: 2, explanation: "El género dramático agrupa las obras escritas en forma de diálogo para ser representadas (teatro)." },
+      { question: "La narración de hazañas de héroes de la antigüedad pertenece a la:", options: ["Lírica", "Épica", "Dramática", "Tragedia"], correctAnswer: 1, explanation: "La poesía épica narra las hazañas de héroes, como en la Ilíada o la Odisea." },
+      { question: "Dar cualidades humanas a objetos inanimados o animales se conoce como:", options: ["Símil", "Metáfora", "Personificación", "Hipérbole"], correctAnswer: 2, explanation: "La personificación o prosopopeya atribuye características humanas a seres irracionales u objetos." },
+      { question: "¿Quién escribió 'Cien años de soledad'?", options: ["Mario Vargas Llosa", "Gabriel García Márquez", "Julio Cortázar", "Jorge Luis Borges"], correctAnswer: 1, explanation: "Es la obra cumbre del escritor colombiano Gabriel García Márquez, Premio Nobel de Literatura." },
+      { question: "El conjunto de líneas en un poema se agrupa en:", options: ["Párrafos", "Estrofas", "Capítulos", "Escenas"], correctAnswer: 1, explanation: "En la poesía, los versos (líneas) se agrupan formando estrofas." },
+      { question: "¿Cuál de estos es un tipo de rima?", options: ["Consonante", "Disonante", "Resonante", "Altisonante"], correctAnswer: 0, explanation: "La rima consonante ocurre cuando coinciden todos los sonidos (vocales y consonantes) a partir de la última vocal tónica." },
+      { question: "Una historia que explica el origen del mundo o de los dioses es un:", options: ["Cuento", "Leyenda", "Mito", "Fábula"], correctAnswer: 2, explanation: "Los mitos son relatos tradicionales que explican el origen del universo o de fenómenos naturales a través de deidades." }
     ],
     "Producción de textos": [
-      {
-        question: "¿Qué palabra funciona como conector de oposición en: 'Estudió mucho, ___ no aprobó el examen'?",
-        options: ["pero", "porque", "entonces", "además"],
-        correctAnswer: 0,
-        explanation: "'Pero' es una conjunción adversativa que denota contraste u oposición."
-      },
-      {
-        question: "Identifica el sujeto en: 'Ayer por la tarde, los estudiantes terminaron el proyecto escolar'.",
-        options: ["los estudiantes", "el proyecto escolar", "Ayer por la tarde", "terminaron"],
-        correctAnswer: 0,
-        explanation: "'Los estudiantes' es el sintagma nominal que realiza la acción verbal de terminar el proyecto."
-      },
-      {
-        question: "¿Cuál es el propósito principal de redactar un texto de tipo argumentativo?",
-        options: ["Persuadir o convencer sobre una postura", "Narrar una historia de ficción", "Explicar un experimento técnico", "Dar instrucciones de uso"],
-        correctAnswer: 0,
-        explanation: "Los textos argumentativos defienden una tesis para persuadir e influir en la opinión del lector."
-      }
+      { question: "¿Qué palabra funciona como conector de oposición en: 'Estudió mucho, ___ no aprobó el examen'?", options: ["pero", "porque", "entonces", "además"], correctAnswer: 0, explanation: "'Pero' es una conjunción adversativa que denota contraste u oposición." },
+      { question: "Identifica el sujeto en: 'Ayer por la tarde, los estudiantes terminaron el proyecto escolar'.", options: ["los estudiantes", "el proyecto escolar", "Ayer por la tarde", "terminaron"], correctAnswer: 0, explanation: "'Los estudiantes' es el sintagma nominal que realiza la acción verbal de terminar el proyecto." },
+      { question: "¿Cuál es el propósito principal de redactar un texto de tipo argumentativo?", options: ["Persuadir o convencer sobre una postura", "Narrar una historia de ficción", "Explicar un experimento técnico", "Dar instrucciones de uso"], correctAnswer: 0, explanation: "Los textos argumentativos defienden una tesis para persuadir e influir en la opinión del lector." },
+      { question: "¿Qué tipo de texto es una receta de cocina?", options: ["Narrativo", "Argumentativo", "Instructivo", "Descriptivo"], correctAnswer: 2, explanation: "Los textos instructivos dan indicaciones paso a paso para realizar una tarea." },
+      { question: "La estructura básica de un cuento es:", options: ["Introducción, desarrollo, conclusión", "Planteamiento, nudo, desenlace", "Tesis, argumentos, conclusión", "Título, ingredientes, preparación"], correctAnswer: 1, explanation: "La estructura narrativa tradicional consta de planteamiento (inicio), nudo (conflicto) y desenlace (resolución)." },
+      { question: "¿Qué conector sirve para añadir información?", options: ["Sin embargo", "Además", "Por lo tanto", "En cambio"], correctAnswer: 1, explanation: "'Además' es un conector aditivo que sirve para sumar información a lo ya dicho." },
+      { question: "¿Qué verbo está conjugado en futuro?", options: ["Caminé", "Caminaba", "Caminaré", "Camino"], correctAnswer: 2, explanation: "'Caminaré' indica una acción que sucederá más adelante." },
+      { question: "En un texto informativo, la información debe ser:", options: ["Subjetiva e imaginaria", "Objetiva y clara", "Confusa y poética", "Llena de opiniones personales"], correctAnswer: 1, explanation: "Los textos informativos buscan transmitir datos reales de forma objetiva." },
+      { question: "¿Qué es un borrador en la producción de textos?", options: ["La versión final para publicar", "Un esquema de ideas iniciales", "Una primera versión sujeta a correcciones", "Un instrumento para borrar lápiz"], correctAnswer: 2, explanation: "Un borrador es un escrito provisional que se revisará y corregirá antes de la versión final." },
+      { question: "El resumen de un texto debe ser:", options: ["Más largo que el original", "Igual de largo", "Breve y con las ideas principales", "Un conjunto de opiniones del lector"], correctAnswer: 2, explanation: "Un resumen sintetiza la información, conservando solo las ideas más importantes." },
+      { question: "Para describir un paisaje, usamos principalmente:", options: ["Verbos de acción", "Adjetivos calificativos", "Conjunciones", "Pronombres"], correctAnswer: 1, explanation: "Los adjetivos calificativos sirven para expresar las cualidades y características de lo que se describe." },
+      { question: "La oración '¡Qué susto me diste!' es:", options: ["Interrogativa", "Enunciativa", "Exclamativa", "Imperativa"], correctAnswer: 2, explanation: "Las oraciones exclamativas expresan emociones fuertes y van entre signos de admiración." }
     ]
   },
   artes: {
     "Artes visuales": [
-      {
-        question: "¿Cuáles son los tres colores primarios en la pintura artística?",
-        options: ["Rojo, amarillo y azul", "Verde, naranja y morado", "Blanco, negro y gris", "Rojo, verde y azul"],
-        correctAnswer: 0,
-        explanation: "El modelo tradicional RYB define al rojo, amarillo y azul como colores primarios base."
-      },
-      {
-        question: "¿Cómo se obtiene el color secundario verde al mezclar pinturas?",
-        options: ["Mezclando azul y amarillo", "Mezclando rojo y azul", "Mezclando amarillo y rojo", "Mezclando blanco y negro"],
-        correctAnswer: 0,
-        explanation: "El verde se origina de la mezcla equilibrada de azul y amarillo."
-      },
-      {
-        question: "¿Qué técnica artística consiste en pegar pedazos de papel u otros materiales en un lienzo?",
-        options: ["Colaje (Collage)", "Acuarela", "Escultura de mármol", "Grabado en metal"],
-        correctAnswer: 0,
-        explanation: "El collage es una composición artística que pega fragmentos diversos sobre una superficie."
-      }
+      { question: "¿Cuáles son los tres colores primarios en la pintura artística?", options: ["Rojo, amarillo y azul", "Verde, naranja y morado", "Blanco, negro y gris", "Rojo, verde y azul"], correctAnswer: 0, explanation: "El modelo tradicional RYB define al rojo, amarillo y azul como colores primarios base." },
+      { question: "¿Cómo se obtiene el color secundario verde al mezclar pinturas?", options: ["Mezclando azul y amarillo", "Mezclando rojo y azul", "Mezclando amarillo y rojo", "Mezclando blanco y negro"], correctAnswer: 0, explanation: "El verde se origina de la mezcla equilibrada de azul y amarillo." },
+      { question: "¿Qué técnica artística consiste en pegar pedazos de papel u otros materiales en un lienzo?", options: ["Colaje (Collage)", "Acuarela", "Escultura de mármol", "Grabado en metal"], correctAnswer: 0, explanation: "El collage es una composición artística que pega fragmentos diversos sobre una superficie." },
+      { question: "¿Qué color resulta de mezclar rojo y azul?", options: ["Verde", "Naranja", "Morado/Violeta", "Café"], correctAnswer: 2, explanation: "El violeta o morado es un color secundario que nace de mezclar rojo y azul." },
+      { question: "¿Cómo se llama la técnica de pintar con pigmentos diluidos en agua?", options: ["Óleo", "Acuarela", "Pastel", "Fresco"], correctAnswer: 1, explanation: "La acuarela utiliza colores transparentes diluidos en agua sobre papel." },
+      { question: "¿Qué es un autorretrato?", options: ["Un cuadro de un paisaje", "Un retrato de una persona famosa", "Un retrato del propio artista", "Una pintura abstracta"], correctAnswer: 2, explanation: "Es el retrato de una persona hecho por ella misma." },
+      { question: "El arte que no representa objetos de la realidad se llama:", options: ["Realismo", "Surrealismo", "Arte Abstracto", "Impresionismo"], correctAnswer: 2, explanation: "El arte abstracto prescinde de toda figuración y propone una nueva realidad distinta a la natural." },
+      { question: "¿Qué material se usa tradicionalmente en la escultura?", options: ["Acuarela", "Arcilla", "Lienzo", "Óleo"], correctAnswer: 1, explanation: "La arcilla es un material modelable clásico usado en la creación de esculturas." },
+      { question: "Leonardo da Vinci pintó:", options: ["La Noche Estrellada", "El Grito", "La Mona Lisa", "El Guernica"], correctAnswer: 2, explanation: "La Mona Lisa, o La Gioconda, es obra del renacentista Leonardo da Vinci." },
+      { question: "¿Qué estilo artístico se caracteriza por representar los sueños y el subconsciente?", options: ["Cubismo", "Surrealismo", "Realismo", "Impresionismo"], correctAnswer: 1, explanation: "El surrealismo busca plasmar el mundo de los sueños, influenciado por el psicoanálisis." },
+      { question: "Vincent van Gogh es famoso por su obra:", options: ["La Mona Lisa", "La Última Cena", "La Noche Estrellada", "El Nacimiento de Venus"], correctAnswer: 2, explanation: "La Noche Estrellada es una de las obras más reconocidas del pintor posimpresionista." },
+      { question: "La técnica de grabar sobre madera se llama:", options: ["Litografía", "Xilografía", "Serigrafía", "Calcografía"], correctAnswer: 1, explanation: "La xilografía es una técnica de impresión con plancha de madera." }
     ],
     "Música": [
-      {
-        question: "¿Cuál es la nota musical que sigue inmediatamente a 'Sol' en sentido ascendente?",
-        options: ["La", "Fa", "Si", "Do"],
-        correctAnswer: 0,
-        explanation: "La sucesión de notas musicales es: Do, Re, Mi, Fa, Sol, La, Si."
-      },
-      {
-        question: "¿Qué cualidad del sonido nos permite identificar si un sonido es fuerte o débil?",
-        options: ["Intensidad", "Tono", "Timbre", "Duración"],
-        correctAnswer: 0,
-        explanation: "La intensidad (equivalente al volumen) define la potencia y fuerza de la vibración sonora."
-      },
-      {
-        question: "¿Cuál de los siguientes instrumentos de viento se clasifica clásicamente como de viento-madera?",
-        options: ["Flauta dulce", "Violín", "Tambor de marcha", "Trompeta metálica"],
-        correctAnswer: 0,
-        explanation: "La flauta dulce se clasifica en viento-madera por su mecanismo físico acústico histórico."
-      }
+      { question: "¿Cuál es la nota musical que sigue inmediatamente a 'Sol' en sentido ascendente?", options: ["La", "Fa", "Si", "Do"], correctAnswer: 0, explanation: "La sucesión de notas musicales es: Do, Re, Mi, Fa, Sol, La, Si." },
+      { question: "¿Qué cualidad del sonido nos permite identificar si un sonido es fuerte o débil?", options: ["Intensidad", "Tono", "Timbre", "Duración"], correctAnswer: 0, explanation: "La intensidad (equivalente al volumen) define la potencia y fuerza de la vibración sonora." },
+      { question: "¿Cuál de los siguientes instrumentos de viento se clasifica clásicamente como de viento-madera?", options: ["Flauta dulce", "Violín", "Tambor de marcha", "Trompeta metálica"], correctAnswer: 0, explanation: "La flauta dulce se clasifica en viento-madera por su mecanismo físico acústico histórico." },
+      { question: "¿Cuál es la clave musical más común usada para voces agudas y la mano derecha del piano?", options: ["Clave de Fa", "Clave de Do", "Clave de Sol", "Clave de Re"], correctAnswer: 2, explanation: "La Clave de Sol se usa para los registros agudos de los instrumentos y voces." },
+      { question: "El violín pertenece a la familia de instrumentos de:", options: ["Viento", "Cuerda frotada", "Percusión", "Cuerda pulsada"], correctAnswer: 1, explanation: "El sonido del violín se produce frotando sus cuerdas con un arco." },
+      { question: "¿Qué figura musical equivale a dos corcheas?", options: ["Una redonda", "Una blanca", "Una negra", "Una semicorchea"], correctAnswer: 2, explanation: "Una nota negra dura un tiempo, exactamente lo mismo que dos corcheas (1/2 tiempo cada una)." },
+      { question: "La velocidad a la que se interpreta una pieza musical se llama:", options: ["Tempo", "Armonía", "Timbre", "Melodía"], correctAnswer: 0, explanation: "El tempo o movimiento es la velocidad con que se ejecuta una obra musical." },
+      { question: "¿Qué instrumento musical no tiene cuerdas?", options: ["Guitarra", "Piano", "Trompeta", "Arpa"], correctAnswer: 2, explanation: "La trompeta es un instrumento de viento metal, no tiene cuerdas." },
+      { question: "El pentagrama está formado por:", options: ["4 líneas y 3 espacios", "5 líneas y 4 espacios", "6 líneas y 5 espacios", "5 líneas y 5 espacios"], correctAnswer: 1, explanation: "Un pentagrama (del griego penta: cinco y grama: línea) tiene cinco líneas horizontales y cuatro espacios." },
+      { question: "La cualidad del sonido que nos permite distinguir qué instrumento lo produce es:", options: ["El tono", "La intensidad", "El timbre", "La duración"], correctAnswer: 2, explanation: "El timbre es el 'color' del sonido que caracteriza a la fuente emisora." },
+      { question: "¿Quién fue un famoso compositor clásico que quedó sordo pero siguió componiendo?", options: ["Mozart", "Beethoven", "Bach", "Chopin"], correctAnswer: 1, explanation: "Ludwig van Beethoven compuso algunas de sus obras maestras estando completamente sordo." },
+      { question: "Un coro cantando sin acompañamiento instrumental canta a:", options: ["A capella", "En unísono", "En canon", "En armonía"], correctAnswer: 0, explanation: "El canto a capella es la creación de música únicamente a través de la voz humana, sin instrumentos." }
     ],
     "Danza": [
-      {
-        question: "¿Cómo se denomina al elemento de la danza que coordina los movimientos con el tiempo y la música?",
-        options: ["Ritmo", "Escenografía", "Pintura facial", "Proyección de luces"],
-        correctAnswer: 0,
-        explanation: "El ritmo ordena corporal y temporalmente el movimiento expresivo con el pulso musical."
-      },
-      {
-        question: "¿Qué recurso expresivo es vital en la danza para proyectar emociones sin usar palabras?",
-        options: ["Expresión corporal y gestual", "El valor del vestuario", "La dimensión del tablado", "La hora del espectáculo"],
-        correctAnswer: 0,
-        explanation: "La expresión del cuerpo y la gestualidad transmiten directamente los estados anímicos."
-      },
-      {
-        question: "¿Cuál es un baile folclórico tradicional de México donde los bailarines golpean el suelo?",
-        options: ["El Jarabe Tapatío (Zapateado)", "El Ballet clásico ruso", "El Tango de salón", "El Breakdance urbano"],
-        correctAnswer: 0,
-        explanation: "El zapateado es el golpe rítmico de los pies contra el tablado en jarabes y sones tradicionales."
-      }
+      { question: "¿Cómo se denomina al elemento de la danza que coordina los movimientos con el tiempo y la música?", options: ["Ritmo", "Escenografía", "Pintura facial", "Proyección de luces"], correctAnswer: 0, explanation: "El ritmo ordena corporal y temporalmente el movimiento expresivo con el pulso musical." },
+      { question: "¿Qué recurso expresivo es vital en la danza para proyectar emociones sin usar palabras?", options: ["Expresión corporal y gestual", "El valor del vestuario", "La dimensión del tablado", "La hora del espectáculo"], correctAnswer: 0, explanation: "La expresión del cuerpo y la gestualidad transmiten directamente los estados anímicos." },
+      { question: "¿Cuál es un baile folclórico tradicional de México donde los bailarines golpean el suelo?", options: ["El Jarabe Tapatío (Zapateado)", "El Ballet clásico ruso", "El Tango de salón", "El Breakdance urbano"], correctAnswer: 0, explanation: "El zapateado es el golpe rítmico de los pies contra el tablado en jarabes y sones tradicionales." },
+      { question: "¿En qué país se originó el ballet clásico?", options: ["Francia/Italia", "Rusia", "Estados Unidos", "España"], correctAnswer: 0, explanation: "El ballet se originó en las cortes renacentistas de Italia y se desarrolló en Francia." },
+      { question: "¿Qué calzado especial usan las bailarinas de ballet para pararse sobre la punta de los dedos?", options: ["Tacones", "Zapatillas de punta", "Tenis", "Zuecos"], correctAnswer: 1, explanation: "Las zapatillas de punta tienen una caja dura en el extremo que permite el 'trabajo de puntas'." },
+      { question: "La coreografía es:", options: ["El diseño de la ropa", "La música de fondo", "El diseño y secuencia de los movimientos", "El maquillaje de los bailarines"], correctAnswer: 2, explanation: "Es el arte de crear estructuras en las que suceden movimientos y formas en la danza." },
+      { question: "El tango es un baile originario de:", options: ["México", "España", "Argentina y Uruguay", "Cuba"], correctAnswer: 2, explanation: "El tango es un género musical y danza rioplatense (Argentina y Uruguay)." },
+      { question: "¿Qué parte del cuerpo marca principalmente el ritmo en el flamenco?", options: ["Las manos y los pies", "La cabeza", "Los hombros", "La cadera"], correctAnswer: 0, explanation: "El zapateado (pies) y las palmas (manos) son fundamentales en la percusión del flamenco." },
+      { question: "En danza, el 'espacio' se refiere a:", options: ["El teatro", "El área donde el bailarín se mueve", "El vestuario", "El tiempo de la canción"], correctAnswer: 1, explanation: "El espacio es el área que ocupa el cuerpo del bailarín y sus trayectorias." },
+      { question: "Un baile ejecutado por una sola persona se llama:", options: ["Dueto", "Trío", "Solo", "Conjunto"], correctAnswer: 2, explanation: "Un solo es una pieza bailada o tocada por un único intérprete." },
+      { question: "El breakdance es considerado un estilo de danza:", options: ["Folclórica", "Clásica", "Urbana", "Contemporánea"], correctAnswer: 2, explanation: "El breakdance (breaking) surgió en las calles de Nueva York como parte de la cultura hip hop urbana." },
+      { question: "¿Qué elemento no es indispensable para danzar?", options: ["El cuerpo", "El espacio", "El movimiento", "Un escenario profesional"], correctAnswer: 3, explanation: "Se puede danzar en cualquier lugar; el cuerpo, espacio y movimiento son los únicos esenciales." }
     ],
     "Teatro": [
-      {
-        question: "¿Cómo se llama el texto escrito que guía a los actores y directores en la puesta en escena?",
-        options: ["Guion o Libreto", "Novela de suspenso", "Artículo de opinión", "Canción popular"],
-        correctAnswer: 0,
-        explanation: "El guion teatral contiene las intervenciones dialogadas y todas las acotaciones técnicas."
-      },
-      {
-        question: "¿Cómo se les llama a las acotaciones o anotaciones sobre gestos y movimientos en un guion teatral?",
-        options: ["Acotaciones", "Monólogos", "Escenarios", "Clímax"],
-        correctAnswer: 0,
-        explanation: "Las acotaciones (generalmente entre paréntesis) indican la acción física y estado emocional."
-      },
-      {
-        question: "¿Qué es un monólogo dentro de la estructura de una obra teatral?",
-        options: ["Un parlamento extenso que hace un personaje en solitario", "Un diálogo veloz entre dos protagonistas", "El decorado plástico del escenario", "La partitura instrumental de la obra"],
-        correctAnswer: 0,
-        explanation: "El monólogo o soliloquio es el discurso reflexivo que realiza un actor a solas para sí o para el público."
-      }
+      { question: "¿Cómo se llama el texto escrito que guía a los actores y directores en la puesta en escena?", options: ["Guion o Libreto", "Novela de suspenso", "Artículo de opinión", "Canción popular"], correctAnswer: 0, explanation: "El guion teatral contiene las intervenciones dialogadas y todas las acotaciones técnicas." },
+      { question: "¿Cómo se les llama a las acotaciones o anotaciones sobre gestos y movimientos en un guion teatral?", options: ["Acotaciones", "Monólogos", "Escenarios", "Clímax"], correctAnswer: 0, explanation: "Las acotaciones (generalmente entre paréntesis) indican la acción física y estado emocional." },
+      { question: "¿Qué es un monólogo dentro de la estructura de una obra teatral?", options: ["Un parlamento extenso que hace un personaje en solitario", "Un diálogo veloz entre dos protagonistas", "El decorado plástico del escenario", "La partitura instrumental de la obra"], correctAnswer: 0, explanation: "El monólogo o soliloquio es el discurso reflexivo que realiza un actor a solas para sí o para el público." },
+      { question: "La persona responsable de guiar y coordinar a los actores y todos los aspectos de la obra es el:", options: ["Dramaturgo", "Escenógrafo", "Director", "Productor"], correctAnswer: 2, explanation: "El director de teatro es quien unifica la visión artística y dirige a los actores." },
+      { question: "Al autor de obras de teatro se le conoce como:", options: ["Dramaturgo", "Novelista", "Poeta", "Guionista de cine"], correctAnswer: 0, explanation: "El dramaturgo es el escritor de textos teatrales o dramas." },
+      { question: "¿Qué son los 'actos' en una obra de teatro?", options: ["Los actores principales", "Las pausas para que los actores descansen", "Las partes principales en que se divide la obra", "Los aplausos del público"], correctAnswer: 2, explanation: "Un acto es cada una de las partes principales en las que se divide una obra escénica." },
+      { question: "Las obras de teatro que suelen terminar de forma triste o fatal pertenecen al género de:", options: ["Comedia", "Tragedia", "Drama", "Farsa"], correctAnswer: 1, explanation: "La tragedia se caracteriza por conflictos graves y un desenlace funesto." },
+      { question: "El mobiliario y los objetos que ambientan el escenario se llaman:", options: ["Utilería y escenografía", "Vestuario", "Iluminación", "Coreografía"], correctAnswer: 0, explanation: "La escenografía y utilería crean el espacio y los objetos que usan los actores." },
+      { question: "Una obra teatral diseñada principalmente para hacer reír al público es una:", options: ["Tragedia", "Comedia", "Épica", "Ópera"], correctAnswer: 1, explanation: "La comedia muestra los defectos humanos de forma humorística, generalmente con un final feliz." },
+      { question: "¿Qué es 'improvisar' en teatro?", options: ["Aprenderse el guion de memoria", "Actuar sin preparación o guion previo", "Llegar tarde al ensayo", "Maquillarse rápido"], correctAnswer: 1, explanation: "La improvisación teatral es crear escenas al instante, sin un libreto previo." },
+      { question: "William Shakespeare es un famoso:", options: ["Director de cine", "Dramaturgo inglés", "Pintor renacentista", "Músico clásico"], correctAnswer: 1, explanation: "Shakespeare es considerado el dramaturgo más importante de la lengua inglesa (Romeo y Julieta, Hamlet)." },
+      { question: "¿Qué elemento ayuda a resaltar las expresiones faciales de los actores ante el público?", options: ["El vestuario", "La música", "El maquillaje", "El libreto"], correctAnswer: 2, explanation: "El maquillaje teatral exagera o resalta los rasgos para que sean visibles desde lejos bajo las luces." }
     ]
   },
   ingles: {
     "Vocabulary": [
-      {
-        question: "What domestic animal is known as 'man's best friend' and barks?",
-        options: ["Dog", "Cat", "Parrot", "Goldfish"],
-        correctAnswer: 0,
-        explanation: "Dogs bark and are famously regarded as loyal companions or 'man's best friend'."
-      },
-      {
-        question: "Which color is created when you mix red and yellow paints?",
-        options: ["Orange", "Pink", "Purple", "Green"],
-        correctAnswer: 0,
-        explanation: "Mixing red and yellow primary colors yields orange, which is a secondary color."
-      },
-      {
-        question: "What school tool is used to erase errors written in pencil?",
-        options: ["Eraser", "Notebook", "Ruler", "Pencil sharpener"],
-        correctAnswer: 0,
-        explanation: "An eraser rubbing against paper removes graphite marks made by pencils."
-      }
+      { question: "What domestic animal is known as 'man's best friend' and barks?", options: ["Dog", "Cat", "Parrot", "Goldfish"], correctAnswer: 0, explanation: "Dogs bark and are famously regarded as loyal companions or 'man's best friend'." },
+      { question: "Which color is created when you mix red and yellow paints?", options: ["Orange", "Pink", "Purple", "Green"], correctAnswer: 0, explanation: "Mixing red and yellow primary colors yields orange, which is a secondary color." },
+      { question: "What school tool is used to erase errors written in pencil?", options: ["Eraser", "Notebook", "Ruler", "Pencil sharpener"], correctAnswer: 0, explanation: "An eraser rubbing against paper removes graphite marks made by pencils." },
+      { question: "Which fruit is yellow, curved, and peeled before eating?", options: ["Apple", "Orange", "Banana", "Grape"], correctAnswer: 2, explanation: "Bananas match this description." },
+      { question: "What day comes after Tuesday?", options: ["Monday", "Wednesday", "Thursday", "Friday"], correctAnswer: 1, explanation: "The days of the week are Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday." },
+      { question: "What do we call the sister of your mother or father?", options: ["Niece", "Cousin", "Grandmother", "Aunt"], correctAnswer: 3, explanation: "Your parent's sister is your aunt." },
+      { question: "Which body part is used for seeing?", options: ["Ears", "Nose", "Eyes", "Mouth"], correctAnswer: 2, explanation: "Eyes are the organs of the visual system." },
+      { question: "What season is characterized by falling leaves and cooler weather?", options: ["Summer", "Autumn (Fall)", "Winter", "Spring"], correctAnswer: 1, explanation: "Leaves turn colors and fall from trees during Autumn." },
+      { question: "Where do you go to buy bread and cakes?", options: ["Library", "Bakery", "Pharmacy", "Butcher's"], correctAnswer: 1, explanation: "A bakery is a place where baked goods are made and sold." },
+      { question: "Which vehicle has two wheels and no engine?", options: ["Car", "Motorcycle", "Bicycle", "Bus"], correctAnswer: 2, explanation: "A bicycle is a human-powered, pedal-driven, single-track vehicle." },
+      { question: "What room in a house is typically used for cooking?", options: ["Bedroom", "Bathroom", "Living room", "Kitchen"], correctAnswer: 3, explanation: "The kitchen is equipped for food preparation and cooking." },
+      { question: "What is the opposite of 'expensive'?", options: ["Cheap", "Tall", "Fast", "Rich"], correctAnswer: 0, explanation: "Cheap means costing very little; relatively low in price." }
     ],
     "Grammar": [
-      {
-        question: "Complete the sentence correctly: 'She ___ a brilliant student at the language academy.'",
-        options: ["is", "am", "are", "be"],
-        correctAnswer: 0,
-        explanation: "'Is' is the correct form of the verb to be for third-person singular pronouns (he, she, it)."
-      },
-      {
-        question: "Choose the correct preposition: 'The English book is ___ the table.' (sobre la mesa)",
-        options: ["on", "under", "in", "behind"],
-        correctAnswer: 0,
-        explanation: "'On' denotes that the object is in contact with and supported by the upper surface."
-      },
-      {
-        question: "Identify the sentence written in the Simple Present tense:",
-        options: ["He walks to school every morning.", "He walked to school yesterday.", "He is going to walk to school.", "He will walk to school."],
-        correctAnswer: 0,
-        explanation: "'walks' uses the third person present inflection expressing a daily routine."
-      }
+      { question: "Complete the sentence correctly: 'She ___ a brilliant student at the language academy.'", options: ["is", "am", "are", "be"], correctAnswer: 0, explanation: "'Is' is the correct form of the verb to be for third-person singular pronouns (he, she, it)." },
+      { question: "Choose the correct preposition: 'The English book is ___ the table.' (sobre la mesa)", options: ["on", "under", "in", "behind"], correctAnswer: 0, explanation: "'On' denotes that the object is in contact with and supported by the upper surface." },
+      { question: "Identify the sentence written in the Simple Present tense:", options: ["He walks to school every morning.", "He walked to school yesterday.", "He is going to walk to school.", "He will walk to school."], correctAnswer: 0, explanation: "'walks' uses the third person present inflection expressing a daily routine." },
+      { question: "Choose the correct negative form: 'I ___ like playing tennis.'", options: ["isn't", "don't", "doesn't", "aren't"], correctAnswer: 1, explanation: "With the pronoun 'I', the correct auxiliary for negative present simple is 'do not' (don't)." },
+      { question: "Which plural is correct?", options: ["Childs", "Childrens", "Children", "Childes"], correctAnswer: 2, explanation: "'Children' is the irregular plural form of 'child'." },
+      { question: "Complete: '___ you ever been to London?'", options: ["Has", "Have", "Did", "Are"], correctAnswer: 1, explanation: "Present Perfect uses 'have' with the pronoun 'you'." },
+      { question: "What is the past tense of the verb 'go'?", options: ["Goes", "Goed", "Went", "Gone"], correctAnswer: 2, explanation: "'Went' is the irregular simple past tense of 'go'." },
+      { question: "Choose the correct pronoun: 'Give the book to ___.'", options: ["he", "him", "his", "himself"], correctAnswer: 1, explanation: "'Him' is the object pronoun, which follows the preposition 'to'." },
+      { question: "Complete: 'She is ___ than her brother.'", options: ["tall", "taller", "tallest", "more tall"], correctAnswer: 1, explanation: "For short adjectives like 'tall', add '-er' for the comparative form." },
+      { question: "Which sentence is grammatically correct?", options: ["They is my friends.", "They am my friends.", "They are my friends.", "They be my friends."], correctAnswer: 2, explanation: "'Are' is the correct form of the verb 'to be' for 'they'." },
+      { question: "Choose the correct question word: '___ time is it?'", options: ["Who", "Where", "What", "When"], correctAnswer: 2, explanation: "We use 'What' to ask for specific information like the time." },
+      { question: "Complete: 'I was born ___ 2010.'", options: ["in", "on", "at", "to"], correctAnswer: 0, explanation: "We use the preposition 'in' with years." }
     ],
     "Reading": [
-      {
-        question: "Read: 'Lucas lives in Paris. He has a cat named Leo and a yellow canary named Sunny.' What animal is Sunny?",
-        options: ["A canary (bird)", "A cat", "A dog", "A fish"],
-        correctAnswer: 0,
-        explanation: "The text describes Sunny as 'a yellow canary', so Sunny is a bird."
-      },
-      {
-        question: "Read: 'Sarah is an architect. She designs beautiful houses at her downtown studio.' What is Sarah's job?",
-        options: ["Architect", "Doctor", "Teacher", "Artist"],
-        correctAnswer: 0,
-        explanation: "The text says 'Sarah is an architect', describing her profession directly."
-      },
-      {
-        question: "Read: 'The bakery is between the bookstore and the coffee shop.' Where is the bakery?",
-        options: ["Between the bookstore and the coffee shop", "Next to the supermarket", "Behind the hospital", "Opposite the park"],
-        correctAnswer: 0,
-        explanation: "The text uses 'between', meaning the bakery is located in the middle of those two shops."
-      }
+      { question: "Read: 'Lucas lives in Paris. He has a cat named Leo and a yellow canary named Sunny.' What animal is Sunny?", options: ["A canary (bird)", "A cat", "A dog", "A fish"], correctAnswer: 0, explanation: "The text describes Sunny as 'a yellow canary', so Sunny is a bird." },
+      { question: "Read: 'Sarah is an architect. She designs beautiful houses at her downtown studio.' What is Sarah's job?", options: ["Architect", "Doctor", "Teacher", "Artist"], correctAnswer: 0, explanation: "The text says 'Sarah is an architect', describing her profession directly." },
+      { question: "Read: 'The bakery is between the bookstore and the coffee shop.' Where is the bakery?", options: ["Between the bookstore and the coffee shop", "Next to the supermarket", "Behind the hospital", "Opposite the park"], correctAnswer: 0, explanation: "The text uses 'between', meaning the bakery is located in the middle of those two shops." },
+      { question: "Read: 'Tom wakes up at 7:00 AM, eats breakfast, and takes the bus to school.' How does Tom get to school?", options: ["He walks", "He drives a car", "By bus", "By bicycle"], correctAnswer: 2, explanation: "The text clearly states he 'takes the bus'." },
+      { question: "Read: 'Mary loves reading. She visits the library every Saturday afternoon.' When does Mary visit the library?", options: ["Sunday morning", "Every Saturday afternoon", "Monday evening", "Friday night"], correctAnswer: 1, explanation: "The text says 'every Saturday afternoon'." },
+      { question: "Read: 'The red car is faster than the blue car, but the green car is the fastest.' Which car is the fastest?", options: ["The red car", "The blue car", "The green car", "They are the same"], correctAnswer: 2, explanation: "The sentence explicitly states 'the green car is the fastest'." },
+      { question: "Read: 'Peter bought three apples, two bananas, and a melon.' How many apples did he buy?", options: ["One", "Two", "Three", "Four"], correctAnswer: 2, explanation: "He bought 'three apples'." },
+      { question: "Read: 'It was raining heavily, so Jane took her umbrella and wore her raincoat.' Why did Jane take her umbrella?", options: ["Because it was sunny", "Because it was raining", "Because she liked it", "Because it was snowing"], correctAnswer: 1, explanation: "The text says 'It was raining heavily, so...' indicating the reason." },
+      { question: "Read: 'My grandfather is a retired pilot. He used to fly big airplanes.' What did the grandfather fly?", options: ["Helicopters", "Big airplanes", "Kites", "Hot air balloons"], correctAnswer: 1, explanation: "He used to fly 'big airplanes'." },
+      { question: "Read: 'The movie starts at 8:30 PM. Please arrive 15 minutes early.' What time should you arrive?", options: ["8:30 PM", "8:15 PM", "8:45 PM", "8:00 PM"], correctAnswer: 1, explanation: "15 minutes before 8:30 PM is 8:15 PM." },
+      { question: "Read: 'Apples are usually red, green, or yellow. Oranges are orange.' What color are oranges?", options: ["Red", "Green", "Yellow", "Orange"], correctAnswer: 3, explanation: "The text states 'Oranges are orange'." },
+      { question: "Read: 'David is taller than John, but Mike is taller than David.' Who is the tallest?", options: ["John", "David", "Mike", "None of them"], correctAnswer: 2, explanation: "Mike is taller than David, who is taller than John. So Mike is the tallest." }
     ],
     "Listening": [
-      {
-        question: "Pronounce clearly: 'I love learning new languages every day'",
-        type: "voice",
-        expectedAnswer: "I love learning new languages every day",
-        explanation: "Practica tu fluidez, pronunciación y entonación en inglés."
-      },
-      {
-        question: "Pronounce clearly: 'Hello teacher my name is Miguel'",
-        type: "voice",
-        expectedAnswer: "Hello teacher my name is Miguel",
-        explanation: "Una frase básica de presentación y saludo formal."
-      },
-      {
-        question: "Pronounce clearly: 'Can you help me with this exercise please'",
-        type: "voice",
-        expectedAnswer: "Can you help me with this exercise please",
-        explanation: "Frase cortés utilizada para solicitar asistencia académica."
-      }
+      { question: "Pronounce clearly: 'I love learning new languages every day'", type: "voice", expectedAnswer: "I love learning new languages every day", explanation: "Practica tu fluidez, pronunciación y entonación en inglés." },
+      { question: "Pronounce clearly: 'Hello teacher my name is Miguel'", type: "voice", expectedAnswer: "Hello teacher my name is Miguel", explanation: "Una frase básica de presentación y saludo formal." },
+      { question: "Pronounce clearly: 'Can you help me with this exercise please'", type: "voice", expectedAnswer: "Can you help me with this exercise please", explanation: "Frase cortés utilizada para solicitar asistencia académica." },
+      { question: "Pronounce clearly: 'Where is the nearest train station'", type: "voice", expectedAnswer: "Where is the nearest train station", explanation: "Pregunta común para pedir direcciones." },
+      { question: "Pronounce clearly: 'I would like to order a cup of coffee'", type: "voice", expectedAnswer: "I would like to order a cup of coffee", explanation: "Frase útil para pedir algo en un restaurante." },
+      { question: "Pronounce clearly: 'What time does the museum close'", type: "voice", expectedAnswer: "What time does the museum close", explanation: "Pregunta sobre horarios." },
+      { question: "Pronounce clearly: 'My favorite color is blue and I like cats'", type: "voice", expectedAnswer: "My favorite color is blue and I like cats", explanation: "Expresando preferencias personales." },
+      { question: "Pronounce clearly: 'Thank you very much for your help'", type: "voice", expectedAnswer: "Thank you very much for your help", explanation: "Expresión de agradecimiento formal." },
+      { question: "Pronounce clearly: 'I have been studying English for two years'", type: "voice", expectedAnswer: "I have been studying English for two years", explanation: "Uso del presente perfecto continuo." },
+      { question: "Pronounce clearly: 'Could you please repeat that more slowly'", type: "voice", expectedAnswer: "Could you please repeat that more slowly", explanation: "Frase muy útil cuando no se entiende a un hablante nativo." },
+      { question: "Pronounce clearly: 'The weather today is sunny and warm'", type: "voice", expectedAnswer: "The weather today is sunny and warm", explanation: "Describiendo el clima." },
+      { question: "Pronounce clearly: 'How much does this book cost'", type: "voice", expectedAnswer: "How much does this book cost", explanation: "Preguntando por el precio de un artículo." }
     ]
   },
   integrador: {
     "Comunicación Escrita": [
-      {
-        question: "Elige la palabra que completa la idea: 'Para redactar un informe formal se requiere un lenguaje ___'.",
-        options: ["claro y formal", "coloquial y lleno de abreviaciones", "en clave secreta", "desordenado y cómico"],
-        correctAnswer: 0,
-        explanation: "Los reportes académicos o profesionales exigen un léxico objetivo, claro y formal."
-      },
-      {
-        question: "¿Qué signo de puntuación utilizamos al final de una oración enunciativa completa?",
-        options: ["El punto (.)", "La coma (,)", "Los dos puntos (:)", "El signo de exclamación (!)"],
-        correctAnswer: 0,
-        explanation: "El punto delimita oraciones y marca el final de una idea o texto."
-      }
+      { question: "Elige la palabra que completa la idea: 'Para redactar un informe formal se requiere un lenguaje ___'.", options: ["claro y formal", "coloquial y lleno de abreviaciones", "en clave secreta", "desordenado y cómico"], correctAnswer: 0, explanation: "Los reportes académicos o profesionales exigen un léxico objetivo, claro y formal." },
+      { question: "¿Qué signo de puntuación utilizamos al final de una oración enunciativa completa?", options: ["El punto (.)", "La coma (,)", "Los dos puntos (:)", "El signo de exclamación (!)"], correctAnswer: 0, explanation: "El punto delimita oraciones y marca el final de una idea o texto." },
+      { question: "¿Cuál es la función principal de los párrafos en un texto?", options: ["Separar las palabras largas", "Hacer que el texto se vea bonito", "Agrupar ideas relacionadas", "Usar más papel"], correctAnswer: 2, explanation: "Los párrafos organizan la información agrupando oraciones que desarrollan una misma idea principal." },
+      { question: "Identifica un vicio del lenguaje a evitar en textos formales:", options: ["Coherencia", "Redundancia (ej. subir arriba)", "Precisión", "Claridad"], correctAnswer: 1, explanation: "La redundancia es el uso de palabras innecesarias que no añaden significado nuevo." },
+      { question: "Un ensayo académico debe contener siempre:", options: ["Solo opiniones sin justificar", "Dibujos y colores", "Tesis, desarrollo de argumentos y conclusión", "Diálogos entre personajes ficticios"], correctAnswer: 2, explanation: "Esa es la estructura básica de un texto argumentativo/académico." },
+      { question: "Al citar la frase exacta de otro autor en tu texto, debes usar:", options: ["Paréntesis ()", "Corchetes []", "Comillas (\"\")", "Signos de exclamación (! ! )"], correctAnswer: 2, explanation: "Las comillas se emplean para reproducir citas textuales." },
+      { question: "La falta de concordancia en 'Las perro corren' es de:", options: ["Género y número", "Solo género", "Solo número", "No hay error"], correctAnswer: 0, explanation: "'Las' es femenino plural y 'perro' es masculino singular." },
+      { question: "¿Qué es la cohesión en un texto?", options: ["Que el papel esté pegado", "La conexión adecuada entre oraciones y párrafos", "Que la historia tenga un final feliz", "El tamaño de la letra"], correctAnswer: 1, explanation: "La cohesión es la propiedad textual que permite que las ideas estén enlazadas lógicamente mediante conectores." },
+      { question: "Un memorándum es un tipo de texto:", options: ["Literario", "Informativo / Administrativo", "Poético", "Teatral"], correctAnswer: 1, explanation: "Es un documento breve usado en organizaciones para comunicar información interna." },
+      { question: "¿Cuál de estas palabras funciona como un conector de causa?", options: ["Por lo tanto", "Porque", "Aunque", "Sin embargo"], correctAnswer: 1, explanation: "'Porque' introduce la razón o causa de un hecho." },
+      { question: "¿Qué tipo de lenguaje se recomienda en una carta formal de solicitud?", options: ["Lenguaje técnico-formal, respetuoso", "Lenguaje coloquial, relajado", "Lenguaje figurado, poético", "Lenguaje familiar, íntimo"], correctAnswer: 0, explanation: "Requiere cortesía, formalidad y precisión." },
+      { question: "La bibliografía al final de un trabajo sirve para:", options: ["Hacer el trabajo más largo", "Adornar la última página", "Dar crédito a las fuentes de información consultadas", "Escribir la biografía del autor"], correctAnswer: 2, explanation: "Es el listado de fuentes que sustentan la investigación." }
     ],
     "Comunicación Artística": [
-      {
-        question: "¿Qué elemento compartitivo es vital tanto en una pintura decorativa como en los focos del escenario teatral?",
-        options: ["La luz y el color", "El tamaño físico del cuadro", "El costo de las lámparas", "La marca de la pintura"],
-        correctAnswer: 0,
-        explanation: "Tanto la iluminación teatral como el matiz del lienzo crean atmósfera mediante el color y luz."
-      },
-      {
-        question: "¿Qué espectáculo integra el canto, la ejecución musical en vivo, la actuación y la danza?",
-        options: ["La ópera y el teatro musical", "La lectura silenciosa de novelas", "La muestra de esculturas", "El dibujo técnico digital"],
-        correctAnswer: 0,
-        explanation: "Las artes escénicas musicales coordinan armónicamente música, actuación y canto."
-      }
+      { question: "¿Qué elemento compartitivo es vital tanto en una pintura decorativa como en los focos del escenario teatral?", options: ["La luz y el color", "El tamaño físico del cuadro", "El costo de las lámparas", "La marca de la pintura"], correctAnswer: 0, explanation: "Tanto la iluminación teatral como el matiz del lienzo crean atmósfera mediante el color y luz." },
+      { question: "¿Qué espectáculo integra el canto, la ejecución musical en vivo, la actuación y la danza?", options: ["La ópera y el teatro musical", "La lectura silenciosa de novelas", "La muestra de esculturas", "El dibujo técnico digital"], correctAnswer: 0, explanation: "Las artes escénicas musicales coordinan armónicamente música, actuación y canto." },
+      { question: "¿Qué rama del arte se encarga del diseño de edificios y espacios habitables?", options: ["La Escultura", "La Arquitectura", "La Cinematografía", "La Danza"], correctAnswer: 1, explanation: "La arquitectura es el arte y la técnica de proyectar, diseñar y construir edificios y espacios." },
+      { question: "En cine, la banda sonora (música) se utiliza principalmente para:", options: ["Tapar ruidos molestos del set", "Resaltar las emociones y guiar la narrativa", "Hacer que la película dure más", "Sustituir los diálogos de los actores"], correctAnswer: 1, explanation: "La música incidental refuerza la atmósfera emocional de cada escena." },
+      { question: "El arte de crear imágenes en movimiento mediante fotografías sucesivas es:", options: ["La Pintura", "El Cine / Animación", "La Literatura", "La Música"], correctAnswer: 1, explanation: "El cine y la animación se basan en la ilusión de movimiento creada por imágenes fijas consecutivas." },
+      { question: "Una obra de arte que se crea para existir por un tiempo limitado y luego desaparecer o ser destruida es arte:", options: ["Efímero", "Perpetuo", "Clásico", "Renacentista"], correctAnswer: 0, explanation: "El arte efímero (como esculturas de hielo o mandalas de arena) no está diseñado para perdurar." },
+      { question: "¿Qué disciplina artística utiliza principalmente el cuerpo humano como su medio de expresión?", options: ["La Arquitectura", "La Literatura", "La Danza", "La Pintura de caballete"], correctAnswer: 2, explanation: "En la danza, el cuerpo en movimiento es el principal instrumento expresivo." },
+      { question: "El proceso de diseñar la ropa que usarán los personajes en una obra o película se llama:", options: ["Escenografía", "Diseño de vestuario", "Coreografía", "Dramaturgia"], correctAnswer: 1, explanation: "El diseño de vestuario ayuda a definir la época, personalidad y rol del personaje." },
+      { question: "¿Qué arte visual se enfoca en la captura de imágenes usando la luz y una cámara?", options: ["Grabado", "Escultura", "Fotografía", "Cerámica"], correctAnswer: 2, explanation: "La fotografía consiste en fijar imágenes a través de la acción de la luz." },
+      { question: "Una instalación artística en un museo suele ser:", options: ["Un cuadro pequeño enmarcado", "Un poema escrito en la pared", "Una obra tridimensional que transforma un espacio", "Un concierto de música clásica"], correctAnswer: 2, explanation: "Las instalaciones interactúan con el espacio expositivo, invitando al espectador a sumergirse en ellas." },
+      { question: "El uso de sombras y luces fuertes para dar dramatismo a una pintura se conoce como:", options: ["Claroscuro", "Acuarela", "Minimalismo", "Cubismo"], correctAnswer: 0, explanation: "El claroscuro (muy usado en el Barroco) crea fuertes contrastes para dar volumen y emoción." },
+      { question: "La literatura y el cine tienen en común que ambos:", options: ["Usan actores en vivo", "Son formas de contar historias (narrativa)", "No usan palabras", "Se realizan en un escenario de teatro"], correctAnswer: 1, explanation: "Ambas disciplinas comparten la base de la narración, aunque usen lenguajes distintos (escrito vs audiovisual)." }
     ],
     "Comunicación Internacional": [
-      {
-        question: "Translate to English: 'Buenos días, ¿dónde está el salón de clases?'",
-        options: ["Good morning, where is the classroom?", "Good afternoon, what is your name?", "Good morning, where is the library?", "Hello, how are you today?"],
-        correctAnswer: 0,
-        explanation: "'Good morning, where is the classroom?' es la traducción fiel de la oración."
-      },
-      {
-        question: "If someone greets you formally asking 'How do you do?', what is the most polite response?",
-        options: ["How do you do?", "I am ten years old.", "I love apples.", "Not really."],
-        correctAnswer: 0,
-        explanation: "'How do you do?' se responde idénticamente en saludos formales."
-      }
+      { question: "Translate to English: 'Buenos días, ¿dónde está el salón de clases?'", options: ["Good morning, where is the classroom?", "Good afternoon, what is your name?", "Good morning, where is the library?", "Hello, how are you today?"], correctAnswer: 0, explanation: "'Good morning, where is the classroom?' es la traducción fiel de la oración." },
+      { question: "If someone greets you formally asking 'How do you do?', what is the most polite response?", options: ["How do you do?", "I am ten years old.", "I love apples.", "Not really."], correctAnswer: 0, explanation: "'How do you do?' se responde idénticamente en saludos formales." },
+      { question: "What is a 'bilingual' person?", options: ["Someone who plays two instruments", "Someone who speaks two languages fluently", "Someone who likes riding bicycles", "Someone who lives in two countries"], correctAnswer: 1, explanation: "Bilingüismo es la capacidad de hablar fluidamente dos idiomas." },
+      { question: "Translate: '¿Puedes ayudarme, por favor?'", options: ["Can you help me, please?", "Can I help you, please?", "Do you want help?", "Where is the help?"], correctAnswer: 0, explanation: "Es la forma educada y correcta de pedir ayuda en inglés." },
+      { question: "In English, a 'false friend' (falso amigo) is:", options: ["A friend who lies to you", "A word that looks similar in two languages but has a different meaning", "A person from another country", "A bad translation app"], correctAnswer: 1, explanation: "Por ejemplo, 'Actually' no significa 'Actualmente', sino 'En realidad'." },
+      { question: "If you see a sign that says 'No trespassing', it means:", options: ["Welcome, come in", "Free entrance", "Do not enter", "Park your car here"], correctAnswer: 2, explanation: "Significa 'Prohibido el paso' o 'No traspasar' propiedad privada." },
+      { question: "Which expression is best used to apologize?", options: ["You're welcome", "I'm sorry", "Thank you", "Excuse me (to get attention)"], correctAnswer: 1, explanation: "'I'm sorry' se usa para pedir disculpas." },
+      { question: "Translate: 'Me gustaría una manzana.'", options: ["I like an apple.", "I would like an apple.", "I have an apple.", "I eat an apple."], correctAnswer: 1, explanation: "'I would like' es la traducción exacta de 'me gustaría' (deseo cortés)." },
+      { question: "What does RSVP mean on an invitation?", options: ["Real super VIP party", "Respond, please (Répondez s'il vous plaît)", "Read silently, very private", "Run somewhere very public"], correctAnswer: 1, explanation: "Es una sigla francesa usada internacionalmente para pedir confirmación de asistencia." },
+      { question: "If it's 'raining cats and dogs', it means:", options: ["Animals are falling from the sky", "It is raining very heavily", "It is sunny", "There is a tornado"], correctAnswer: 1, explanation: "Es un modismo (idiom) en inglés para decir que llueve a cántaros." },
+      { question: "How do you say 'De nada' in English after someone says 'Thank you'?", options: ["No nothing", "Of nothing", "You're welcome", "Please"], correctAnswer: 2, explanation: "'You're welcome' es la respuesta estándar a 'thank you'." },
+      { question: "Translate: 'Ayer fui al cine.'", options: ["Yesterday I go to the cinema.", "Yesterday I went to the cinema.", "Tomorrow I will go to the cinema.", "Yesterday I went to the hospital."], correctAnswer: 1, explanation: "'Went' es el pasado del verbo 'go'." }
     ],
     "Interpretación y Análisis": [
-      {
-        question: "En la fábula clásica de la liebre y la tortuga, ¿cuál es la enseñanza moral principal?",
-        options: ["Que la constancia y el esfuerzo constante superan la arrogancia", "Que ir rápido siempre causa daño", "Que las tortugas corren más rápido que las liebres", "Que las competencias son innecesarias"],
-        correctAnswer: 0,
-        explanation: "La moraleja exalta el valor del esfuerzo continuo frente a la soberbia del que se confía."
-      },
-      {
-        question: "Lee: 'El agua potable es vital pero escasa en el planeta'. ¿Qué medida promueve su cuidado directo?",
-        options: ["Cerrar la llave mientras nos enjabonamos las manos", "Tomar duchas de más de media hora", "Regar la banqueta pública con manguera", "Ignorar las fugas del baño"],
-        correctAnswer: 0,
-        explanation: "Evitar el flujo continuo de agua innecesario ayuda a mitigar la escasez del recurso."
-      }
+      { question: "En la fábula clásica de la liebre y la tortuga, ¿cuál es la enseñanza moral principal?", options: ["Que la constancia y el esfuerzo constante superan la arrogancia", "Que ir rápido siempre causa daño", "Que las tortugas corren más rápido que las liebres", "Que las competencias son innecesarias"], correctAnswer: 0, explanation: "La moraleja exalta el valor del esfuerzo continuo frente a la soberbia del que se confía." },
+      { question: "Lee: 'El agua potable es vital pero escasa en el planeta'. ¿Qué medida promueve su cuidado directo?", options: ["Cerrar la llave mientras nos enjabonamos las manos", "Tomar duchas de más de media hora", "Regar la banqueta pública con manguera", "Ignorar las fugas del baño"], correctAnswer: 0, explanation: "Evitar el flujo continuo de agua innecesario ayuda a mitigar la escasez del recurso." },
+      { question: "Si un anuncio dice: 'Este refresco te hará feliz y exitoso', está usando:", options: ["Datos científicos comprobables", "Información objetiva", "Persuasión emocional (publicidad engañosa)", "Estadísticas matemáticas"], correctAnswer: 2, explanation: "Asocia un producto con un estado emocional deseable, táctica común de persuasión irracional en la publicidad." },
+      { question: "Un mapa conceptual sirve principalmente para:", options: ["Decorar el salón", "Organizar y visualizar la relación entre ideas y conceptos clave", "Escribir cuentos largos", "Aprender a dibujar"], correctAnswer: 1, explanation: "Es una herramienta gráfica de aprendizaje que ayuda a estructurar la información." },
+      { question: "Al leer una noticia, ¿qué pregunta NO es indispensable responder en el primer párrafo (Lead)?", options: ["¿Qué pasó?", "¿Quién participó?", "¿De qué color era la corbata del reportero?", "¿Cuándo ocurrió?"], correctAnswer: 2, explanation: "El lead periodístico debe responder a las preguntas clave (qué, quién, cuándo, dónde), no a detalles irrelevantes." },
+      { question: "Si un gráfico muestra que la deforestación ha aumentado un 50% en 10 años, la conclusión lógica es:", options: ["Hay más árboles ahora", "Se están perdiendo áreas forestales a gran velocidad", "A los animales les gusta vivir sin árboles", "El clima no sufrirá cambios"], correctAnswer: 1, explanation: "Un aumento en la deforestación significa que se están talando más árboles y perdiendo bosques." },
+      { question: "¿Qué es una 'opinión' a diferencia de un 'hecho'?", options: ["Una verdad comprobable", "Una declaración basada en evidencia física", "Un punto de vista personal o valoración subjetiva", "Un suceso histórico"], correctAnswer: 2, explanation: "El hecho es objetivo y verificable; la opinión es subjetiva y personal." },
+      { question: "En el refrán 'Al que madruga, Dios lo ayuda', el mensaje implícito es:", options: ["Que debemos dormir mucho", "Que ser diligente y actuar con anticipación trae buenos resultados", "Que a Dios le gustan las mañanas", "Que las personas que se levantan tarde fracasan siempre"], correctAnswer: 1, explanation: "Premia la proactividad y el esfuerzo." },
+      { question: "¿Por qué es importante citar las fuentes al hacer un trabajo de investigación?", options: ["Para llenar espacio en la hoja", "Para dar crédito al autor original y evitar el plagio", "Porque el maestro lo exige sin razón", "Para que el trabajo se vea más difícil"], correctAnswer: 1, explanation: "Reconocer las ideas de otros es un principio ético fundamental en la investigación académica (evitar plagio)." },
+      { question: "Si ves nubes muy oscuras y empieza a hacer viento frío, puedes inferir que:", options: ["Saldrá el sol", "Probablemente lloverá pronto", "Es hora de ir a la playa", "Habrá un eclipse solar"], correctAnswer: 1, explanation: "La inferencia es deducir algo que no está explícito basado en pistas y conocimientos previos." },
+      { question: "¿Qué significa interpretar un poema?", options: ["Leerlo en voz alta muy rápido", "Buscar errores de ortografía", "Descubrir los sentimientos e ideas profundas que el autor quiso expresar", "Contar cuántas palabras tiene"], correctAnswer: 2, explanation: "La interpretación literaria busca el sentido oculto y el mensaje emocional del texto." },
+      { question: "Un debate es una situación comunicativa donde:", options: ["Todos están de acuerdo desde el principio", "Solo una persona habla todo el tiempo", "Se exponen argumentos a favor y en contra sobre un tema", "Nadie puede dar su opinión"], correctAnswer: 2, explanation: "El debate confronta ideas opuestas mediante la argumentación respetuosa." }
     ],
     "Retos Integradores": [
-      {
-        question: "Pronounce clearly: 'Knowledge is the path to unlock the doors of the world'",
-        type: "voice",
-        expectedAnswer: "Knowledge is the path to unlock the doors of the world",
-        explanation: "Combina habilidades de pronunciación en inglés e interpretación del conocimiento como llave global."
-      },
-      {
-        question: "Pronounce clearly: 'Welcome to the language academy of the guardians'",
-        type: "voice",
-        expectedAnswer: "Welcome to the language academy of the guardians",
-        explanation: "Reto oral integrador para validar tu dicción de bienvenida."
-      }
+      { question: "Pronounce clearly: 'Knowledge is the path to unlock the doors of the world'", type: "voice", expectedAnswer: "Knowledge is the path to unlock the doors of the world", explanation: "Combina habilidades de pronunciación en inglés e interpretación del conocimiento como llave global." },
+      { question: "Pronounce clearly: 'Welcome to the language academy of the guardians'", type: "voice", expectedAnswer: "Welcome to the language academy of the guardians", explanation: "Reto oral integrador para validar tu dicción de bienvenida." },
+      { question: "Pronounce clearly: 'I am ready to face the final challenge and prove my worth'", type: "voice", expectedAnswer: "I am ready to face the final challenge and prove my worth", explanation: "Frase de valor y determinación ante un reto." },
+      { question: "Pronounce clearly: 'Education is the most powerful weapon which you can use to change the world'", type: "voice", expectedAnswer: "Education is the most powerful weapon which you can use to change the world", explanation: "Célebre frase de Nelson Mandela." },
+      { question: "Pronounce clearly: 'The more that you read the more things you will know'", type: "voice", expectedAnswer: "The more that you read the more things you will know", explanation: "Frase célebre de Dr. Seuss sobre la lectura." },
+      { question: "Pronounce clearly: 'Language shapes the way we think and determines what we can think about'", type: "voice", expectedAnswer: "Language shapes the way we think and determines what we can think about", explanation: "Frase sobre la importancia del lenguaje en el pensamiento." },
+      { question: "Pronounce clearly: 'Communication works for those who work at it'", type: "voice", expectedAnswer: "Communication works for those who work at it", explanation: "Frase sobre el esfuerzo en la comunicación." },
+      { question: "Pronounce clearly: 'A different language is a different vision of life'", type: "voice", expectedAnswer: "A different language is a different vision of life", explanation: "Frase de Federico Fellini." },
+      { question: "Pronounce clearly: 'To learn a language is to have one more window from which to look at the world'", type: "voice", expectedAnswer: "To learn a language is to have one more window from which to look at the world", explanation: "Proverbio chino sobre el aprendizaje de idiomas." },
+      { question: "Pronounce clearly: 'Reading is essential for those who seek to rise above the ordinary'", type: "voice", expectedAnswer: "Reading is essential for those who seek to rise above the ordinary", explanation: "Frase inspiradora sobre la lectura." },
+      { question: "Pronounce clearly: 'Words are our most inexhaustible source of magic'", type: "voice", expectedAnswer: "Words are our most inexhaustible source of magic", explanation: "Frase de J.K. Rowling." },
+      { question: "Pronounce clearly: 'I have successfully completed all the challenges of the academy'", type: "voice", expectedAnswer: "I have successfully completed all the challenges of the academy", explanation: "Declaración final de éxito." }
     ]
   }
 };

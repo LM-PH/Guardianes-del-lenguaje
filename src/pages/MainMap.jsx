@@ -149,32 +149,43 @@ function drawTile(ctx, tileId, px, py, size, tick) {
       break
     }
     case TILES.HOUSE: {
-      // Paredes
+      // Pared exterior
       ctx.fillStyle = GBC.housew; ctx.fillRect(px, py, s, s)
-      // Techo rojo
-      ctx.fillStyle = GBC.house1; ctx.fillRect(px, py, s, s*0.4)
-      ctx.fillStyle = GBC.house2; ctx.fillRect(px, py, s, s*0.08)
-      // Ventana
-      ctx.fillStyle = GBC.house3; ctx.fillRect(px + s*0.55, py + s*0.45, s*0.28, s*0.25)
-      ctx.fillStyle = '#90c0e0';  ctx.fillRect(px + s*0.57, py + s*0.47, s*0.24, s*0.21)
-      // Marco puerta
-      ctx.fillStyle = GBC.house2; ctx.fillRect(px + s*0.15, py + s*0.5, s*0.28, s*0.5)
-      ctx.fillStyle = '#c8905050'; ctx.fillRect(px + s*0.17, py + s*0.52, s*0.24, s*0.48)
+      // Franja de techo rojo (GBA style)
+      ctx.fillStyle = GBC.house1; ctx.fillRect(px, py, s, s * 0.42)
+      ctx.fillStyle = GBC.house2; ctx.fillRect(px, py, s, s * 0.07)
+      // Borde inferior del techo en sombra
+      ctx.fillStyle = '#8b0000'; ctx.fillRect(px, py + s * 0.42, s, 3)
+      // Ventana (azul cielo)
+      ctx.fillStyle = '#546e7a'; ctx.fillRect(px + s*0.55, py + s*0.5, s*0.32, s*0.28)
+      ctx.fillStyle = '#b3e5fc'; ctx.fillRect(px + s*0.57, py + s*0.52, s*0.28, s*0.24)
+      // Cruz ventana
+      ctx.fillStyle = '#546e7a'
+      ctx.fillRect(px + s*0.71, py + s*0.52, 2, s*0.24) // vertical
+      ctx.fillRect(px + s*0.57, py + s*0.63, s*0.28, 2) // horizontal
+      // Puerta
+      ctx.fillStyle = '#4e342e'; ctx.fillRect(px + s*0.14, py + s*0.5, s*0.3, s*0.5)
+      ctx.fillStyle = '#6d4c41'; ctx.fillRect(px + s*0.16, py + s*0.52, s*0.26, s*0.48)
+      // Pomo de puerta
+      ctx.fillStyle = '#ffd700'
+      ctx.beginPath(); ctx.arc(px + s*0.37, py + s*0.76, 3, 0, Math.PI*2); ctx.fill()
       break
     }
     case TILES.HOUSE_DOOR: {
-      // Puerta de entrada (parche de camino con marco)
+      // Tile de entrada a la casa - camino especial con borde
       ctx.fillStyle = GBC.path1; ctx.fillRect(px, py, s, s)
-      ctx.fillStyle = GBC.house2
-      ctx.fillRect(px, py, s, 4) // borde superior
-      ctx.fillRect(px, py, 3, s) // borde izquierdo
-      ctx.fillRect(px + s - 3, py, 3, s) // borde derecho
-      // Indicador visual de puerta
-      ctx.fillStyle = GBC.house3
-      ctx.beginPath(); ctx.arc(px + s/2, py + s * 0.4, s * 0.22, 0, Math.PI * 2); ctx.fill()
+      // Líneas de entrada como baldosas
+      ctx.fillStyle = GBC.path2
+      ctx.fillRect(px, py, s, 3)
+      ctx.fillRect(px, py, 3, s)
+      ctx.fillRect(px + s - 3, py, 3, s)
+      // Alfombra de entrada
+      ctx.fillStyle = '#ef5350'
+      ctx.fillRect(px + s*0.2, py + s*0.6, s*0.6, s*0.35)
+      // Texto pequeño ENTER
       ctx.fillStyle = '#fff'
-      ctx.font = `bold ${s * 0.3}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-      ctx.fillText('▲', px + s/2, py + s * 0.4)
+      ctx.font = `bold ${s * 0.2}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillText('ENTRAR', px + s/2, py + s * 0.77)
       break
     }
     case TILES.WALL: {
@@ -290,8 +301,9 @@ function MainMap() {
 
   // ─── Cargar NPCs ───────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!player || player.currentMap === 'pueblo_inicial') { setNpcs([]); return }
-    fetch(`/api/npcs/${player.currentMap}`)
+    if (!player) { setNpcs([]); return }
+    const targetMap = player.currentMap || 'pueblo_inicial'
+    fetch(`/api/npcs/${targetMap}`)
       .then(r => r.json()).then(setNpcs).catch(() => {})
   }, [player?.currentMap])
 
@@ -566,9 +578,9 @@ function MainMap() {
           if (libImg && (libImg.width > 0 || libImg.naturalWidth > 0)) {
             const sw = libImg.width || libImg.naturalWidth
             const sh = libImg.height || libImg.naturalHeight
-            // Cada frame ocupa sw/4 de ancho, sh*0.35 de alto (el personaje está en la parte superior)
+            // Cada frame ocupa sw/4 de ancho, sh/4 de alto (el personaje está en la parte superior)
             const frameW = sw / 4
-            const frameH = sh * 0.35
+            const frameH = sh / 4
             const drawW = TS * 1.0; const drawH = TS * 1.6
             ctx.drawImage(libImg, 0, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
           }
@@ -622,7 +634,7 @@ function MainMap() {
           const sw = npcImg.width || npcImg.naturalWidth
           const sh = npcImg.height || npcImg.naturalHeight
           const frameW = sw / 4
-          const frameH = sh * 0.38 // personaje en 38% superior
+          const frameH = sh / 4
           const animFrame = Math.floor(tick / 12) % 4
           const drawW = TS * 0.9; const drawH = TS * 1.5
           ctx.globalAlpha = defeated ? 0.35 : 1
@@ -666,7 +678,7 @@ function MainMap() {
           if (hasBossSprite) {
             const sw = bossImg.width || bossImg.naturalWidth
             const frameW = sw / 4
-            const frameH = (bossImg.height || bossImg.naturalHeight) * 0.45
+            const frameH = (bossImg.height || bossImg.naturalHeight) / 4
             const drawW = TS * 1.15; const drawH = TS * 1.8
             ctx.drawImage(bossImg, 0, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
           } else {
@@ -699,7 +711,7 @@ function MainMap() {
           // Para mascotas voladoras: frame fijo y bobbeo vertical fuerte
           // Para cuadrúpedos: ciclar frames de caminar
           const petAnimFrame = isFlying ? Math.floor(tick / 8) % 4 : Math.floor(tick / 6) % 4
-          const petFrameH = sh * 0.5 // El animal ocupa el 50% superior del frame
+          const petFrameH = sh / 4
           const flyBob = isFlying ? Math.sin(tick * 0.15) * 8 : 0
           const drawW = TS * 0.72; const drawH = TS * 0.72
           const ox = (TS - drawW) / 2
@@ -722,7 +734,7 @@ function MainMap() {
           const sh = spriteImg.height || spriteImg.naturalHeight
           if (sw > 0 && sh > 0) {
             const frameW = sw / 4
-            const frameH = sh / 2
+            const frameH = sh / 4
             const FRAMES = {
               down:  [{ col: 0, row: 0 }, { col: 1, row: 0 }],
               up:    [{ col: 2, row: 0 }, { col: 3, row: 0 }],
@@ -734,7 +746,10 @@ function MainMap() {
             const drawH = TS * 1.55
             const ox = (TS - drawW) / 2
             const oy = TS - drawH
-            ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
+            // El jugador también es un sprite de 1 fila de 4 frames, la config de 'row: 1' podría no aplicar 
+            // si el sprite del jugador es como los demás (1x4). Ajustaremos el row a 0 por si acaso.
+            const targetRow = (frameH === sh / 4) ? 0 : frame.row; 
+            ctx.drawImage(spriteImg, frame.col * frameW, targetRow * frameH, frameW, frameH,
               playerPx + ox, playerPy + oy, drawW, drawH)
           } else {
             drawEmoji(ctx, pl.character?.gender === 'girl' ? '👧' : '👦', playerPx + TS/2, playerPy + TS/2, TS * 0.88)
