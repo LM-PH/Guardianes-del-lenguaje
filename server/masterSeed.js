@@ -84,13 +84,14 @@ const generateNPCsAndQuestions = async () => {
           const zonePool = questionsPool[config.subject]?.[zoneName] || [];
           const questionIdsForNpc = [];
 
+          // Barajar las opciones en la zona para asignar un subconjunto único a este PNJ
+          const shuffledPool = [...zonePool].sort(() => 0.5 - Math.random());
+          
           for (let q = 0; q < qCountToAssign; q++) {
             const qId = `q_${npcCounter}_${questionCounter++}`;
             questionIdsForNpc.push(qId);
             
-            // Elegir pregunta aleatoria del pool para evitar repeticiones en el mismo orden
-            const poolIndex = Math.floor(Math.random() * Math.max(1, zonePool.length));
-            const poolQuestion = zonePool[poolIndex] || {
+            const poolQuestion = shuffledPool[q % shuffledPool.length] || {
               question: `Pregunta de práctica sobre ${zoneName} #${q + 1}`,
               options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
               correctAnswer: 1,

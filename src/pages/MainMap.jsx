@@ -741,73 +741,65 @@ function MainMap() {
         ctx.beginPath(); ctx.ellipse(petPx+TS/2, petPy+TS-3, TS*0.28, 3, 0, 0, Math.PI*2); ctx.fill()
 
         // Seleccionar sprite de mascota correcto
-        const petType = pl.inventory?.equippedPet || pl.pet?.type?.toLowerCase() || pl.pet?.id?.toLowerCase() || ''
-        let petSpriteImg = null
         const isFlying = petType.includes('buho') || petType.includes('búho') || petType.includes('owl') || petType.includes('periquit') || petType.includes('colib')
-        // Default fallback logic removed since we draw pets with canvas now
-
-        if (petSpriteImg && (petSpriteImg.width > 0 || petSpriteImg.naturalWidth > 0)) {
-          const sw = petSpriteImg.width || petSpriteImg.naturalWidth
-          const sh = petSpriteImg.height || petSpriteImg.naturalHeight
-          const frameW = sw / 4
-          // Para mascotas, usaremos dibujo en canvas para animar patitas de forma perfecta
-          const flyBob = isFlying ? Math.sin(tick * 0.15) * 8 : 0
-          const drawW = TS * 0.72; const drawH = TS * 0.72
-          const ox = (TS - drawW) / 2
-          
-          ctx.save()
-          ctx.translate(petPx + ox + drawW/2, petPy + TS - drawH + bob + flyBob + drawH/2)
-          
-          // Animar patas
-          const legSwing = Math.sin(tick * 0.4) * 5
-          
-          if (pl.pet === 'buho') {
-             // Búho
-             ctx.fillStyle = '#795548'
-             ctx.beginPath(); ctx.ellipse(0, 0, 12, 16, 0, 0, Math.PI*2); ctx.fill()
-             // Ojos
-             ctx.fillStyle = '#fff'
-             ctx.beginPath(); ctx.arc(-4, -4, 4, 0, Math.PI*2); ctx.arc(4, -4, 4, 0, Math.PI*2); ctx.fill()
-             ctx.fillStyle = '#000'
-             ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI*2); ctx.arc(4, -4, 2, 0, Math.PI*2); ctx.fill()
-             // Alas
-             ctx.fillStyle = '#5D4037'
-             const wingBob = isFlying ? Math.sin(tick * 0.6) * 10 : 0
-             ctx.beginPath(); ctx.ellipse(-14, 0 + wingBob, 4, 10, -Math.PI/6, 0, Math.PI*2); ctx.fill()
-             ctx.beginPath(); ctx.ellipse(14, 0 + wingBob, 4, 10, Math.PI/6, 0, Math.PI*2); ctx.fill()
-          } else if (pl.pet === 'perrito') {
-             // Perro
-             ctx.fillStyle = '#FFB300'
-             ctx.fillRect(-10, -5, 20, 12) // cuerpo
-             ctx.fillRect(-14, -12, 10, 10) // cabeza
-             // Patas
-             ctx.fillStyle = '#FFA000'
-             ctx.fillRect(-10 + legSwing, 7, 4, 8)
-             ctx.fillRect(-4 - legSwing, 7, 4, 8)
-             ctx.fillRect(6 + legSwing, 7, 4, 8)
-             ctx.fillRect(2 - legSwing, 7, 4, 8)
-             // Orejas
-             ctx.fillStyle = '#FF8F00'
-             ctx.fillRect(-16, -14, 4, 6)
-          } else {
-             // Gato (zorrito usa color distinto)
-             ctx.fillStyle = pl.pet === 'zorrito' ? '#E64A19' : '#9E9E9E'
-             ctx.beginPath(); ctx.arc(-8, -8, 8, 0, Math.PI*2); ctx.fill() // cabeza
-             ctx.fillRect(-6, -4, 16, 10) // cuerpo
-             // Cola
-             ctx.lineWidth = 3
-             ctx.strokeStyle = pl.pet === 'zorrito' ? '#BF360C' : '#757575'
-             ctx.beginPath(); ctx.moveTo(10, 0); ctx.quadraticCurveTo(16 + legSwing, -10, 12, -15); ctx.stroke()
-             // Patas
-             ctx.fillStyle = pl.pet === 'zorrito' ? '#D84315' : '#616161'
-             ctx.fillRect(-6 + legSwing, 6, 3, 6)
-             ctx.fillRect(0 - legSwing, 6, 3, 6)
-             ctx.fillRect(7 + legSwing, 6, 3, 6)
-             // Orejas puntiagudas
-             ctx.beginPath(); ctx.moveTo(-14, -14); ctx.lineTo(-10, -6); ctx.lineTo(-6, -14); ctx.fill()
-          }
-          ctx.restore()
+        
+        // Para mascotas, usaremos dibujo en canvas para animar patitas de forma perfecta
+        const flyBob = isFlying ? Math.sin(tick * 0.15) * 8 : 0
+        const drawW = TS * 0.72; const drawH = TS * 0.72
+        const ox = (TS - drawW) / 2
+        
+        ctx.save()
+        ctx.translate(petPx + ox + drawW/2, petPy + TS - drawH + bob + flyBob + drawH/2)
+        
+        // Animar patas
+        const legSwing = Math.sin(tick * 0.4) * 5
+        
+        if (pl.pet === 'buho') {
+           // Búho
+           ctx.fillStyle = '#795548'
+           ctx.beginPath(); ctx.ellipse(0, 0, 12, 16, 0, 0, Math.PI*2); ctx.fill()
+           // Ojos
+           ctx.fillStyle = '#fff'
+           ctx.beginPath(); ctx.arc(-4, -4, 4, 0, Math.PI*2); ctx.arc(4, -4, 4, 0, Math.PI*2); ctx.fill()
+           ctx.fillStyle = '#000'
+           ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI*2); ctx.arc(4, -4, 2, 0, Math.PI*2); ctx.fill()
+           // Alas
+           ctx.fillStyle = '#5D4037'
+           const wingBob = isFlying ? Math.sin(tick * 0.6) * 10 : 0
+           ctx.beginPath(); ctx.ellipse(-14, 0 + wingBob, 4, 10, -Math.PI/6, 0, Math.PI*2); ctx.fill()
+           ctx.beginPath(); ctx.ellipse(14, 0 + wingBob, 4, 10, Math.PI/6, 0, Math.PI*2); ctx.fill()
+        } else if (pl.pet === 'perrito') {
+           // Perro
+           ctx.fillStyle = '#FFB300'
+           ctx.fillRect(-10, -5, 20, 12) // cuerpo
+           ctx.fillRect(-14, -12, 10, 10) // cabeza
+           // Patas
+           ctx.fillStyle = '#FFA000'
+           ctx.fillRect(-10 + legSwing, 7, 4, 8)
+           ctx.fillRect(-4 - legSwing, 7, 4, 8)
+           ctx.fillRect(6 + legSwing, 7, 4, 8)
+           ctx.fillRect(2 - legSwing, 7, 4, 8)
+           // Orejas
+           ctx.fillStyle = '#FF8F00'
+           ctx.fillRect(-16, -14, 4, 6)
+        } else {
+           // Gato (zorrito usa color distinto)
+           ctx.fillStyle = pl.pet === 'zorrito' ? '#E64A19' : '#9E9E9E'
+           ctx.beginPath(); ctx.arc(-8, -8, 8, 0, Math.PI*2); ctx.fill() // cabeza
+           ctx.fillRect(-6, -4, 16, 10) // cuerpo
+           // Cola
+           ctx.lineWidth = 3
+           ctx.strokeStyle = pl.pet === 'zorrito' ? '#BF360C' : '#757575'
+           ctx.beginPath(); ctx.moveTo(10, 0); ctx.quadraticCurveTo(16 + legSwing, -10, 12, -15); ctx.stroke()
+           // Patas
+           ctx.fillStyle = pl.pet === 'zorrito' ? '#D84315' : '#616161'
+           ctx.fillRect(-6 + legSwing, 6, 3, 6)
+           ctx.fillRect(0 - legSwing, 6, 3, 6)
+           ctx.fillRect(7 + legSwing, 6, 3, 6)
+           // Orejas puntiagudas
+           ctx.beginPath(); ctx.moveTo(-14, -14); ctx.lineTo(-10, -6); ctx.lineTo(-6, -14); ctx.fill()
         }
+        ctx.restore()
       }
 
       // ── Jugador ──
