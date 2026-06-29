@@ -271,16 +271,7 @@ function MainMap() {
   const girlImgRef = useImage('/sprites/girl.png')
   const boyImgRef = useImage('/sprites/boy.png')
   // Sprites NPC
-  const librarianImgRef = useImage('/sprites/librarian.png')
-  const grandmasterImgRef = useImage('/sprites/grandmaster.png')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png')
-  const studentImgRef = useImage('/sprites/student.png')
-  const shopBuildingImgRef = useImage('/sprites/shop_building.png')
-  // Sprites Mascotas
-  const petDogImgRef = useImage('/sprites/pet_perrito.png')
-  const petCatImgRef = useImage('/sprites/pet_gatito.png')
-  const petFoxImgRef = useImage('/sprites/pet_zorrito.png')
-  const petOwlImgRef = useImage('/sprites/pet_buho.png')
+  // (Librarian, grandmaster, shopkeeper, student and pet images were removed)
 
   // ─── Cargar jugador ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -305,7 +296,29 @@ function MainMap() {
     if (!player) { setNpcs([]); return }
     const targetMap = player.currentMap || 'pueblo_inicial'
     fetch(`/api/npcs/${targetMap}`)
-      .then(r => r.json()).then(setNpcs).catch(() => {})
+      .then(r => r.json())
+      .then(fetchedNpcs => {
+        const grid = MAPS[targetMap]?.grid
+        if (grid) {
+          fetchedNpcs.forEach(n => {
+            // Si está dentro de un árbol o agua, lo movemos a la casilla libre más cercana
+            if (SOLID_TILES.includes(grid[n.y]?.[n.x])) {
+               let found = false
+               for (let r = 1; r < 6 && !found; r++) {
+                 for (let dx = -r; dx <= r && !found; dx++) {
+                   for (let dy = -r; dy <= r && !found; dy++) {
+                      if (!SOLID_TILES.includes(grid[n.y + dy]?.[n.x + dx])) {
+                         n.x += dx; n.y += dy; found = true
+                      }
+                   }
+                 }
+               }
+            }
+          })
+        }
+        setNpcs(fetchedNpcs)
+      })
+      .catch(() => {})
   }, [player?.currentMap])
 
   // ─── Mapa ──────────────────────────────────────────────────────────────────
@@ -430,9 +443,13 @@ function MainMap() {
   const moveRef = useRef(null)
   moveRef.current = { dialog, player, npcs, isObstacle, handleInteraction, savePosition }
 
+  const lastMove = useRef(0)
   const doMove = useCallback((dx, dy, newDir) => {
+    const now = Date.now()
+    if (now - lastMove.current < 160) return // Reduce speed to approx 6 tiles per second
     const { dialog: dlg, player: pl, npcs: npcList, isObstacle: obs, handleInteraction: interact, savePosition: save } = moveRef.current
     if (dlg || !pl) return
+    lastMove.current = now
     setDir(newDir)
     setIsMoving(true)
     setPos(prev => {
@@ -569,34 +586,40 @@ function MainMap() {
           if (!visible) return
 
           if (type === 'shop') {
-            // Dibujar edificio de tienda usando imagen generada
-            const shopImg = shopBuildingImgRef.current
-            if (shopImg && (shopImg.width > 0 || shopImg.naturalWidth > 0)) {
-              const bw = TS * 2.5, bh = TS * 2.8
-              ctx.drawImage(shopImg, px - TS * 0.75, py - TS * 1.8, bw, bh)
-            } else {
-              // Fallback canvas building
-              ctx.fillStyle = '#1565c0'; ctx.fillRect(px - TS * 0.5, py - TS * 1.2, TS * 2, TS * 0.7)
-              ctx.fillStyle = '#bbdefb'; ctx.fillRect(px - TS * 0.5, py - TS * 0.5, TS * 2, TS * 1.5)
-              ctx.fillStyle = '#fff'
-              ctx.font = `bold ${TS * 0.22}px Arial`; ctx.textAlign = 'center'
-              ctx.fillText('TIENDA', px + TS / 2, py - TS * 0.9)
-            }
+            // Dibujar edificio de tienda con canvas
+            const hw = TS * 3; const hh = TS * 2
+            const spx = px - TS * 1; const spy = py - TS * 1.5
+            // Paredes tienda
+            ctx.fillStyle = '#bbdefb'; ctx.fillRect(spx, spy, hw, hh)
+            // Techo azul tienda
+            ctx.fillStyle = '#1565c0'; ctx.fillRect(spx, spy, hw, hh * 0.4)
+            ctx.fillStyle = '#0d47a1'; ctx.fillRect(spx, spy + hh * 0.4, hw, 4)
+            // Ventanas de tienda
+            ctx.fillStyle = '#90caf9'; ctx.fillRect(spx + hw * 0.1, spy + hh * 0.5, hw * 0.25, hh * 0.3)
+            ctx.fillRect(spx + hw * 0.65, spy + hh * 0.5, hw * 0.25, hh * 0.3)
+            // Puerta central
+            ctx.fillStyle = '#ffb300'; ctx.fillRect(spx + hw * 0.4, spy + hh * 0.55, hw * 0.2, hh * 0.45)
+            // Cartel "SHOP"
+            ctx.fillStyle = '#fff'; ctx.fillRect(spx + hw * 0.3, spy + hh * 0.45, hw * 0.4, hh * 0.15)
+            ctx.fillStyle = '#000'; ctx.font = `bold ${TS * 0.25}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+            ctx.fillText('SHOP', spx + hw / 2, spy + hh * 0.52)
             return
           }
 
-          // Bibliotecario
+          // Bibliotecario (usaremos al boyImgRef con filtro sepia para parecer mayor)
           ctx.fillStyle = 'rgba(0,0,0,0.2)'
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
-          const libImg = librarianImgRef.current
+          const libImg = boyImgRef.current
           if (libImg && (libImg.width > 0 || libImg.naturalWidth > 0)) {
             const sw = libImg.width || libImg.naturalWidth
             const sh = libImg.height || libImg.naturalHeight
-            // Cada frame ocupa sw/4 de ancho, sh*0.45 de alto
             const frameW = sw / 4
-            const frameH = sh * 0.45
-            const drawW = TS * 1.0; const drawH = TS * 1.6
+            const frameH = sh / 2
+            const drawW = TS * 0.95; const drawH = TS * 1.55
+            ctx.save()
+            ctx.filter = 'sepia(80%) grayscale(50%)' // Aspecto de anciano
             ctx.drawImage(libImg, 0, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
+            ctx.restore()
           }
         })
       }
@@ -637,9 +660,10 @@ function MainMap() {
           }
         }
         const hash = (npc.name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
+        const hueShift = Math.abs(hash) % 360;
         const isGirl = Math.abs(hash) % 2 !== 0;
         // Usar sprite de estudiante
-        const npcImg = studentImgRef.current || (isGirl ? girlImgRef.current : boyImgRef.current);
+        const npcImg = isGirl ? girlImgRef.current : boyImgRef.current;
         const { px, py, visible } = inView(drawX, drawY)
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
@@ -648,12 +672,20 @@ function MainMap() {
           const sw = npcImg.width || npcImg.naturalWidth
           const sh = npcImg.height || npcImg.naturalHeight
           const frameW = sw / 4
-          const frameH = sh * 0.45
+          const frameH = sh / 2
           const animFrame = Math.floor(tick / 12) % 4
-          const drawW = TS * 0.9; const drawH = TS * 1.5
+          const drawW = TS * 0.95; const drawH = TS * 1.55
           ctx.globalAlpha = defeated ? 0.35 : 1
+          ctx.save()
+          // Variar el color de los estudiantes para que no sean idénticos
+          if (npc.subject !== 'integrador') {
+             ctx.filter = `hue-rotate(${hueShift}deg)`
+          } else {
+             // Es un maestro (jefe), darle brillo dorado o violeta
+             ctx.filter = 'drop-shadow(0 0 10px gold)'
+          }
           ctx.drawImage(npcImg, animFrame * frameW, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
-          ctx.globalAlpha = 1
+          ctx.restore()
         } else {
           // Fallback emoji
           const studentEmoji = defeated ? '😵' : getStudentEmoji(npc.npcId)
@@ -686,7 +718,7 @@ function MainMap() {
           const hashBoss = cMap.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
           const bossIsGirl = Math.abs(hashBoss) % 2 !== 0;
           // Usar sprite de gran maestro para el boss
-          const bossImg = grandmasterImgRef.current || (bossIsGirl ? girlImgRef.current : boyImgRef.current);
+          const bossImg = bossIsGirl ? girlImgRef.current : boyImgRef.current;
 
           const hasBossSprite = bossImg && (bossImg.width > 0 || bossImg.naturalWidth > 0)
           if (hasBossSprite) {
@@ -712,11 +744,7 @@ function MainMap() {
         const petType = pl.inventory?.equippedPet || pl.pet?.type?.toLowerCase() || pl.pet?.id?.toLowerCase() || ''
         let petSpriteImg = null
         const isFlying = petType.includes('buho') || petType.includes('búho') || petType.includes('owl') || petType.includes('periquit') || petType.includes('colib')
-        if (petType.includes('perrit') || petType.includes('dog')) petSpriteImg = petDogImgRef.current
-        else if (petType.includes('gatit') || petType.includes('cat')) petSpriteImg = petCatImgRef.current
-        else if (petType.includes('zorrit') || petType.includes('fox')) petSpriteImg = petFoxImgRef.current
-        else if (isFlying) petSpriteImg = petOwlImgRef.current
-        else petSpriteImg = petDogImgRef.current // Default
+        // Default fallback logic removed since we draw pets with canvas now
 
         if (petSpriteImg && (petSpriteImg.width > 0 || petSpriteImg.naturalWidth > 0)) {
           const sw = petSpriteImg.width || petSpriteImg.naturalWidth
