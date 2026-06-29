@@ -741,6 +741,7 @@ function MainMap() {
         ctx.beginPath(); ctx.ellipse(petPx+TS/2, petPy+TS-3, TS*0.28, 3, 0, 0, Math.PI*2); ctx.fill()
 
         // Seleccionar sprite de mascota correcto
+        const petType = pl.inventory?.equippedPet || pl.pet?.type?.toLowerCase() || pl.pet?.id?.toLowerCase() || ''
         const isFlying = petType.includes('buho') || petType.includes('búho') || petType.includes('owl') || petType.includes('periquit') || petType.includes('colib')
         
         // Para mascotas, usaremos dibujo en canvas para animar patitas de forma perfecta
@@ -754,7 +755,7 @@ function MainMap() {
         // Animar patas
         const legSwing = Math.sin(tick * 0.4) * 5
         
-        if (pl.pet === 'buho') {
+        if (isFlying) {
            // Búho
            ctx.fillStyle = '#795548'
            ctx.beginPath(); ctx.ellipse(0, 0, 12, 16, 0, 0, Math.PI*2); ctx.fill()
@@ -768,7 +769,7 @@ function MainMap() {
            const wingBob = isFlying ? Math.sin(tick * 0.6) * 10 : 0
            ctx.beginPath(); ctx.ellipse(-14, 0 + wingBob, 4, 10, -Math.PI/6, 0, Math.PI*2); ctx.fill()
            ctx.beginPath(); ctx.ellipse(14, 0 + wingBob, 4, 10, Math.PI/6, 0, Math.PI*2); ctx.fill()
-        } else if (pl.pet === 'perrito') {
+        } else if (petType.includes('perrit') || petType.includes('dog')) {
            // Perro
            ctx.fillStyle = '#FFB300'
            ctx.fillRect(-10, -5, 20, 12) // cuerpo
@@ -783,16 +784,17 @@ function MainMap() {
            ctx.fillStyle = '#FF8F00'
            ctx.fillRect(-16, -14, 4, 6)
         } else {
-           // Gato (zorrito usa color distinto)
-           ctx.fillStyle = pl.pet === 'zorrito' ? '#E64A19' : '#9E9E9E'
+           // Gato (o zorrito)
+           const isFox = petType.includes('zorrit') || petType.includes('fox')
+           ctx.fillStyle = isFox ? '#E64A19' : '#9E9E9E'
            ctx.beginPath(); ctx.arc(-8, -8, 8, 0, Math.PI*2); ctx.fill() // cabeza
            ctx.fillRect(-6, -4, 16, 10) // cuerpo
            // Cola
            ctx.lineWidth = 3
-           ctx.strokeStyle = pl.pet === 'zorrito' ? '#BF360C' : '#757575'
+           ctx.strokeStyle = isFox ? '#BF360C' : '#757575'
            ctx.beginPath(); ctx.moveTo(10, 0); ctx.quadraticCurveTo(16 + legSwing, -10, 12, -15); ctx.stroke()
            // Patas
-           ctx.fillStyle = pl.pet === 'zorrito' ? '#D84315' : '#616161'
+           ctx.fillStyle = isFox ? '#D84315' : '#616161'
            ctx.fillRect(-6 + legSwing, 6, 3, 6)
            ctx.fillRect(0 - legSwing, 6, 3, 6)
            ctx.fillRect(7 + legSwing, 6, 3, 6)
