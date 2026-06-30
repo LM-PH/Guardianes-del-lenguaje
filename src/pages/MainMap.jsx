@@ -273,6 +273,10 @@ function MainMap() {
   const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png')
   const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png')
   const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png')
+  const librarianImgRef = useImage('/sprites/librarian.png')
   // Sprites NPC
   // (Librarian, grandmaster, shopkeeper, student and pet images were removed)
 
@@ -612,16 +616,19 @@ function MainMap() {
           // Bibliotecario (usaremos al boyImgRef con filtro sepia para parecer mayor)
           ctx.fillStyle = 'rgba(0,0,0,0.2)'
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
-          const libImg = boyImgRef.current
+          const libImg = librarianImgRef.current || boyImgRef.current
           if (libImg && (libImg.width > 0 || libImg.naturalWidth > 0)) {
             const sw = libImg.width || libImg.naturalWidth
             const sh = libImg.height || libImg.naturalHeight
             const frameW = sw / 4
-            const frameH = sh / 2
+            const rows = Math.round(sh / frameW)
+            const frameH = rows >= 3 ? sh / rows : sh / 2
             const drawW = TS * 0.95; const drawH = TS * 1.55
+            const animFrame = Math.floor(tick / 12) % (rows >= 3 ? 4 : 2)
             ctx.save()
-            ctx.filter = 'sepia(80%) grayscale(50%)' // Aspecto de anciano
-            ctx.drawImage(libImg, 0, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
+            // Quitar filtro sepia si tenemos un sprite real
+            if (libImg === boyImgRef.current) ctx.filter = 'sepia(80%) grayscale(50%)'
+            ctx.drawImage(libImg, animFrame * frameW, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
             ctx.restore()
           }
         })
@@ -681,9 +688,9 @@ function MainMap() {
           const sw = npcImg.width || npcImg.naturalWidth
           const sh = npcImg.height || npcImg.naturalHeight
           const frameW = sw / 4
-          const is4x4 = Math.round(sh / frameW) >= 3
-          const frameH = is4x4 ? sh / 4 : sh / 2
-          const animFrame = Math.floor(tick / 12) % (is4x4 ? 4 : 2)
+          const rows = Math.round(sh / frameW)
+          const frameH = sh / rows
+          const animFrame = Math.floor(tick / 12) % 4
           const drawW = TS * 0.95; const drawH = TS * 1.55
           ctx.globalAlpha = defeated ? 0.35 : 1
           ctx.save()
@@ -730,14 +737,20 @@ function MainMap() {
           // Usar sprite específico si es mapa de inglés, si no usar el de gran maestro o fallback
           let bossImg = bossIsGirl ? girlImgRef.current : boyImgRef.current;
           if (cMap === 'mapa_ingles') bossImg = maestraInglesImgRef.current;
+          if (cMap === 'mapa_artes') bossImg = maestraArtesImgRef.current;
+          if (cMap === 'mapa_espanol') bossImg = maestroEspanolImgRef.current;
+          if (cMap === 'ciudad_maestros') bossImg = granMaestroImgRef.current;
 
           const hasBossSprite = bossImg && (bossImg.width > 0 || bossImg.naturalWidth > 0)
           if (hasBossSprite) {
             const sw = bossImg.width || bossImg.naturalWidth
+            const sh = bossImg.height || bossImg.naturalHeight
             const frameW = sw / 4
-            const frameH = (bossImg.height || bossImg.naturalHeight) * 0.45
+            const rows = Math.round(sh / frameW)
+            const frameH = rows >= 3 ? sh / rows : sh / 2
+            const animFrame = Math.floor(tick / 12) % (rows >= 3 ? 4 : 2)
             const drawW = TS * 1.15; const drawH = TS * 1.8
-            ctx.drawImage(bossImg, 0, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
+            ctx.drawImage(bossImg, animFrame * frameW, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
           } else {
             drawEmoji(ctx, teacherEmoji, px + TS/2, py + TS/2, TS * 0.9)
           }
@@ -830,11 +843,11 @@ function MainMap() {
           const sh = spriteImg.height || spriteImg.naturalHeight
           if (sw > 0 && sh > 0) {
             const frameW = sw / 4
-            const is4x4 = Math.round(sh / frameW) >= 3
-            const frameH = is4x4 ? sh / 4 : sh / 2
+            const rows = Math.round(sh / frameW)
+            const frameH = rows >= 3 ? sh / rows : sh / 2
             
             let FRAMES;
-            if (is4x4) {
+            if (rows >= 3) {
               FRAMES = {
                 down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
                 up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
