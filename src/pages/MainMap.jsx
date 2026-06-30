@@ -270,6 +270,9 @@ function MainMap() {
   // Sprite sheets principales
   const girlImgRef = useImage('/sprites/girl.png')
   const boyImgRef = useImage('/sprites/boy.png')
+  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png')
+  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png')
   // Sprites NPC
   // (Librarian, grandmaster, shopkeeper, student and pet images were removed)
 
@@ -662,8 +665,14 @@ function MainMap() {
         const hash = (npc.name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
         const hueShift = Math.abs(hash) % 360;
         const isGirl = Math.abs(hash) % 2 !== 0;
-        // Usar sprite de estudiante
-        const npcImg = isGirl ? girlImgRef.current : boyImgRef.current;
+        const useRedcap = Math.abs(hash) % 3 === 0; // 33% de probabilidad de usar el sprite de gorra roja
+        
+        let npcImg;
+        if (isGirl) {
+          npcImg = useRedcap ? studentGirlImgRef.current : girlImgRef.current;
+        } else {
+          npcImg = useRedcap ? studentBoyImgRef.current : boyImgRef.current;
+        }
         const { px, py, visible } = inView(drawX, drawY)
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
@@ -718,8 +727,9 @@ function MainMap() {
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-2, TS*0.38, 5, 0, 0, Math.PI*2); ctx.fill()
           const hashBoss = cMap.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
           const bossIsGirl = Math.abs(hashBoss) % 2 !== 0;
-          // Usar sprite de gran maestro para el boss
-          const bossImg = bossIsGirl ? girlImgRef.current : boyImgRef.current;
+          // Usar sprite específico si es mapa de inglés, si no usar el de gran maestro o fallback
+          let bossImg = bossIsGirl ? girlImgRef.current : boyImgRef.current;
+          if (cMap === 'mapa_ingles') bossImg = maestraInglesImgRef.current;
 
           const hasBossSprite = bossImg && (bossImg.width > 0 || bossImg.naturalWidth > 0)
           if (hasBossSprite) {
