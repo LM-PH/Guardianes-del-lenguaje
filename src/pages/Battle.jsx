@@ -112,16 +112,16 @@ function Battle() {
 
   const getEnemySprite = (name, subject) => {
     // Seleccionar sprite de enemigo según materia y nombre
-    if (subject === 'ingles') return '/sprites/maestra_ingles.png?v=4'
-    if (subject === 'artes') return '/sprites/maestra_artes.png?v=4'
-    if (subject === 'espanol') return '/sprites/maestro_espanol.png?v=4'
-    if (subject === 'integrador' || isFinalBoss) return '/sprites/gran_maestro.png?v=4'
+    if (subject === 'ingles') return '/sprites/maestra_ingles.png?v=5'
+    if (subject === 'artes') return '/sprites/maestra_artes.png?v=5'
+    if (subject === 'espanol') return '/sprites/maestro_espanol.png?v=5'
+    if (subject === 'integrador' || isFinalBoss) return '/sprites/gran_maestro.png?v=5'
     // Estudiantes: alternar entre boy y girl con gorra roja
     const hash = (name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
     const isGirl = Math.abs(hash) % 2 !== 0
     const useRedcap = Math.abs(hash) % 3 === 0
-    if (isGirl) return useRedcap ? '/sprites/student_redcap_girl.png?v=4' : '/sprites/girl.png?v=4'
-    return useRedcap ? '/sprites/student_redcap_boy.png?v=4' : '/sprites/boy.png?v=4'
+    if (isGirl) return useRedcap ? '/sprites/student_redcap_girl.png?v=5' : '/sprites/girl.png?v=5'
+    return useRedcap ? '/sprites/student_redcap_boy.png?v=5' : '/sprites/boy.png?v=5'
   };
 
   const getSkinEmoji = (eqSkin) => {
@@ -371,7 +371,7 @@ function Battle() {
             {/* Sprite GBA: fila 1 = up (espalda al jugador, mirando al enemigo) */}
             <div className="sprite-walk-back" style={{ 
               position: 'relative', zIndex: 1, width: '90px', height: '90px', 
-              backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl.png?v=4' : 'boy.png?v=4'}')`, 
+              backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl.png?v=5' : 'boy.png?v=5'}')`, 
               backgroundSize: '400% 400%',
               backgroundPositionY: '33.33%',  /* Fila 1 = up = espalda */
               imageRendering: 'pixelated' 
