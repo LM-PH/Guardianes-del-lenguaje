@@ -672,8 +672,9 @@ function MainMap() {
           const sw = npcImg.width || npcImg.naturalWidth
           const sh = npcImg.height || npcImg.naturalHeight
           const frameW = sw / 4
-          const frameH = sh / 2
-          const animFrame = Math.floor(tick / 12) % 4
+          const is4x4 = Math.round(sh / frameW) >= 3
+          const frameH = is4x4 ? sh / 4 : sh / 2
+          const animFrame = Math.floor(tick / 12) % (is4x4 ? 4 : 2)
           const drawW = TS * 0.95; const drawH = TS * 1.55
           ctx.globalAlpha = defeated ? 0.35 : 1
           ctx.save()
@@ -819,14 +820,29 @@ function MainMap() {
           const sh = spriteImg.height || spriteImg.naturalHeight
           if (sw > 0 && sh > 0) {
             const frameW = sw / 4
-            const frameH = sh / 2
-            const FRAMES = {
-              down:  [{ col: 0, row: 0 }, { col: 1, row: 0 }],
-              up:    [{ col: 2, row: 0 }, { col: 3, row: 0 }],
-              left:  [{ col: 0, row: 1 }, { col: 1, row: 1 }],
-              right: [{ col: 2, row: 1 }, { col: 3, row: 1 }],
+            const is4x4 = Math.round(sh / frameW) >= 3
+            const frameH = is4x4 ? sh / 4 : sh / 2
+            
+            let FRAMES;
+            if (is4x4) {
+              FRAMES = {
+                down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
+                up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
+                left:  [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}],
+                right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
+              }
+            } else {
+              FRAMES = {
+                down:  [{ col: 0, row: 0 }, { col: 1, row: 0 }],
+                up:    [{ col: 2, row: 0 }, { col: 3, row: 0 }],
+                left:  [{ col: 0, row: 1 }, { col: 1, row: 1 }],
+                right: [{ col: 2, row: 1 }, { col: 3, row: 1 }],
+              }
             }
-            const frame = mv ? FRAMES[d][wf] : FRAMES[d][0]
+            
+            const frameArray = FRAMES[d]
+            const currentFrameIndex = mv ? Math.floor(tick / 8) % frameArray.length : 0
+            const frame = frameArray[currentFrameIndex]
             const drawW = TS * 0.95
             const drawH = TS * 1.55
             const ox = (TS - drawW) / 2
