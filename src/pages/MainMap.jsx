@@ -267,16 +267,16 @@ function MainMap() {
 
   const saveTimeout = useRef(null)
 
-  // Sprite sheets principales (v3 para romper caché del Service Worker tras recortar los bordes muertos)
-  const girlImgRef = useImage('/sprites/girl.png?v=3')
-  const boyImgRef = useImage('/sprites/boy.png?v=3')
-  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png?v=3')
-  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png?v=3')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=3')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=3')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=3')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=3')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=3')
+  // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
+  const girlImgRef = useImage('/sprites/girl.png?v=4')
+  const boyImgRef = useImage('/sprites/boy.png?v=4')
+  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png?v=4')
+  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png?v=4')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=4')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=4')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=4')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=4')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=4')
   // Sprites NPC
   // (Librarian, grandmaster, shopkeeper, student and pet images were removed)
 
@@ -613,21 +613,18 @@ function MainMap() {
             return
           }
 
-          // Bibliotecario (usaremos al boyImgRef con filtro sepia para parecer mayor)
+          // Bibliotecario con sprite GBA dedicado
           ctx.fillStyle = 'rgba(0,0,0,0.2)'
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-3, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
-          const libImg = librarianImgRef.current || boyImgRef.current
+          const libImg = librarianImgRef.current
           if (libImg && (libImg.width > 0 || libImg.naturalWidth > 0)) {
             const sw = libImg.width || libImg.naturalWidth
             const sh = libImg.height || libImg.naturalHeight
             const frameW = sw / 4
-            const rows = Math.round(sh / frameW)
-            const frameH = rows >= 3 ? sh / rows : sh / 2
-            const drawW = TS * 0.95; const drawH = TS * 1.55
-            const animFrame = Math.floor(tick / 12) % (rows >= 3 ? 4 : 2)
+            const frameH = sh / 4  // 4 filas GBA
+            const drawW = TS * 1.0; const drawH = TS * 1.65
+            const animFrame = Math.floor(tick / 20) % 2  // animar suave
             ctx.save()
-            // Quitar filtro sepia si tenemos un sprite real
-            if (libImg === boyImgRef.current) ctx.filter = 'sepia(80%) grayscale(50%)'
             ctx.drawImage(libImg, animFrame * frameW, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
             ctx.restore()
           }
@@ -688,20 +685,21 @@ function MainMap() {
           const sw = npcImg.width || npcImg.naturalWidth
           const sh = npcImg.height || npcImg.naturalHeight
           const frameW = sw / 4
-          const rows = Math.round(sh / frameW)
-          const frameH = sh / rows
+          const frameH = sh / 4  // Siempre 4 filas: down/up/left/right
           const animFrame = Math.floor(tick / 12) % 4
+          // Fila 0 = down (mirando hacia el jugador, idle)
+          const srcRow = 0
           const drawW = TS * 0.95; const drawH = TS * 1.55
           ctx.globalAlpha = defeated ? 0.35 : 1
           ctx.save()
           // Variar el color de los estudiantes para que no sean idénticos
           if (npc.subject !== 'integrador') {
-             ctx.filter = `hue-rotate(${hueShift}deg)`
+             ctx.filter = `hue-rotate(${hueShift}deg) saturate(1.2)`
           } else {
              // Es un maestro (jefe), darle brillo dorado o violeta
-             ctx.filter = 'drop-shadow(0 0 10px gold)'
+             ctx.filter = 'drop-shadow(0 0 8px gold) saturate(1.5)'
           }
-          ctx.drawImage(npcImg, animFrame * frameW, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
+          ctx.drawImage(npcImg, animFrame * frameW, srcRow * frameH, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
           ctx.restore()
         } else {
           // Fallback emoji
@@ -746,10 +744,9 @@ function MainMap() {
             const sw = bossImg.width || bossImg.naturalWidth
             const sh = bossImg.height || bossImg.naturalHeight
             const frameW = sw / 4
-            const rows = Math.round(sh / frameW)
-            const frameH = rows >= 3 ? sh / rows : sh / 2
-            const animFrame = Math.floor(tick / 12) % (rows >= 3 ? 4 : 2)
-            const drawW = TS * 1.15; const drawH = TS * 1.8
+            const frameH = sh / 4  // Siempre 4 filas
+            const animFrame = Math.floor(tick / 12) % 4
+            const drawW = TS * 1.2; const drawH = TS * 1.9
             ctx.drawImage(bossImg, animFrame * frameW, 0, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
           } else {
             drawEmoji(ctx, teacherEmoji, px + TS/2, py + TS/2, TS * 0.9)
@@ -843,24 +840,14 @@ function MainMap() {
           const sh = spriteImg.height || spriteImg.naturalHeight
           if (sw > 0 && sh > 0) {
             const frameW = sw / 4
-            const rows = Math.round(sh / frameW)
-            const frameH = rows >= 3 ? sh / rows : sh / 2
+            const frameH = sh / 4  // 4 filas: down=0, up=1, left=2, right=3
             
-            let FRAMES;
-            if (rows >= 3) {
-              FRAMES = {
-                down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
-                up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
-                left:  [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}],
-                right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
-              }
-            } else {
-              FRAMES = {
-                down:  [{ col: 0, row: 0 }, { col: 1, row: 0 }],
-                up:    [{ col: 2, row: 0 }, { col: 3, row: 0 }],
-                left:  [{ col: 0, row: 1 }, { col: 1, row: 1 }],
-                right: [{ col: 2, row: 1 }, { col: 3, row: 1 }],
-              }
+            // Grilla GBA: 4 columnas × 4 filas
+            const FRAMES = {
+              down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
+              up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
+              left:  [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}],
+              right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
             }
             
             const frameArray = FRAMES[d]

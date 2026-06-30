@@ -110,9 +110,18 @@ function Battle() {
       .catch(err => console.error(err))
   }, [userId, authenticatedFetch, npcId, currentConfig.qCount, navigate])
 
-  const getEnemySprite = (name) => {
+  const getEnemySprite = (name, subject) => {
+    // Seleccionar sprite de enemigo según materia y nombre
+    if (subject === 'ingles') return '/sprites/maestra_ingles.png?v=4'
+    if (subject === 'artes') return '/sprites/maestra_artes.png?v=4'
+    if (subject === 'espanol') return '/sprites/maestro_espanol.png?v=4'
+    if (subject === 'integrador' || isFinalBoss) return '/sprites/gran_maestro.png?v=4'
+    // Estudiantes: alternar entre boy y girl con gorra roja
     const hash = (name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
-    return Math.abs(hash) % 2 === 0 ? 'boy' : 'girl';
+    const isGirl = Math.abs(hash) % 2 !== 0
+    const useRedcap = Math.abs(hash) % 3 === 0
+    if (isGirl) return useRedcap ? '/sprites/student_redcap_girl.png?v=4' : '/sprites/girl.png?v=4'
+    return useRedcap ? '/sprites/student_redcap_boy.png?v=4' : '/sprites/boy.png?v=4'
   };
 
   const getSkinEmoji = (eqSkin) => {
@@ -304,18 +313,20 @@ function Battle() {
         }
         @keyframes walk {
           0% { background-position-x: 0%; }
-          100% { background-position-x: 133.333%; }
+          100% { background-position-x: 75%; }
         }
         .retro-hp-bar {
           transition: width 0.3s ease-out, background-color 0.3s;
         }
+        /* Animar 4 frames en fila 0 (down) para el enemigo */
         .sprite-walk-front {
           animation: walk 0.8s steps(4) infinite;
-          background-position-y: 0%;
+          background-position-y: 0%;  /* Fila 0 = down */
         }
+        /* Animar 4 frames en fila 1 (up) para el jugador (espalda) */
         .sprite-walk-back {
           animation: walk 0.8s steps(4) infinite;
-          background-position-y: 100%;
+          background-position-y: 33.33%;  /* Fila 1 = up */
         }
       `}</style>
       
@@ -339,18 +350,32 @@ function Battle() {
           </div>
 
           {/* Sprite Enemigo */}
-          <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && feedback.isCorrect ? 'shake 0.5s' : 'none', marginRight: '20px' }}>
+          <div style={{ position: 'relative', width: '120px', height: '140px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && feedback.isCorrect ? 'shake 0.5s' : 'none', marginRight: '20px' }}>
             <div className="gba-grass-base" style={{ width: '120px', height: '120px', bottom: '-40px' }}></div>
-            <div className="sprite-walk-front" style={{ position: 'relative', zIndex: 1, width: '80px', height: '80px', backgroundImage: `url('/sprites/${getEnemySprite(npcName)}.png')`, backgroundSize: '400% 200%', imageRendering: 'pixelated' }}></div>
+            {/* Sprite GBA: fila 0 = facing down (hacia el jugador), 4 cols x 4 rows */}
+            <div className="sprite-walk-front" style={{ 
+              position: 'relative', zIndex: 1, width: '80px', height: '80px', 
+              backgroundImage: `url('${getEnemySprite(npcName, subject)}')`, 
+              backgroundSize: '400% 400%',
+              backgroundPositionY: '0%',  /* Fila 0 = down = mirando hacia jugador */
+              imageRendering: 'pixelated' 
+            }}></div>
           </div>
         </div>
 
         {/* HUD y Sprite Jugador (Abajo) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 20px 20px 10px', alignItems: 'flex-end', marginTop: 'auto' }}>
           {/* Sprite Jugador */}
-          <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && !feedback.isCorrect ? 'shake 0.5s' : 'none' }}>
+          <div style={{ position: 'relative', width: '120px', height: '140px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', animation: phase === 'feedback' && !feedback.isCorrect ? 'shake 0.5s' : 'none' }}>
             <div className="gba-grass-base" style={{ width: '160px', height: '160px', bottom: '-60px' }}></div>
-            <div className="sprite-walk-back" style={{ position: 'relative', zIndex: 1, width: '90px', height: '90px', backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl.png' : 'boy.png'}')`, backgroundSize: '400% 200%', imageRendering: 'pixelated' }}>
+            {/* Sprite GBA: fila 1 = up (espalda al jugador, mirando al enemigo) */}
+            <div className="sprite-walk-back" style={{ 
+              position: 'relative', zIndex: 1, width: '90px', height: '90px', 
+              backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl.png?v=4' : 'boy.png?v=4'}')`, 
+              backgroundSize: '400% 400%',
+              backgroundPositionY: '33.33%',  /* Fila 1 = up = espalda */
+              imageRendering: 'pixelated' 
+            }}>
                {player.inventory?.equippedSkin && (
                  <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '1.2rem', backgroundColor: '#fff', borderRadius: '50%', border: '2px solid #111', width: '28px', height: '28px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                    {getSkinEmoji(player.inventory.equippedSkin)}
