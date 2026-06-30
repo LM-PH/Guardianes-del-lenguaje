@@ -267,16 +267,16 @@ function MainMap() {
 
   const saveTimeout = useRef(null)
 
-  // Sprite sheets principales
-  const girlImgRef = useImage('/sprites/girl.png')
-  const boyImgRef = useImage('/sprites/boy.png')
-  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png')
-  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png')
-  const librarianImgRef = useImage('/sprites/librarian.png')
+  // Sprite sheets principales (v2 para romper caché del Service Worker)
+  const girlImgRef = useImage('/sprites/girl.png?v=2')
+  const boyImgRef = useImage('/sprites/boy.png?v=2')
+  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png?v=2')
+  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png?v=2')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=2')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=2')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=2')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=2')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=2')
   // Sprites NPC
   // (Librarian, grandmaster, shopkeeper, student and pet images were removed)
 
