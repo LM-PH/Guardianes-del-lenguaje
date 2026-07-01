@@ -398,7 +398,7 @@ function MainMap() {
         setDialog({ text: 'Bibliotecario: Bienvenido. Reúne las 3 insignias para ir al norte.', type: 'info' })
         return true
       }
-      if (nx === 27 && ny === 25) { navigate('/shop'); return true }
+      if (nx === Math.floor(MAPS[cMap].width/2) + 5 && ny === Math.floor(MAPS[cMap].height/2) - 3) { navigate('/shop'); return true }
       if (nx === 0  && ny === Math.floor(MAPS[cMap].height/2)) { transitionTo('mapa_espanol',    Math.floor(MAPS['mapa_espanol'].width/2),   98); return true }
       if (nx === MAPS[cMap].width-1 && ny === Math.floor(MAPS[cMap].height/2)) { transitionTo('mapa_artes',   Math.floor(MAPS['mapa_artes'].width/2),    98); return true }
       if (nx === Math.floor(MAPS[cMap].width/2) && ny === MAPS[cMap].height-1) { transitionTo('mapa_ingles',  Math.floor(MAPS['mapa_ingles'].width/2),   98); return true }
@@ -587,29 +587,41 @@ function MainMap() {
         // NPCs fijos del pueblo_inicial
         ;[
           { tx: Math.floor(info.width/2), ty: Math.floor(info.height/2), type: 'librarian' },
-          { tx: Math.floor(info.width/2) + 2, ty: Math.floor(info.height/2), type: 'shop' }
+          { tx: Math.floor(info.width/2) + 5, ty: Math.floor(info.height/2) - 3, type: 'shop' }
         ].forEach(({tx, ty, type}) => {
           const { px, py, visible } = inView(tx, ty)
           if (!visible) return
 
           if (type === 'shop') {
-            // Dibujar edificio de tienda con canvas
-            const hw = TS * 3; const hh = TS * 2
-            const spx = px - TS * 1; const spy = py - TS * 1.5
-            // Paredes tienda
+            // Edificio de tienda — se dibuja desde su posición (sin extenderse a la izquierda)
+            const hw = TS * 3; const hh = TS * 2.5
+            const spx = px; const spy = py - hh + TS  // anclado arriba-izquierda del tile
+            // Paredes
             ctx.fillStyle = '#bbdefb'; ctx.fillRect(spx, spy, hw, hh)
-            // Techo azul tienda
-            ctx.fillStyle = '#1565c0'; ctx.fillRect(spx, spy, hw, hh * 0.4)
-            ctx.fillStyle = '#0d47a1'; ctx.fillRect(spx, spy + hh * 0.4, hw, 4)
-            // Ventanas de tienda
-            ctx.fillStyle = '#90caf9'; ctx.fillRect(spx + hw * 0.1, spy + hh * 0.5, hw * 0.25, hh * 0.3)
-            ctx.fillRect(spx + hw * 0.65, spy + hh * 0.5, hw * 0.25, hh * 0.3)
+            // Techo azul
+            ctx.fillStyle = '#1565c0'; ctx.fillRect(spx, spy, hw, hh * 0.35)
+            ctx.fillStyle = '#0d47a1'; ctx.fillRect(spx, spy + hh * 0.35, hw, 4)
+            // Sombra inferior del techo
+            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(spx, spy + hh * 0.35, hw, 8)
+            // Ventanas
+            ctx.fillStyle = '#90caf9'
+            ctx.fillRect(spx + hw * 0.08, spy + hh * 0.45, hw * 0.22, hh * 0.22)
+            ctx.fillRect(spx + hw * 0.65, spy + hh * 0.45, hw * 0.22, hh * 0.22)
+            // Brillo ventanas
+            ctx.fillStyle = 'rgba(255,255,255,0.5)'
+            ctx.fillRect(spx + hw * 0.09, spy + hh * 0.46, hw * 0.08, hh * 0.08)
+            ctx.fillRect(spx + hw * 0.66, spy + hh * 0.46, hw * 0.08, hh * 0.08)
             // Puerta central
-            ctx.fillStyle = '#ffb300'; ctx.fillRect(spx + hw * 0.4, spy + hh * 0.55, hw * 0.2, hh * 0.45)
-            // Cartel "SHOP"
-            ctx.fillStyle = '#fff'; ctx.fillRect(spx + hw * 0.3, spy + hh * 0.45, hw * 0.4, hh * 0.15)
-            ctx.fillStyle = '#000'; ctx.font = `bold ${TS * 0.25}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-            ctx.fillText('SHOP', spx + hw / 2, spy + hh * 0.52)
+            ctx.fillStyle = '#ffb300'; ctx.fillRect(spx + hw * 0.38, spy + hh * 0.6, hw * 0.24, hh * 0.4)
+            ctx.fillStyle = '#e65100'; ctx.fillRect(spx + hw * 0.49, spy + hh * 0.6, 3, hh * 0.4)
+            // Cartel "TIENDA"
+            ctx.fillStyle = '#fff9c4'; ctx.fillRect(spx + hw * 0.15, spy + hh * 0.36, hw * 0.7, hh * 0.1)
+            ctx.fillStyle = '#1565c0'; ctx.font = `bold ${TS * 0.28}px Arial`
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+            ctx.fillText('TIENDA', spx + hw / 2, spy + hh * 0.41)
+            // Borde del edificio
+            ctx.strokeStyle = '#0d47a1'; ctx.lineWidth = 3
+            ctx.strokeRect(spx, spy, hw, hh)
             return
           }
 
@@ -687,20 +699,17 @@ function MainMap() {
           const frameW = sw / 4
           const frameH = sh / 4  // Siempre 4 filas: down/up/left/right
           const animFrame = Math.floor(tick / 12) % 4
-          // Fila 0 = down (mirando hacia el jugador, idle)
-          const srcRow = 0
+          const srcRow = 0  // Fila 0 = down (mirando al jugador)
           const drawW = TS * 0.95; const drawH = TS * 1.55
+          ctx.save()  // ← globalAlpha y filter DENTRO del save para que ctx.restore() los limpie
           ctx.globalAlpha = defeated ? 0.35 : 1
-          ctx.save()
-          // Variar el color de los estudiantes para que no sean idénticos
           if (npc.subject !== 'integrador') {
              ctx.filter = `hue-rotate(${hueShift}deg) saturate(1.2)`
           } else {
-             // Es un maestro (jefe), darle brillo dorado o violeta
              ctx.filter = 'drop-shadow(0 0 8px gold) saturate(1.5)'
           }
           ctx.drawImage(npcImg, animFrame * frameW, srcRow * frameH, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
-          ctx.restore()
+          ctx.restore()  // ← limpia globalAlpha y filter automáticamente
         } else {
           // Fallback emoji
           const studentEmoji = defeated ? '😵' : getStudentEmoji(npc.npcId)
@@ -714,6 +723,9 @@ function MainMap() {
           ctx.fillText('!', px + TS/2, py - 6)
         }
       })
+      // ← Reseteo explícito tras el loop de NPCs (evita que alpha/filter se derrame a tiles del siguiente frame)
+      ctx.globalAlpha = 1
+      ctx.filter = 'none'
 
       // ── Maestro en academias (con su emoji correcto) ──
       if (cMap !== 'pueblo_inicial') {
@@ -843,11 +855,12 @@ function MainMap() {
             const frameH = sh / 4  // 4 filas: down=0, up=1, left=2, right=3
             
             // Grilla GBA: 4 columnas × 4 filas
+            // Para 'left' usamos los frames de 'right' pero espejados (siempre se ve natural)
             const FRAMES = {
               down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
               up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
-              left:  [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}],
               right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
+              left:  [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}], // igual que right, dibujado espejado
             }
             
             const frameArray = FRAMES[d]
@@ -857,8 +870,19 @@ function MainMap() {
             const drawH = TS * 1.55
             const ox = (TS - drawW) / 2
             const oy = TS - drawH
-            ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
-              playerPx + ox, playerPy + oy, drawW, drawH)
+            
+            if (d === 'left') {
+              // Espejo horizontal: reutiliza los frames de 'right' al revés
+              ctx.save()
+              ctx.translate(playerPx + TS / 2, 0)
+              ctx.scale(-1, 1)
+              ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
+                -drawW / 2, playerPy + oy, drawW, drawH)
+              ctx.restore()
+            } else {
+              ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
+                playerPx + ox, playerPy + oy, drawW, drawH)
+            }
           } else {
             drawEmoji(ctx, pl.character?.gender === 'girl' ? '👧' : '👦', playerPx + TS/2, playerPy + TS/2, TS * 0.88)
           }
