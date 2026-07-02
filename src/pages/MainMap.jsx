@@ -898,8 +898,8 @@ function MainMap() {
             const FRAMES = {
               down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
               up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
-              left:  [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}], // Usaremos fila 3 (derecha) + espejo para 'left'
-              right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
+              left:  [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}], // Fila 3 es izquierda para los humanos
+              right: [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}], // Fila 2 es derecha para los humanos
             }
             
             const frameArray = FRAMES[d]
@@ -910,18 +910,8 @@ function MainMap() {
             const ox = (TS - drawW) / 2
             const oy = TS - drawH
             
-            if (d === 'left') {
-              // Espejo horizontal perfecto desde el centro visual
-              ctx.save()
-              ctx.translate(playerPx + ox + drawW / 2, playerPy + oy + drawH / 2)
-              ctx.scale(-1, 1)
-              ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
-                -drawW / 2, -drawH / 2, drawW, drawH)
-              ctx.restore()
-            } else {
-              ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
-                playerPx + ox, playerPy + oy, drawW, drawH)
-            }
+            ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
+              playerPx + ox, playerPy + oy, drawW, drawH)
           } else {
             drawEmoji(ctx, pl.character?.gender === 'girl' ? '👧' : '👦', playerPx + TS/2, playerPy + TS/2, TS * 0.88)
           }
