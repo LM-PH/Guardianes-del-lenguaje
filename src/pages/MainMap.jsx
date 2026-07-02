@@ -802,8 +802,8 @@ function MainMap() {
            const FRAMES = {
               down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
               up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
-              left:  [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}], // Fila 3 es izquierda en estos sprites
-              right: [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}], // Fila 2 es derecha
+              left:  [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}],
+              right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
            };
            const frameArray = FRAMES[d] || FRAMES['down'];
            const currentFrameIndex = mv ? Math.floor(tick / 8) % frameArray.length : 0;
@@ -895,12 +895,11 @@ function MainMap() {
             const frameW = sw / 4
             const frameH = sh / 4  // 4 filas: down=0, up=1, left=2, right=3
             
-            // Grilla GBA: 4 columnas × 4 filas
             const FRAMES = {
               down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
               up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
-              left:  [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}], // Fila 3 es izquierda
-              right: [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}], // Fila 2 es derecha
+              left:  [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}], // Usaremos fila 3 (derecha) + espejo para 'left'
+              right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
             }
             
             const frameArray = FRAMES[d]
@@ -911,8 +910,18 @@ function MainMap() {
             const ox = (TS - drawW) / 2
             const oy = TS - drawH
             
-            ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
-              playerPx + ox, playerPy + oy, drawW, drawH)
+            if (d === 'left') {
+              // Espejo horizontal perfecto desde el centro visual
+              ctx.save()
+              ctx.translate(playerPx + ox + drawW / 2, playerPy + oy + drawH / 2)
+              ctx.scale(-1, 1)
+              ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
+                -drawW / 2, -drawH / 2, drawW, drawH)
+              ctx.restore()
+            } else {
+              ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
+                playerPx + ox, playerPy + oy, drawW, drawH)
+            }
           } else {
             drawEmoji(ctx, pl.character?.gender === 'girl' ? '👧' : '👦', playerPx + TS/2, playerPy + TS/2, TS * 0.88)
           }

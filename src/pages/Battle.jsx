@@ -111,17 +111,13 @@ function Battle() {
   }, [userId, authenticatedFetch, npcId, currentConfig.qCount, navigate])
 
   const getEnemySprite = (name, subject) => {
-    // Seleccionar sprite de enemigo según materia y nombre
-    if (subject === 'ingles') return '/sprites/maestra_ingles.png?v=5'
-    if (subject === 'artes') return '/sprites/maestra_artes.png?v=5'
-    if (subject === 'espanol') return '/sprites/maestro_espanol.png?v=5'
-    if (subject === 'integrador' || isFinalBoss) return '/sprites/gran_maestro.png?v=5'
-    // Estudiantes: alternar entre boy y girl con gorra roja
+    if (isFinalBoss) return '/sprites/gran_maestro.png?v=5';
+    // Siempre usar alumnos para los duelos regulares
     const hash = (name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
-    const isGirl = Math.abs(hash) % 2 !== 0
-    const useRedcap = Math.abs(hash) % 3 === 0
-    if (isGirl) return useRedcap ? '/sprites/student_redcap_girl.png?v=5' : '/sprites/girl.png?v=5'
-    return useRedcap ? '/sprites/student_redcap_boy.png?v=5' : '/sprites/boy.png?v=5'
+    const isGirl = Math.abs(hash) % 2 !== 0;
+    const useRedcap = Math.abs(hash) % 3 === 0;
+    if (isGirl) return useRedcap ? '/sprites/student_redcap_girl.png?v=5' : '/sprites/girl.png?v=5';
+    return useRedcap ? '/sprites/student_redcap_boy.png?v=5' : '/sprites/boy.png?v=5';
   };
 
   const getSkinEmoji = (eqSkin) => {
