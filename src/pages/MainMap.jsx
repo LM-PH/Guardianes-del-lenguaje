@@ -268,21 +268,21 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl.png?v=6')
-  const boyImgRef = useImage('/sprites/boy.png?v=6')
-  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png?v=6')
-  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png?v=6')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=6')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=6')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=6')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=6')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=6')
+  const girlImgRef = useImage('/sprites/girl.png?v=7')
+  const boyImgRef = useImage('/sprites/boy.png?v=7')
+  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png?v=7')
+  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png?v=7')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=7')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=7')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=7')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=7')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=7')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=6')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=6')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=6')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=6')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=7')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=7')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=7')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=7')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
