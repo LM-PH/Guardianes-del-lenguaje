@@ -277,9 +277,14 @@ function MainMap() {
   const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=5')
   const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=5')
   const librarianImgRef = useImage('/sprites/librarian.png?v=5')
-  // Sprites NPC
-  // (Librarian, grandmaster, shopkeeper, student and pet images were removed)
+  
+  // Mascotas
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=5')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=5')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=5')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=5')
 
+  // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!userId) { navigate('/'); return }
@@ -777,64 +782,100 @@ function MainMap() {
         const petType = pl.inventory?.equippedPet || pl.pet?.type?.toLowerCase() || pl.pet?.id?.toLowerCase() || ''
         const isFlying = petType.includes('buho') || petType.includes('búho') || petType.includes('owl') || petType.includes('periquit') || petType.includes('colib')
         
-        // Para mascotas, usaremos dibujo en canvas para animar patitas de forma perfecta
-        const flyBob = isFlying ? Math.sin(tick * 0.15) * 8 : 0
-        const drawW = TS * 0.72; const drawH = TS * 0.72
-        const ox = (TS - drawW) / 2
+        // Para mascotas, primero intentamos usar el sprite GBA 4x4
+        let petSprite = null;
+        if (petType.includes('perrit') || petType.includes('dog')) petSprite = petPerritoImgRef.current;
+        if (petType.includes('gatit') || petType.includes('cat')) petSprite = petGatitoImgRef.current;
+        if (petType.includes('zorrit') || petType.includes('fox')) petSprite = petZorritoImgRef.current;
+        if (petType.includes('dragon')) petSprite = petDragonImgRef.current;
+
+        const hasPetSprite = petSprite && (petSprite.width > 0 || petSprite.naturalWidth > 0);
         
-        ctx.save()
-        ctx.translate(petPx + ox + drawW/2, petPy + TS - drawH + bob + flyBob + drawH/2)
-        
-        // Animar patas
-        const legSwing = Math.sin(tick * 0.4) * 5
-        
-        if (isFlying) {
-           // Búho
-           ctx.fillStyle = '#795548'
-           ctx.beginPath(); ctx.ellipse(0, 0, 12, 16, 0, 0, Math.PI*2); ctx.fill()
-           // Ojos
-           ctx.fillStyle = '#fff'
-           ctx.beginPath(); ctx.arc(-4, -4, 4, 0, Math.PI*2); ctx.arc(4, -4, 4, 0, Math.PI*2); ctx.fill()
-           ctx.fillStyle = '#000'
-           ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI*2); ctx.arc(4, -4, 2, 0, Math.PI*2); ctx.fill()
-           // Alas
-           ctx.fillStyle = '#5D4037'
-           const wingBob = isFlying ? Math.sin(tick * 0.6) * 10 : 0
-           ctx.beginPath(); ctx.ellipse(-14, 0 + wingBob, 4, 10, -Math.PI/6, 0, Math.PI*2); ctx.fill()
-           ctx.beginPath(); ctx.ellipse(14, 0 + wingBob, 4, 10, Math.PI/6, 0, Math.PI*2); ctx.fill()
-        } else if (petType.includes('perrit') || petType.includes('dog')) {
-           // Perro
-           ctx.fillStyle = '#FFB300'
-           ctx.fillRect(-10, -5, 20, 12) // cuerpo
-           ctx.fillRect(-14, -12, 10, 10) // cabeza
-           // Patas
-           ctx.fillStyle = '#FFA000'
-           ctx.fillRect(-10 + legSwing, 7, 4, 8)
-           ctx.fillRect(-4 - legSwing, 7, 4, 8)
-           ctx.fillRect(6 + legSwing, 7, 4, 8)
-           ctx.fillRect(2 - legSwing, 7, 4, 8)
-           // Orejas
-           ctx.fillStyle = '#FF8F00'
-           ctx.fillRect(-16, -14, 4, 6)
+        if (hasPetSprite) {
+           const sw = petSprite.width || petSprite.naturalWidth;
+           const sh = petSprite.height || petSprite.naturalHeight;
+           const frameW = sw / 4;
+           const frameH = sh / 4;
+           
+           // Usamos la misma dirección del jugador o una inferida (simplificado a 'down' o la actual del jugador si se mueve)
+           // Para la mascota que sigue al jugador, la dirección de movimiento puede ser igual a `d` (dirección del jugador)
+           const FRAMES = {
+              down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
+              up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
+              left:  [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}],
+              right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
+           };
+           const frameArray = FRAMES[d] || FRAMES['down'];
+           const currentFrameIndex = mv ? Math.floor(tick / 8) % frameArray.length : 0;
+           const frame = frameArray[currentFrameIndex];
+           
+           const drawW = TS * 0.75;
+           const drawH = TS * 0.75;
+           const ox = (TS - drawW) / 2;
+           const oy = TS - drawH;
+           
+           ctx.drawImage(petSprite, frame.col * frameW, frame.row * frameH, frameW, frameH,
+              petPx + ox, petPy + oy + bob, drawW, drawH);
         } else {
-           // Gato (o zorrito)
-           const isFox = petType.includes('zorrit') || petType.includes('fox')
-           ctx.fillStyle = isFox ? '#E64A19' : '#9E9E9E'
-           ctx.beginPath(); ctx.arc(-8, -8, 8, 0, Math.PI*2); ctx.fill() // cabeza
-           ctx.fillRect(-6, -4, 16, 10) // cuerpo
-           // Cola
-           ctx.lineWidth = 3
-           ctx.strokeStyle = isFox ? '#BF360C' : '#757575'
-           ctx.beginPath(); ctx.moveTo(10, 0); ctx.quadraticCurveTo(16 + legSwing, -10, 12, -15); ctx.stroke()
-           // Patas
-           ctx.fillStyle = isFox ? '#D84315' : '#616161'
-           ctx.fillRect(-6 + legSwing, 6, 3, 6)
-           ctx.fillRect(0 - legSwing, 6, 3, 6)
-           ctx.fillRect(7 + legSwing, 6, 3, 6)
-           // Orejas puntiagudas
-           ctx.beginPath(); ctx.moveTo(-14, -14); ctx.lineTo(-10, -6); ctx.lineTo(-6, -14); ctx.fill()
+           // Fallback a dibujo en canvas para animar patitas de forma perfecta
+           const flyBob = isFlying ? Math.sin(tick * 0.15) * 8 : 0
+           const drawW = TS * 0.72; const drawH = TS * 0.72
+           const ox = (TS - drawW) / 2
+           
+           ctx.save()
+           ctx.translate(petPx + ox + drawW/2, petPy + TS - drawH + bob + flyBob + drawH/2)
+           
+           // Animar patas
+           const legSwing = Math.sin(tick * 0.4) * 5
+           
+           if (isFlying) {
+              // Búho
+              ctx.fillStyle = '#795548'
+              ctx.beginPath(); ctx.ellipse(0, 0, 12, 16, 0, 0, Math.PI*2); ctx.fill()
+              // Ojos
+              ctx.fillStyle = '#fff'
+              ctx.beginPath(); ctx.arc(-4, -4, 4, 0, Math.PI*2); ctx.arc(4, -4, 4, 0, Math.PI*2); ctx.fill()
+              ctx.fillStyle = '#000'
+              ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI*2); ctx.arc(4, -4, 2, 0, Math.PI*2); ctx.fill()
+              // Alas
+              ctx.fillStyle = '#5D4037'
+              const wingBob = isFlying ? Math.sin(tick * 0.6) * 10 : 0
+              ctx.beginPath(); ctx.ellipse(-14, 0 + wingBob, 4, 10, -Math.PI/6, 0, Math.PI*2); ctx.fill()
+              ctx.beginPath(); ctx.ellipse(14, 0 + wingBob, 4, 10, Math.PI/6, 0, Math.PI*2); ctx.fill()
+           } else if (petType.includes('perrit') || petType.includes('dog')) {
+              // Perro
+              ctx.fillStyle = '#FFB300'
+              ctx.fillRect(-10, -5, 20, 12) // cuerpo
+              ctx.fillRect(-14, -12, 10, 10) // cabeza
+              // Patas
+              ctx.fillStyle = '#FFA000'
+              ctx.fillRect(-10 + legSwing, 7, 4, 8)
+              ctx.fillRect(-4 - legSwing, 7, 4, 8)
+              ctx.fillRect(6 + legSwing, 7, 4, 8)
+              ctx.fillRect(2 - legSwing, 7, 4, 8)
+              // Orejas
+              ctx.fillStyle = '#FF8F00'
+              ctx.fillRect(-16, -14, 4, 6)
+           } else {
+              // Gato (o zorrito)
+              const isFox = petType.includes('zorrit') || petType.includes('fox')
+              ctx.fillStyle = isFox ? '#E64A19' : '#9E9E9E'
+              ctx.beginPath(); ctx.arc(-8, -8, 8, 0, Math.PI*2); ctx.fill() // cabeza
+              ctx.fillRect(-6, -4, 16, 10) // cuerpo
+              // Cola
+              ctx.lineWidth = 3
+              ctx.strokeStyle = isFox ? '#BF360C' : '#757575'
+              ctx.beginPath(); ctx.moveTo(10, 0); ctx.quadraticCurveTo(16 + legSwing, -10, 12, -15); ctx.stroke()
+              // Patas
+              ctx.fillStyle = isFox ? '#D84315' : '#616161'
+              ctx.fillRect(-6 + legSwing, 6, 3, 6)
+              ctx.fillRect(0 - legSwing, 6, 3, 6)
+              ctx.fillRect(7 + legSwing, 6, 3, 6)
+              // Orejas puntiagudas
+              ctx.beginPath(); ctx.moveTo(-14, -14); ctx.lineTo(-10, -6); ctx.lineTo(-6, -14); ctx.fill()
+           }
+           ctx.restore()
         }
-        ctx.restore()
       }
 
       // ── Jugador ──
@@ -855,12 +896,11 @@ function MainMap() {
             const frameH = sh / 4  // 4 filas: down=0, up=1, left=2, right=3
             
             // Grilla GBA: 4 columnas × 4 filas
-            // Para 'left' usamos los frames de 'right' pero espejados (siempre se ve natural)
             const FRAMES = {
               down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
               up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
+              left:  [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}],
               right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
-              left:  [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}], // igual que right, dibujado espejado
             }
             
             const frameArray = FRAMES[d]
@@ -871,18 +911,8 @@ function MainMap() {
             const ox = (TS - drawW) / 2
             const oy = TS - drawH
             
-            if (d === 'left') {
-              // Espejo horizontal: reutiliza los frames de 'right' al revés
-              ctx.save()
-              ctx.translate(playerPx + TS / 2, 0)
-              ctx.scale(-1, 1)
-              ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
-                -drawW / 2, playerPy + oy, drawW, drawH)
-              ctx.restore()
-            } else {
-              ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
-                playerPx + ox, playerPy + oy, drawW, drawH)
-            }
+            ctx.drawImage(spriteImg, frame.col * frameW, frame.row * frameH, frameW, frameH,
+              playerPx + ox, playerPy + oy, drawW, drawH)
           } else {
             drawEmoji(ctx, pl.character?.gender === 'girl' ? '👧' : '👦', playerPx + TS/2, playerPy + TS/2, TS * 0.88)
           }
