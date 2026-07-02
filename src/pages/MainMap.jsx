@@ -802,8 +802,8 @@ function MainMap() {
            const FRAMES = {
               down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
               up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
-              left:  [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}],
-              right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
+              left:  [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}], // Fila 3 es izquierda en estos sprites
+              right: [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}], // Fila 2 es derecha
            };
            const frameArray = FRAMES[d] || FRAMES['down'];
            const currentFrameIndex = mv ? Math.floor(tick / 8) % frameArray.length : 0;
@@ -899,8 +899,8 @@ function MainMap() {
             const FRAMES = {
               down:  [{col:0, row:0}, {col:1, row:0}, {col:2, row:0}, {col:3, row:0}],
               up:    [{col:0, row:1}, {col:1, row:1}, {col:2, row:1}, {col:3, row:1}],
-              left:  [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}],
-              right: [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}],
+              left:  [{col:0, row:3}, {col:1, row:3}, {col:2, row:3}, {col:3, row:3}], // Fila 3 es izquierda
+              right: [{col:0, row:2}, {col:1, row:2}, {col:2, row:2}, {col:3, row:2}], // Fila 2 es derecha
             }
             
             const frameArray = FRAMES[d]

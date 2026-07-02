@@ -311,10 +311,6 @@ function Battle() {
           75% { transform: translateX(-5px); opacity: 0.5; }
           100% { transform: translateX(0); opacity: 1; }
         }
-        @keyframes walk {
-          0% { background-position-x: 0%; }
-          100% { background-position-x: 75%; }
-        }
         .retro-hp-bar {
           transition: width 0.3s ease-out, background-color 0.3s;
         }
