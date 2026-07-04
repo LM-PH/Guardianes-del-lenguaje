@@ -268,15 +268,16 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl.png?v=9')
-  const boyImgRef = useImage('/sprites/boy.png?v=9')
-  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png?v=9')
-  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png?v=9')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=9')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=9')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=9')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=9')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=9')
+  const girlImgRef = useImage('/sprites/girl.png?v=10')
+  const boyImgRef = useImage('/sprites/boy.png?v=10')
+  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png?v=10')
+  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png?v=10')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=10')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=10')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=10')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=10')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=10')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=10')
   
   // Mascotas
   const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=9')
@@ -905,8 +906,8 @@ function MainMap() {
             const frameArray = FRAMES[d]
             const currentFrameIndex = mv ? Math.floor(tick / 8) % frameArray.length : 0
             const frame = frameArray[currentFrameIndex]
-            const drawW = TS * 0.95
-            const drawH = TS * 1.55
+            const drawW = TS * 1.35
+            const drawH = TS * 2.1
             const ox = (TS - drawW) / 2
             const oy = TS - drawH
             
