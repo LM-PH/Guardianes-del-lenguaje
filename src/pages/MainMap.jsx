@@ -268,22 +268,22 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl.png?v=12')
-  const boyImgRef = useImage('/sprites/boy.png?v=12')
-  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png?v=12')
-  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png?v=12')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=12')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=12')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=12')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=12')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=12')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=12')
+  const girlImgRef = useImage('/sprites/girl.png?v=13')
+  const boyImgRef = useImage('/sprites/boy.png?v=13')
+  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png?v=13')
+  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png?v=13')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=13')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=13')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=13')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=13')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=13')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=13')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=12')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=12')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=12')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=12')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=13')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=13')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=13')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=13')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
