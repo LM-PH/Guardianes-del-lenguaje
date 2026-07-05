@@ -246,29 +246,29 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=28')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=28')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=28')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=28')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=28')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=28')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=28')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=28')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=28')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=28')
-  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=28')
-  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=28')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=29')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=29')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=29')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=29')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=29')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=29')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=29')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=29')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=29')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=29')
+  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=29')
+  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=29')
   // Edificios
-  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=28')
-  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=28')
-  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=28')
-  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=28')
+  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=29')
+  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=29')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=29')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=29')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=28')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=28')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=28')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=28')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=29')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=29')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=29')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=29')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -556,6 +556,7 @@ function MainMap() {
       ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
 
       // ── Tiles ──
+      const visibleHouses = []
       for (let ty = camY; ty <= camY + VH && ty < info.height; ty++) {
         for (let tx = camX; tx <= camX + VW && tx < info.width; tx++) {
           const tileId = mg[ty]?.[tx] ?? TILES.GRASS
@@ -564,12 +565,17 @@ function MainMap() {
           drawTile(ctx, tileId, px, py, TS, tick)
           
           if (tileId === TILES.HOUSE) {
-            const cImg = buildingCasaImgRef.current
-            if (cImg && (cImg.width > 0 || cImg.naturalWidth > 0)) {
-              ctx.drawImage(cImg, px, py, TS * 4, TS * 3)
-            }
+            visibleHouses.push({ px, py })
           }
         }
+      }
+      
+      // Dibujar sprites de casas encima de los tiles para que las paredes no las tapen
+      const cImg = buildingCasaImgRef.current
+      if (cImg && (cImg.width > 0 || cImg.naturalWidth > 0)) {
+        visibleHouses.forEach(h => {
+          ctx.drawImage(cImg, h.px, h.py, TS * 4, TS * 3)
+        })
       }
 
       // ── Helper: dibujar en un tile si está en pantalla ──
@@ -611,7 +617,7 @@ function MainMap() {
             const sImg = buildingTiendaImgRef.current
             if (sImg && (sImg.width > 0 || sImg.naturalWidth > 0)) {
               const hw = TS * 3; const hh = TS * 3
-              const spx = px; const spy = py - hh + TS
+              const spx = px - TS; const spy = py - TS * 2.5
               ctx.drawImage(sImg, spx, spy, hw, hh)
             }
             return
