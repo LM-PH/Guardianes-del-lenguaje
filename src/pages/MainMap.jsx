@@ -268,22 +268,22 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=23')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=23')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=23')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=23')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=23')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=23')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=23')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=23')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=23')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=23')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=24')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=24')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=24')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=24')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=24')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=24')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=24')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=24')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=24')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=24')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=23')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=23')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=23')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=23')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=24')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=24')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=24')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=24')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -973,18 +973,21 @@ function MainMap() {
         </div>
       </div>
 
-      {/* ── Canvas ── */}
-      <div style={{ flex:1, display:'flex', justifyContent:'center', alignItems:'center', backgroundColor:'#0a0a1a', position:'relative' }}>
-        <div style={{ border:'5px solid #ffd700', boxShadow:'0 0 0 3px #000, 0 0 30px rgba(255,215,0,0.3)', imageRendering:'pixelated', position:'relative' }}>
-          <canvas ref={canvasRef} width={CANVAS_W} height={CANVAS_H} style={{ display:'block', imageRendering:'pixelated' }} />
+      {/* ── Minimapa Bar ── */}
+      <div style={{ backgroundColor:'#0a0a1a', padding:'8px', display:'flex', justifyContent:'center', alignItems:'center', gap:'12px', borderBottom:'2px solid #333' }}>
+        <span style={{ color:'#ffd700', fontSize:'0.45rem', fontFamily:"'Press Start 2P', monospace" }}>📍 RADAR:</span>
+        <div style={{ position:'relative', width:'80px', height:'80px', backgroundColor:'rgba(0,0,0,0.8)', border:'2px solid #ffd700' }}>
+          <div style={{ position:'absolute', left:`${(pos.x/mapInfo.width)*100}%`, top:`${(pos.y/mapInfo.height)*100}%`, width:'6px', height:'6px', backgroundColor:'red', borderRadius:'50%', transform:'translate(-50%,-50%)' }} />
+          {npcs.map(n => (
+            <div key={n.npcId} style={{ position:'absolute', left:`${(n.x/mapInfo.width)*100}%`, top:`${(n.y/mapInfo.height)*100}%`, width:'4px', height:'4px', backgroundColor: player.completedBattles?.includes(n.npcId) ? '#555' : '#ffd700', borderRadius:'50%', transform:'translate(-50%,-50%)' }} />
+          ))}
+        </div>
+      </div>
 
-          {/* Minimapa */}
-          <div style={{ position:'absolute', top:'5px', right:'5px', width:'50px', height:'50px', backgroundColor:'rgba(0,0,0,0.8)', border:'2px solid #ffd700' }}>
-            <div style={{ position:'absolute', left:`${(pos.x/mapInfo.width)*100}%`, top:`${(pos.y/mapInfo.height)*100}%`, width:'4px', height:'4px', backgroundColor:'red', borderRadius:'50%', transform:'translate(-50%,-50%)' }} />
-            {npcs.map(n => (
-              <div key={n.npcId} style={{ position:'absolute', left:`${(n.x/mapInfo.width)*100}%`, top:`${(n.y/mapInfo.height)*100}%`, width:'2px', height:'2px', backgroundColor: player.completedBattles?.includes(n.npcId) ? '#555' : '#ffd700', borderRadius:'50%', transform:'translate(-50%,-50%)' }} />
-            ))}
-          </div>
+      {/* ── Canvas ── */}
+      <div style={{ flex:1, display:'flex', justifyContent:'center', alignItems:'center', backgroundColor:'#0a0a1a', position:'relative', paddingTop:'2vh' }}>
+        <div style={{ border:'5px solid #ffd700', boxShadow:'0 0 0 3px #000, 0 0 30px rgba(255,215,0,0.3)', imageRendering:'pixelated', position:'relative', maxWidth:'96vw' }}>
+          <canvas ref={canvasRef} width={CANVAS_W} height={CANVAS_H} style={{ display:'block', imageRendering:'pixelated', width:'100%', height:'auto' }} />
 
           {/* Barra de progreso */}
           {cMap !== 'pueblo_inicial' && (
