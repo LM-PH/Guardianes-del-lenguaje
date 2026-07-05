@@ -268,22 +268,28 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=24')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=24')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=24')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=24')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=24')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=24')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=24')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=24')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=24')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=24')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=25')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=25')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=25')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=25')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=25')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=25')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=25')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=25')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=25')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=25')
+  
+  // Edificios
+  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=25')
+  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=25')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=25')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=25')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=24')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=24')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=24')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=24')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=25')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=25')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=25')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=25')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -577,22 +583,30 @@ function MainMap() {
       // ── Salidas pueblo_inicial ──
       if (cMap === 'pueblo_inicial') {
         const exits = [
-          { x: 0,              y: Math.floor(info.height/2), icon: '🌹', bg: '#c0392b' },
-          { x: info.width - 1, y: Math.floor(info.height/2), icon: '🎨', bg: '#2980b9' },
-          { x: Math.floor(info.width/2), y: info.height - 1, icon: '🌐', bg: '#e67e22' },
-          { x: Math.floor(info.width/2), y: 0,               icon: '🏆', bg: '#8e44ad' },
+          { x: 0,              y: Math.floor(info.height/2), img: buildingEspanolImgRef.current },
+          { x: info.width - 1, y: Math.floor(info.height/2), img: buildingArtesImgRef.current },
+          { x: Math.floor(info.width/2), y: info.height - 1, img: buildingInglesImgRef.current },
+          { x: Math.floor(info.width/2), y: 0,               img: buildingMaestrosImgRef.current },
         ]
-        exits.forEach(({ x, y, icon, bg }) => {
+        exits.forEach(({ x, y, img }) => {
           const { px, py, visible } = inView(x, y)
-          if (!visible) return
-          ctx.fillStyle = bg
-          ctx.fillRect(px, py, TS, TS)
-          ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3
-          ctx.strokeRect(px + 2, py + 2, TS - 4, TS - 4)
-          ctx.globalAlpha = 0.3 + 0.3 * Math.sin(tick * 0.06)
-          ctx.fillStyle = '#fff'; ctx.fillRect(px + 4, py + 4, TS - 8, TS - 8)
-          ctx.globalAlpha = 1
-          drawEmoji(ctx, icon, px + TS/2, py + TS/2, TS * 0.7)
+          // Always draw if it's within a reasonable distance so large buildings don't pop-in
+          if (px < -TS*4 || py < -TS*4 || px > CANVAS_W + TS*4 || py > CANVAS_H + TS*4) return
+          
+          // Glowing portal effect under the building
+          ctx.save()
+          ctx.globalAlpha = 0.4 + 0.2 * Math.sin(tick * 0.08)
+          ctx.fillStyle = '#ffd700'
+          ctx.beginPath()
+          ctx.arc(px + TS/2, py + TS/2, TS * 1.5, 0, Math.PI * 2)
+          ctx.fill()
+          ctx.restore()
+          
+          // Draw the building sprite
+          if (img && (img.width > 0 || img.naturalWidth > 0)) {
+            const drawW = TS * 3.2; const drawH = TS * 3.2
+            ctx.drawImage(img, px + TS/2 - drawW/2, py + TS/2 - drawH/1.5, drawW, drawH)
+          }
         })
         // NPCs fijos del pueblo_inicial
         ;[
