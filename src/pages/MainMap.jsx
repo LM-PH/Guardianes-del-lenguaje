@@ -11,11 +11,15 @@ const CANVAS_W = VW * TS
 const CANVAS_H = VH * TS
 
 const MAPS = {
-  pueblo_inicial:  { width: 50,  height: 50,  title: 'Pueblo Inicial'        },
-  mapa_espanol:    { width: 100, height: 100, title: 'Mapa de Español'       },
-  mapa_artes:      { width: 100, height: 100, title: 'Mapa de Artes'         },
-  mapa_ingles:     { width: 100, height: 100, title: 'Mapa de Inglés'        },
-  ciudad_maestros: { width: 100, height: 100, title: 'Ciudad de los Maestros'},
+  pueblo_inicial:   { width: 50,  height: 50,  title: 'Pueblo Inicial'        },
+  mapa_espanol:     { width: 100, height: 100, title: 'Mapa de Español'       },
+  mapa_artes:       { width: 100, height: 100, title: 'Mapa de Artes'         },
+  mapa_ingles:      { width: 100, height: 100, title: 'Mapa de Inglés'        },
+  ciudad_maestros:  { width: 100, height: 100, title: 'Ciudad de los Maestros'},
+  interior_espanol: { width: 11,  height: 11,  title: 'Biblioteca de Español' },
+  interior_artes:   { width: 11,  height: 11,  title: 'Estudio de Artes'      },
+  interior_ingles:  { width: 11,  height: 11,  title: 'Academia de Inglés'    },
+  interior_maestros:{ width: 11,  height: 11,  title: 'Sala del Gran Maestro' },
 }
 
 // ─── Mapeo de skins a emoji ────────────────────────────────────────────────────
@@ -268,28 +272,28 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=25')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=25')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=25')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=25')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=25')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=25')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=25')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=25')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=25')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=25')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=26')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=26')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=26')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=26')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=26')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=26')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=26')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=26')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=26')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=26')
   
   // Edificios
-  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=25')
-  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=25')
-  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=25')
-  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=25')
+  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=26')
+  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=26')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=26')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=26')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=25')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=25')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=25')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=25')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=26')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=26')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=26')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=26')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -438,7 +442,24 @@ function MainMap() {
       return true
     }
 
-    if (cMap !== 'pueblo_inicial') {
+    if (cMap.startsWith('interior_')) {
+      if (ny >= MAPS[cMap].height - 1) {
+        // Regresar al mapa exterior
+        const outerMap = cMap === 'interior_maestros' ? 'ciudad_maestros' : cMap.replace('interior_', 'mapa_')
+        transitionTo(outerMap, Math.floor(MAPS[outerMap].width/2), Math.floor(MAPS[outerMap].height/2) + 2)
+        return true
+      }
+      if (nx === 5 && ny === 5) {
+        const def = npcList.filter(n => pl.completedBattles?.includes(n.npcId)).length
+        if (def >= 35 && pl.xp >= 700) {
+          const teacherName = cMap === 'interior_maestros' ? 'Gran Maestro' : 'Maestro'
+          setDialog({ text: `¡${teacherName}: Has demostrado tu valía! ¡Prepárate para el reto final!`, type: 'info' })
+        } else {
+          setDialog({ text: `Maestro: Necesitas 35 victorias (tienes ${def}) y 700 XP (tienes ${pl.xp}).`, type: 'info' })
+        }
+        return true
+      }
+    } else if (cMap !== 'pueblo_inicial') {
       const cx = Math.floor(MAPS[cMap].width  / 2)
       const cy = Math.floor(MAPS[cMap].height / 2)
 
@@ -448,14 +469,10 @@ function MainMap() {
         return true
       }
 
+      // Entrar al edificio del jefe
       if (nx === cx && ny === cy) {
-        const def = npcList.filter(n => pl.completedBattles?.includes(n.npcId)).length
-        if (def >= 35 && pl.xp >= 700) {
-          const teacherName = cMap === 'ciudad_maestros' ? 'Gran Maestro' : 'Maestro'
-          setDialog({ text: `¡${teacherName}: Has demostrado tu valía! ¡Prepárate para el reto final!`, type: 'info' })
-        } else {
-          setDialog({ text: `Maestro: Necesitas 35 victorias (tienes ${def}) y 700 XP (tienes ${pl.xp}).`, type: 'info' })
-        }
+        const innerMap = cMap === 'ciudad_maestros' ? 'interior_maestros' : cMap.replace('mapa_', 'interior_')
+        transitionTo(innerMap, 5, 9)
         return true
       }
     }
@@ -583,30 +600,22 @@ function MainMap() {
       // ── Salidas pueblo_inicial ──
       if (cMap === 'pueblo_inicial') {
         const exits = [
-          { x: 0,              y: Math.floor(info.height/2), img: buildingEspanolImgRef.current },
-          { x: info.width - 1, y: Math.floor(info.height/2), img: buildingArtesImgRef.current },
-          { x: Math.floor(info.width/2), y: info.height - 1, img: buildingInglesImgRef.current },
-          { x: Math.floor(info.width/2), y: 0,               img: buildingMaestrosImgRef.current },
+          { x: 0,              y: Math.floor(info.height/2), icon: '🌹', bg: '#c0392b' },
+          { x: info.width - 1, y: Math.floor(info.height/2), icon: '🎨', bg: '#2980b9' },
+          { x: Math.floor(info.width/2), y: info.height - 1, icon: '🌐', bg: '#e67e22' },
+          { x: Math.floor(info.width/2), y: 0,               icon: '🏆', bg: '#8e44ad' },
         ]
-        exits.forEach(({ x, y, img }) => {
+        exits.forEach(({ x, y, icon, bg }) => {
           const { px, py, visible } = inView(x, y)
-          // Always draw if it's within a reasonable distance so large buildings don't pop-in
-          if (px < -TS*4 || py < -TS*4 || px > CANVAS_W + TS*4 || py > CANVAS_H + TS*4) return
-          
-          // Glowing portal effect under the building
-          ctx.save()
-          ctx.globalAlpha = 0.4 + 0.2 * Math.sin(tick * 0.08)
-          ctx.fillStyle = '#ffd700'
-          ctx.beginPath()
-          ctx.arc(px + TS/2, py + TS/2, TS * 1.5, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.restore()
-          
-          // Draw the building sprite
-          if (img && (img.width > 0 || img.naturalWidth > 0)) {
-            const drawW = TS * 3.2; const drawH = TS * 3.2
-            ctx.drawImage(img, px + TS/2 - drawW/2, py + TS/2 - drawH/1.5, drawW, drawH)
-          }
+          if (!visible) return
+          ctx.fillStyle = bg
+          ctx.fillRect(px, py, TS, TS)
+          ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3
+          ctx.strokeRect(px + 2, py + 2, TS - 4, TS - 4)
+          ctx.globalAlpha = 0.3 + 0.3 * Math.sin(tick * 0.06)
+          ctx.fillStyle = '#fff'; ctx.fillRect(px + 4, py + 4, TS - 8, TS - 8)
+          ctx.globalAlpha = 1
+          drawEmoji(ctx, icon, px + TS/2, py + TS/2, TS * 0.7)
         })
         // NPCs fijos del pueblo_inicial
         ;[
@@ -665,6 +674,35 @@ function MainMap() {
             ctx.restore()
           }
         })
+      }
+
+      // Edificios en mapas de disciplina
+      if (cMap !== 'pueblo_inicial' && !cMap.startsWith('interior_')) {
+        const cx = Math.floor(info.width / 2)
+        const cy = Math.floor(info.height / 2)
+        const { px, py } = inView(cx, cy)
+        
+        let bImg = null
+        if (cMap === 'mapa_espanol') bImg = buildingEspanolImgRef.current
+        else if (cMap === 'mapa_artes') bImg = buildingArtesImgRef.current
+        else if (cMap === 'mapa_ingles') bImg = buildingInglesImgRef.current
+        else if (cMap === 'ciudad_maestros') bImg = buildingMaestrosImgRef.current
+        
+        if (bImg && (bImg.width > 0 || bImg.naturalWidth > 0)) {
+          // Always draw if it's within a reasonable distance so large buildings don't pop-in
+          if (!(px < -TS*4 || py < -TS*4 || px > CANVAS_W + TS*4 || py > CANVAS_H + TS*4)) {
+            ctx.save()
+            ctx.globalAlpha = 0.4 + 0.2 * Math.sin(tick * 0.08)
+            ctx.fillStyle = '#ffd700'
+            ctx.beginPath()
+            ctx.arc(px + TS/2, py + TS/2, TS * 1.5, 0, Math.PI * 2)
+            ctx.fill()
+            ctx.restore()
+            
+            const drawW = TS * 3.2; const drawH = TS * 3.2
+            ctx.drawImage(bImg, px + TS/2 - drawW/2, py + TS/2 - drawH/1.5, drawW, drawH)
+          }
+        }
       }
 
       // ── Salida sur en sub-mapas de vuelta al pueblo ──
@@ -743,13 +781,13 @@ function MainMap() {
       ctx.globalAlpha = 1
       ctx.filter = 'none'
 
-      // ── Maestro en academias (con su emoji correcto) ──
-      if (cMap !== 'pueblo_inicial') {
-        const cx2 = Math.floor(info.width  / 2)
-        const cy2 = Math.floor(info.height / 2)
+      // ── Maestro en academias (ahora solo en mapas interiores) ──
+      if (cMap.startsWith('interior_')) {
+        const cx2 = 5 // centro del cuarto de 11x11
+        const cy2 = 5
         const { px, py, visible } = inView(cx2, cy2)
         if (visible) {
-          const teacherEmoji = TEACHER_EMOJI[cMap] || '🧑‍🏫'
+          const teacherEmoji = TEACHER_EMOJI[cMap.replace('interior_', 'mapa_')] || '🧑‍🏫'
           // Halo dorado pulsante
           ctx.globalAlpha = 0.3 + 0.2 * Math.sin(tick * 0.08)
           ctx.fillStyle = '#ffd700'
@@ -760,12 +798,12 @@ function MainMap() {
           ctx.beginPath(); ctx.ellipse(px+TS/2, py+TS-2, TS*0.38, 5, 0, 0, Math.PI*2); ctx.fill()
           const hashBoss = cMap.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
           const bossIsGirl = Math.abs(hashBoss) % 2 !== 0;
-          // Usar sprite específico si es mapa de inglés, si no usar el de gran maestro o fallback
+          // Usar sprite específico
           let bossImg = bossIsGirl ? girlImgRef.current : boyImgRef.current;
-          if (cMap === 'mapa_ingles') bossImg = maestraInglesImgRef.current;
-          if (cMap === 'mapa_artes') bossImg = maestraArtesImgRef.current;
-          if (cMap === 'mapa_espanol') bossImg = maestroEspanolImgRef.current;
-          if (cMap === 'ciudad_maestros') bossImg = granMaestroImgRef.current;
+          if (cMap === 'interior_ingles') bossImg = maestraInglesImgRef.current;
+          if (cMap === 'interior_artes') bossImg = maestraArtesImgRef.current;
+          if (cMap === 'interior_espanol') bossImg = maestroEspanolImgRef.current;
+          if (cMap === 'interior_maestros') bossImg = granMaestroImgRef.current;
 
           const hasBossSprite = bossImg && (bossImg.width > 0 || bossImg.naturalWidth > 0)
           if (hasBossSprite) {
