@@ -109,7 +109,7 @@ export const generateMap = (mapName, width, height) => {
   }
 
   // 5. Academia central en reinos
-  if (mapName !== 'pueblo_inicial') {
+  if (mapName !== 'pueblo_inicial' && mapName !== 'interior_casa' && !mapName.startsWith('interior_')) {
     const R = 8; // radio de la academia
     for (let sy = cy - R; sy <= cy + R; sy++) {
       for (let sx = cx - R; sx <= cx + R; sx++) {
@@ -136,8 +136,8 @@ export const generateMap = (mapName, width, height) => {
     }
   }
 
-  // 6. Interior de casa
-  if (mapName === 'interior_casa') {
+  // 6. Interior de casa o gimnasios
+  if (mapName === 'interior_casa' || mapName.startsWith('interior_')) {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {

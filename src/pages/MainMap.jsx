@@ -272,28 +272,28 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=26')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=26')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=26')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=26')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=26')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=26')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=26')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=26')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=26')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=26')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=27')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=27')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=27')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=27')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=27')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=27')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=27')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=27')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=27')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=27')
   
   // Edificios
-  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=26')
-  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=26')
-  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=26')
-  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=26')
+  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=27')
+  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=27')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=27')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=27')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=26')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=26')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=26')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=26')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=27')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=27')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=27')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=27')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
