@@ -268,22 +268,20 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=19')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=19')
-  const studentBoyImgRef = useImage('/sprites/student_redcap_boy.png?v=19')
-  const studentGirlImgRef = useImage('/sprites/student_redcap_girl.png?v=19')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=19')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=19')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=19')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=19')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=19')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=19')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=20')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=20')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=20')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=20')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=20')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=20')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=20')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=20')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=19')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=19')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=19')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=19')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=20')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=20')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=20')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=20')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -329,7 +327,11 @@ function MainMap() {
             }
           })
         }
-        setNpcs(fetchedNpcs)
+        if (targetMap === 'pueblo_inicial') {
+          setNpcs([])
+        } else {
+          setNpcs(fetchedNpcs)
+        }
       })
       .catch(() => {})
   }, [player?.currentMap])
@@ -592,7 +594,7 @@ function MainMap() {
         })
         // NPCs fijos del pueblo_inicial
         ;[
-          { tx: Math.floor(info.width/2), ty: Math.floor(info.height/2), type: 'librarian' },
+          { tx: Math.floor(info.width/2), ty: Math.floor(info.height/2) - 2, type: 'librarian' },
           { tx: Math.floor(info.width/2) + 5, ty: Math.floor(info.height/2) - 3, type: 'shop' }
         ].forEach(({tx, ty, type}) => {
           const { px, py, visible } = inView(tx, ty)
@@ -687,14 +689,8 @@ function MainMap() {
         const hash = (npc.name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
         const hueShift = Math.abs(hash) % 360;
         const isGirl = Math.abs(hash) % 2 !== 0;
-        const useRedcap = Math.abs(hash) % 3 === 0; // 33% de probabilidad de usar el sprite de gorra roja
         
-        let npcImg;
-        if (isGirl) {
-          npcImg = useRedcap ? studentGirlImgRef.current : girlImgRef.current;
-        } else {
-          npcImg = useRedcap ? studentBoyImgRef.current : boyImgRef.current;
-        }
+        let npcImg = isGirl ? girlImgRef.current : boyImgRef.current;
         const { px, py, visible } = inView(drawX, drawY)
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
