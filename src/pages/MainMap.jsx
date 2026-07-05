@@ -268,20 +268,22 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=21')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=21')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=21')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=21')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=21')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=21')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=21')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=21')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=22')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=22')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=22')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=22')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=22')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=22')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=22')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=22')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=22')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=22')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=21')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=21')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=21')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=21')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=22')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=22')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=22')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=22')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -690,7 +692,7 @@ function MainMap() {
         const hueShift = Math.abs(hash) % 360;
         const isGirl = Math.abs(hash) % 2 !== 0;
         
-        let npcImg = isGirl ? girlImgRef.current : boyImgRef.current;
+        let npcImg = isGirl ? npcGirlImgRef.current : npcBoyImgRef.current;
         const { px, py, visible } = inView(drawX, drawY)
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
