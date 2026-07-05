@@ -268,22 +268,22 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=22')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=22')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=22')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=22')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=22')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=22')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=22')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=22')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=22')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=22')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=23')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=23')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=23')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=23')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=23')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=23')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=23')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=23')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=23')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=23')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=22')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=22')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=22')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=22')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=23')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=23')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=23')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=23')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -707,9 +707,7 @@ function MainMap() {
           const drawW = TS * 1.15; const drawH = TS * 1.85
           ctx.save()  // ← globalAlpha y filter DENTRO del save para que ctx.restore() los limpie
           ctx.globalAlpha = defeated ? 0.35 : 1
-          if (npc.subject !== 'integrador') {
-             ctx.filter = `hue-rotate(${hueShift}deg) saturate(1.2)`
-          } else {
+          if (npc.subject === 'integrador') {
              ctx.filter = 'drop-shadow(0 0 8px gold) saturate(1.5)'
           }
           ctx.drawImage(npcImg, animFrame * frameW, srcRow * frameH, frameW, frameH, px + (TS - drawW)/2, py + TS - drawH, drawW, drawH)
