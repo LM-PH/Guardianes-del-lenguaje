@@ -154,33 +154,7 @@ function drawTile(ctx, tileId, px, py, size, tick) {
     }
     case 10: // TILES.HOUSE
     case TILES.HOUSE: {
-      const hw = s * 4;
-      const hh = s * 3;
-      // Pared exterior
-      ctx.fillStyle = GBC.housew; ctx.fillRect(px, py, hw, hh)
-      // Techo rojo grande
-      ctx.fillStyle = GBC.house1; ctx.fillRect(px, py, hw, hh * 0.4)
-      ctx.fillStyle = GBC.house2; ctx.fillRect(px, py, hw, hh * 0.05)
-      // Borde inferior del techo en sombra
-      ctx.fillStyle = '#8b0000'; ctx.fillRect(px, py + hh * 0.4, hw, 5)
-      
-      // Dos ventanas grandes
-      ctx.fillStyle = '#546e7a'; 
-      ctx.fillRect(px + hw*0.15, py + hh*0.5, hw*0.2, hh*0.25)
-      ctx.fillRect(px + hw*0.65, py + hh*0.5, hw*0.2, hh*0.25)
-      ctx.fillStyle = '#b3e5fc'; 
-      ctx.fillRect(px + hw*0.16, py + hh*0.52, hw*0.18, hh*0.21)
-      ctx.fillRect(px + hw*0.66, py + hh*0.52, hw*0.18, hh*0.21)
-      
-      // Puerta central (que coincide con hx+1 y hx+2 en la grilla que son HOUSE_DOOR)
-      ctx.fillStyle = '#4e342e'; ctx.fillRect(px + s, py + hh*0.6, s*2, hh*0.4)
-      ctx.fillStyle = '#6d4c41'; ctx.fillRect(px + s + 2, py + hh*0.62, s*2 - 4, hh*0.38)
-      
-      // Cartel encima de la puerta
-      ctx.fillStyle = '#ffeb3b'; ctx.fillRect(px + s + s*0.2, py + hh*0.5, s*1.6, hh*0.08)
-      ctx.fillStyle = '#000'; ctx.font = `bold ${s * 0.25}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-      ctx.fillText('ACADEMIA', px + hw/2, py + hh*0.54)
-      
+      ctx.fillStyle = GBC.grass1; ctx.fillRect(px, py, s, s)
       break
     }
     case TILES.HOUSE_DOOR: {
@@ -272,28 +246,29 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=27')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=27')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=27')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=27')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=27')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=27')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=27')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=27')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=27')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=27')
-  
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=28')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=28')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=28')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=28')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=28')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=28')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=28')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=28')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=28')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=28')
+  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=28')
+  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=28')
   // Edificios
-  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=27')
-  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=27')
-  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=27')
-  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=27')
+  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=28')
+  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=28')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=28')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=28')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=27')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=27')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=27')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=27')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=28')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=28')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=28')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=28')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -587,6 +562,13 @@ function MainMap() {
           const px = (tx - camX) * TS
           const py = (ty - camY) * TS
           drawTile(ctx, tileId, px, py, TS, tick)
+          
+          if (tileId === TILES.HOUSE) {
+            const cImg = buildingCasaImgRef.current
+            if (cImg && (cImg.width > 0 || cImg.naturalWidth > 0)) {
+              ctx.drawImage(cImg, px, py, TS * 4, TS * 3)
+            }
+          }
         }
       }
 
@@ -626,35 +608,12 @@ function MainMap() {
           if (!visible) return
 
           if (type === 'shop') {
-            // Edificio de tienda — se dibuja desde su posición (sin extenderse a la izquierda)
-            const hw = TS * 3; const hh = TS * 2.5
-            const spx = px; const spy = py - hh + TS  // anclado arriba-izquierda del tile
-            // Paredes
-            ctx.fillStyle = '#bbdefb'; ctx.fillRect(spx, spy, hw, hh)
-            // Techo azul
-            ctx.fillStyle = '#1565c0'; ctx.fillRect(spx, spy, hw, hh * 0.35)
-            ctx.fillStyle = '#0d47a1'; ctx.fillRect(spx, spy + hh * 0.35, hw, 4)
-            // Sombra inferior del techo
-            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(spx, spy + hh * 0.35, hw, 8)
-            // Ventanas
-            ctx.fillStyle = '#90caf9'
-            ctx.fillRect(spx + hw * 0.08, spy + hh * 0.45, hw * 0.22, hh * 0.22)
-            ctx.fillRect(spx + hw * 0.65, spy + hh * 0.45, hw * 0.22, hh * 0.22)
-            // Brillo ventanas
-            ctx.fillStyle = 'rgba(255,255,255,0.5)'
-            ctx.fillRect(spx + hw * 0.09, spy + hh * 0.46, hw * 0.08, hh * 0.08)
-            ctx.fillRect(spx + hw * 0.66, spy + hh * 0.46, hw * 0.08, hh * 0.08)
-            // Puerta central
-            ctx.fillStyle = '#ffb300'; ctx.fillRect(spx + hw * 0.38, spy + hh * 0.6, hw * 0.24, hh * 0.4)
-            ctx.fillStyle = '#e65100'; ctx.fillRect(spx + hw * 0.49, spy + hh * 0.6, 3, hh * 0.4)
-            // Cartel "TIENDA"
-            ctx.fillStyle = '#fff9c4'; ctx.fillRect(spx + hw * 0.15, spy + hh * 0.36, hw * 0.7, hh * 0.1)
-            ctx.fillStyle = '#1565c0'; ctx.font = `bold ${TS * 0.28}px Arial`
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-            ctx.fillText('TIENDA', spx + hw / 2, spy + hh * 0.41)
-            // Borde del edificio
-            ctx.strokeStyle = '#0d47a1'; ctx.lineWidth = 3
-            ctx.strokeRect(spx, spy, hw, hh)
+            const sImg = buildingTiendaImgRef.current
+            if (sImg && (sImg.width > 0 || sImg.naturalWidth > 0)) {
+              const hw = TS * 3; const hh = TS * 3
+              const spx = px; const spy = py - hh + TS
+              ctx.drawImage(sImg, spx, spy, hw, hh)
+            }
             return
           }
 
