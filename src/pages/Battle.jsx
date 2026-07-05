@@ -111,13 +111,13 @@ function Battle() {
   }, [userId, authenticatedFetch, npcId, currentConfig.qCount, navigate])
 
   const getEnemySprite = (name, subject) => {
-    if (isFinalBoss) return '/sprites/gran_maestro.png?v=20';
+    if (isFinalBoss) return '/sprites/gran_maestro.png?v=21';
     // Siempre usar alumnos para los duelos regulares
     const hash = (name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
     const isGirl = Math.abs(hash) % 2 !== 0;
     const useRedcap = Math.abs(hash) % 3 === 0;
-    if (isGirl) return useRedcap ? '/sprites/student_redcap_girl_final.png?v=20' : '/sprites/girl_final.png?v=20';
-    return useRedcap ? '/sprites/student_redcap_boy_final.png?v=20' : '/sprites/boy_final.png?v=20';
+    if (isGirl) return useRedcap ? '/sprites/student_redcap_girl_final.png?v=21' : '/sprites/girl_final.png?v=21';
+    return useRedcap ? '/sprites/student_redcap_boy_final.png?v=21' : '/sprites/boy_final.png?v=21';
   };
 
   const getSkinEmoji = (eqSkin) => {
@@ -363,7 +363,7 @@ function Battle() {
             {/* Sprite GBA: fila 1 = up (espalda al jugador, mirando al enemigo) */}
             <div className="sprite-walk-back" style={{ 
               position: 'relative', zIndex: 1, width: '90px', height: '90px', 
-              backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl_final.png?v=20' : 'boy_final.png?v=20'}')`, 
+              backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl_final.png?v=21' : 'boy_final.png?v=21'}')`, 
               backgroundSize: '400% 400%',
               backgroundPositionY: '33.33%',  /* Fila 1 = up = espalda */
               imageRendering: 'pixelated' 

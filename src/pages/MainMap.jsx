@@ -268,20 +268,20 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=20')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=20')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=20')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=20')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=20')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=20')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=20')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=20')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=21')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=21')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=21')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=21')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=21')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=21')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=21')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=21')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=20')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=20')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=20')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=20')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=21')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=21')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=21')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=21')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -943,11 +943,11 @@ function MainMap() {
 
       {/* ── HUD ── */}
       <div style={{ padding:'5px 10px', backgroundColor:'#0d0d1a', borderBottom:'3px solid #ffd700', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <div style={{ color:'#ffd700', fontSize:'0.38rem', fontFamily:"'Press Start 2P', monospace" }}>
+        <div style={{ color:'#ffd700', fontSize:'0.55rem', fontFamily:"'Press Start 2P', monospace" }}>
           {mapInfo.title}
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-          <span style={{ color:'#7fff00', fontSize:'0.35rem', fontFamily:'monospace' }}>
+          <span style={{ color:'#7fff00', fontSize:'0.55rem', fontFamily:'monospace' }}>
             XP {player.xp} | 💰{player.lingocoins}
           </span>
           {['espanol','artes','ingles'].map(b => (
@@ -956,7 +956,7 @@ function MainMap() {
           {cMap !== 'pueblo_inicial' && (
             <button
               onClick={() => transitionTo('pueblo_inicial', 25, 25)}
-              style={{ fontSize:'0.3rem', padding:'2px 5px', backgroundColor:'#2980b9', color:'#fff', border:'1px solid #ffd700', cursor:'pointer', fontFamily:'monospace' }}>
+              style={{ fontSize:'0.5rem', padding:'2px 5px', backgroundColor:'#2980b9', color:'#fff', border:'1px solid #ffd700', cursor:'pointer', fontFamily:'monospace' }}>
               🏡 PUEBLO
             </button>
           )}
@@ -999,18 +999,18 @@ function MainMap() {
 
         {/* Diálogo */}
         {dialog && (
-          <div style={{ position:'absolute', bottom:'105px', left:'50%', transform:'translateX(-50%)', backgroundColor:'#0d0d1a', border:'4px solid #ffd700', padding:'12px 16px', maxWidth:'380px', width:'88%', zIndex:20, boxShadow:'0 0 20px rgba(255,215,0,0.4)' }}>
-            <p style={{ color:'#fff', fontSize:'0.38rem', lineHeight:'2', margin:0, fontFamily:"'Press Start 2P', monospace" }}>{dialog.text}</p>
+          <div style={{ position:'absolute', bottom:'105px', left:'50%', transform:'translateX(-50%)', backgroundColor:'rgba(13,13,26,0.95)', border:'4px solid #ffd700', padding:'16px 20px', maxWidth:'420px', width:'90%', zIndex:20, boxShadow:'0 0 20px rgba(255,215,0,0.6)' }}>
+            <p style={{ color:'#fff', fontSize:'0.55rem', lineHeight:'2', margin:0, fontFamily:"'Press Start 2P', monospace", textShadow:'2px 2px 0 #000' }}>{dialog.text}</p>
             {dialog.type === 'info' && (
-              <button className="btn-retro" style={{ marginTop:'10px', fontSize:'0.32rem', padding:'4px 10px' }} onClick={() => setDialog(null)}>▶ Continuar</button>
+              <button className="btn-retro" style={{ marginTop:'15px', fontSize:'0.45rem', padding:'8px 12px' }} onClick={() => setDialog(null)}>▶ Continuar</button>
             )}
             {dialog.type === 'battle' && (
-              <div style={{ display:'flex', gap:'8px', marginTop:'10px' }}>
-                <button className="btn-retro success" style={{ fontSize:'0.32rem', padding:'4px 10px' }} onClick={() => {
+              <div style={{ display:'flex', gap:'8px', marginTop:'15px' }}>
+                <button className="btn-retro success" style={{ fontSize:'0.45rem', padding:'8px 12px' }} onClick={() => {
                   setDialog(null)
                   navigate(`/battle?npcId=${dialog.npc.npcId}&subject=${dialog.npc.subject}&difficulty=${dialog.npc.difficulty||1}&name=${dialog.npc.name}&isBoss=${dialog.npc.isBoss?'true':'false'}`)
                 }}>⚔️ ¡Acepto!</button>
-                <button className="btn-retro" style={{ fontSize:'0.32rem', padding:'4px 10px' }} onClick={() => setDialog(null)}>🏃 Huir</button>
+                <button className="btn-retro" style={{ fontSize:'0.45rem', padding:'8px 12px' }} onClick={() => setDialog(null)}>🏃 Huir</button>
               </div>
             )}
           </div>
@@ -1029,11 +1029,11 @@ function MainMap() {
 
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'5px' }}>
           {cMap !== 'pueblo_inicial' && (
-            <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px', backgroundColor:'#2980b9', color:'#fff' }} onClick={() => transitionTo('pueblo_inicial', 25, 25)}>🏡 Pueblo</button>
+            <button className="btn-retro" style={{ fontSize:'0.45rem', padding:'6px 10px', backgroundColor:'#2980b9', color:'#fff' }} onClick={() => transitionTo('pueblo_inicial', 25, 25)}>🏡 Pueblo</button>
           )}
-          <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px' }} onClick={() => navigate('/shop')}>🏪 Tienda</button>
-          <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px' }} onClick={() => navigate('/inventory')}>🎒 Mochila</button>
-          <button className="btn-retro" style={{ fontSize:'0.28rem', padding:'4px 8px' }} onClick={() => navigate('/profile')}>📊 Perfil</button>
+          <button className="btn-retro" style={{ fontSize:'0.45rem', padding:'6px 10px' }} onClick={() => navigate('/shop')}>🏪 Tienda</button>
+          <button className="btn-retro" style={{ fontSize:'0.45rem', padding:'6px 10px' }} onClick={() => navigate('/inventory')}>🎒 Mochila</button>
+          <button className="btn-retro" style={{ fontSize:'0.45rem', padding:'6px 10px' }} onClick={() => navigate('/profile')}>📊 Perfil</button>
         </div>
 
         <button
