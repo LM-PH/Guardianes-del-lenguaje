@@ -152,13 +152,11 @@ function drawTile(ctx, tileId, px, py, size, tick) {
       })
       break
     }
+    case 11: // HOUSE_WALL
+    case TILES.HOUSE_DOOR:
     case 10: // TILES.HOUSE
     case TILES.HOUSE: {
       ctx.fillStyle = GBC.grass1; ctx.fillRect(px, py, s, s)
-      break
-    }
-    case TILES.HOUSE_DOOR: {
-      // No dibuja nada por encima, la puerta ya la dibuja el tile HOUSE
       break
     }
     case TILES.HOUSE_EXIT: {
@@ -246,29 +244,29 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=30')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=30')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=30')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=30')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=30')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=30')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=30')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=30')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=30')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=30')
-  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=30')
-  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=30')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=31')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=31')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=31')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=31')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=31')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=31')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=31')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=31')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=31')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=31')
+  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=31')
+  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=31')
   // Edificios
-  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=30')
-  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=30')
-  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=30')
-  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=30')
+  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=31')
+  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=31')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=31')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=31')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=30')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=30')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=30')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=30')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=31')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=31')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=31')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=31')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────

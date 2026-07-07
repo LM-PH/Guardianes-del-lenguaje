@@ -11,9 +11,10 @@ export const TILES = {
   HOUSE_DOOR: 8, // Puerta de casa - activa transición
   HOUSE_EXIT: 9, // Salida de la casa
   HOUSE: 10,     // Esquina superior izquierda de la casa
+  HOUSE_WALL: 11,// Pared invisible de la casa (dibuja pasto, pero choca)
 };
 
-export const SOLID_TILES = [TILES.WATER, TILES.TREE, TILES.WALL, TILES.HOUSE];
+export const SOLID_TILES = [TILES.WATER, TILES.TREE, TILES.WALL, TILES.HOUSE, TILES.HOUSE_WALL];
 
 const noise = (x, y, seed) => {
   const n = Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453;
@@ -91,7 +92,7 @@ export const generateMap = (mapName, width, height) => {
       for (let dy = 0; dy < 3; dy++) {
         for (let dx = 0; dx < 4; dx++) {
           if (dx === 0 && dy === 0) grid[hy + dy][hx + dx] = TILES.HOUSE;
-          else grid[hy + dy][hx + dx] = TILES.WALL;
+          else grid[hy + dy][hx + dx] = TILES.HOUSE_WALL;
         }
       }
       // Puerta de la casa (HOUSE_DOOR)
