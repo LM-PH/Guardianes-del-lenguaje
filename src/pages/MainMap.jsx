@@ -289,14 +289,14 @@ function MainMap() {
   // Edificios
   const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=33')
   const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=33')
-  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=35')
-  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=35')
-  const buildingCuevaImgRef = useImage('/sprites/building_cueva.png?v=35')
-  const buildingTorreImgRef = useImage('/sprites/building_torre.png?v=35')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=36')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=36')
+  const buildingCuevaImgRef = useImage('/sprites/building_cueva.png?v=36')
+  const buildingTorreImgRef = useImage('/sprites/building_torre.png?v=36')
   
   // Props
-  const elevatorImgRef = useImage('/sprites/sprite_elevator.png?v=35')
-  const bookshelfImgRef = useImage('/sprites/sprite_bookshelf.png?v=35')
+  const elevatorImgRef = useImage('/sprites/sprite_elevator.png?v=36')
+  const bookshelfImgRef = useImage('/sprites/sprite_bookshelf.png?v=36')
   
   // Mascotas
   const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=33')
@@ -761,8 +761,11 @@ function MainMap() {
         portals.forEach(p => {
           const { px, py, visible } = inView(p.x, p.y);
           if (visible && p.img && (p.img.width > 0 || p.img.naturalWidth > 0)) {
-            const drawW = TS * 5; const drawH = TS * 5;
-            ctx.drawImage(p.img, px + TS/2 - drawW/2, py + TS/2 - drawH/1.2, drawW, drawH);
+            const isTower = p.name.includes('Torre');
+            const drawW = TS * 5; 
+            const drawH = isTower ? TS * 12 : TS * 5;
+            const offsetY = isTower ? (drawH * 0.85) : (drawH / 1.2);
+            ctx.drawImage(p.img, px + TS/2 - drawW/2, py + TS/2 - offsetY, drawW, drawH);
             
             ctx.fillStyle = '#fff';
             ctx.font = `bold ${TS * 0.3}px sans-serif`;
