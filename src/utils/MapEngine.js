@@ -12,9 +12,13 @@ export const TILES = {
   HOUSE_EXIT: 9, // Salida de la casa
   HOUSE: 10,     // Esquina superior izquierda de la casa
   HOUSE_WALL: 11,// Pared invisible de la casa (dibuja pasto, pero choca)
+  CAVE_FLOOR: 12,
+  CAVE_WALL: 13, // Sólido
+  WOOD_FLOOR: 14,
+  BOOKSHELF: 15, // Sólido
 };
 
-export const SOLID_TILES = [TILES.WATER, TILES.TREE, TILES.WALL, TILES.HOUSE, TILES.HOUSE_WALL];
+export const SOLID_TILES = [TILES.WATER, TILES.TREE, TILES.WALL, TILES.HOUSE, TILES.HOUSE_WALL, TILES.CAVE_WALL, TILES.BOOKSHELF];
 
 const noise = (x, y, seed) => {
   const n = Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453;
@@ -22,17 +26,23 @@ const noise = (x, y, seed) => {
 };
 
 export const generateMap = (mapName, width, height) => {
-  const grid = Array(height).fill(null).map(() => Array(width).fill(TILES.GRASS));
+  let baseTile = TILES.GRASS;
+  let isCave = mapName.startsWith('cueva_');
+  let isTower = mapName.startsWith('torre_');
+  
+  if (isCave) baseTile = TILES.CAVE_FLOOR;
+  else if (isTower) baseTile = TILES.WOOD_FLOOR;
+
+  const grid = Array(height).fill(null).map(() => Array(width).fill(baseTile));
   const seed = mapName.length + 7;
 
   const cx = Math.floor(width / 2);
   const cy = Math.floor(height / 2);
 
-  // 1. Bordes de agua
+  // 1. Bordes
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < height; y++) {
       if (x === 0 || y === 0 || x === width - 1 || y === height - 1) {
-        // Dejar puertas de mapa abiertas en pueblo_inicial
         if (mapName === 'pueblo_inicial') {
           if ((x === 0 && y === cy) ||
               (x === width - 1 && y === cy) ||
@@ -42,24 +52,39 @@ export const generateMap = (mapName, width, height) => {
             continue;
           }
         }
-        grid[y][x] = TILES.WATER;
+        if (isCave) grid[y][x] = TILES.CAVE_WALL;
+        else if (isTower) grid[y][x] = TILES.WALL;
+        else grid[y][x] = TILES.WATER;
       }
     }
   }
 
-  // 2. Árboles y flores con ruido - solo lejos del centro
+  // 2. Obstáculos con ruido
   for (let y = 1; y < height - 1; y++) {
     for (let x = 1; x < width - 1; x++) {
       const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
       const maxDist = Math.min(width, height) / 2;
       const n = noise(x, y, seed);
 
-      if (dist > maxDist * 0.65 && n > 0.35) {
-        grid[y][x] = TILES.TREE;
-      } else if (dist > maxDist * 0.3 && n > 0.88) {
-        grid[y][x] = TILES.TREE;
-      } else if (n > 0.84 && n <= 0.88) {
-        grid[y][x] = TILES.FLOWER;
+      if (isCave) {
+        // Laberinto rocoso
+        if (n > 0.45 && dist > 3) {
+          grid[y][x] = TILES.CAVE_WALL;
+        }
+      } else if (isTower) {
+        // Filas de estanterías o pasillos
+        if (x % 4 === 0 && y % 3 !== 0 && dist > 3) {
+          grid[y][x] = TILES.BOOKSHELF;
+        }
+      } else {
+        // Árboles y flores
+        if (dist > maxDist * 0.65 && n > 0.35) {
+          grid[y][x] = TILES.TREE;
+        } else if (dist > maxDist * 0.3 && n > 0.88) {
+          grid[y][x] = TILES.TREE;
+        } else if (n > 0.84 && n <= 0.88) {
+          grid[y][x] = TILES.FLOWER;
+        }
       }
     }
   }

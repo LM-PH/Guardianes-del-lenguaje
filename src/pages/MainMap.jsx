@@ -20,6 +20,8 @@ const MAPS = {
   interior_artes:   { width: 11,  height: 11,  title: 'Estudio de Artes'      },
   interior_ingles:  { width: 11,  height: 11,  title: 'Academia de Inglés'    },
   interior_maestros:{ width: 11,  height: 11,  title: 'Sala del Gran Maestro' },
+  cueva_espanol:    { width: 30,  height: 30,  title: 'Cueva de Ortografía'   },
+  torre_espanol:    { width: 30,  height: 30,  title: 'Torre de Literatura'   },
 }
 
 // ─── Mapeo de skins a emoji ────────────────────────────────────────────────────
@@ -181,6 +183,20 @@ function drawTile(ctx, tileId, px, py, size, tick) {
       ctx.fillRect(px, py, s, 2)
       break
     }
+    case 12: // CAVE_FLOOR
+      ctx.fillStyle = '#424242'; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = '#616161';
+      ctx.fillRect(px + s*0.2, py + s*0.2, s*0.1, s*0.1)
+      ctx.fillRect(px + s*0.7, py + s*0.6, s*0.15, s*0.1)
+      break
+    case 13: // CAVE_WALL
+      ctx.fillStyle = '#212121'; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = '#37474f'
+      ctx.fillRect(px+2, py+2, s-4, s-4)
+      ctx.fillStyle = '#263238'
+      ctx.fillRect(px+4, py+s/2, s-8, s/2-4)
+      break
+    case 14: // WOOD_FLOOR (same as FLOOR)
     case TILES.FLOOR: {
       ctx.fillStyle = GBC.floor1; ctx.fillRect(px, py, s, s)
       ctx.fillStyle = GBC.floor2
@@ -192,6 +208,19 @@ function drawTile(ctx, tileId, px, py, size, tick) {
       ctx.fillRect(px, py, s, 1)
       break
     }
+    case 15: // BOOKSHELF
+      ctx.fillStyle = '#5d4037'; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = '#3e2723'; ctx.fillRect(px, py, s, 4) // top shelf
+      ctx.fillStyle = '#4e342e'; ctx.fillRect(px, py + s/2, s, 4) // middle shelf
+      // Books
+      const colors = ['#d32f2f', '#1976d2', '#388e3c', '#fbc02d', '#7b1fa2']
+      for (let i = 0; i < 4; i++) {
+        ctx.fillStyle = colors[i % colors.length]
+        ctx.fillRect(px + 4 + i*(s/5), py + 6, 6, s/2 - 8)
+        ctx.fillStyle = colors[(i+2) % colors.length]
+        ctx.fillRect(px + 4 + i*(s/5), py + s/2 + 6, 6, s/2 - 8)
+      }
+      break
     default:
       ctx.fillStyle = GBC.grass1; ctx.fillRect(px, py, s, s)
   }
@@ -244,29 +273,29 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=31')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=31')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=31')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=31')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=31')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=31')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=31')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=31')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=31')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=31')
-  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=31')
-  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=31')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=32')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=32')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=32')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=32')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=32')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=32')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=32')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=32')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=32')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=32')
+  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=32')
+  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=32')
   // Edificios
-  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=31')
-  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=31')
-  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=31')
-  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=31')
+  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=32')
+  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=32')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=32')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=32')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=31')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=31')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=31')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=31')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=32')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=32')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=32')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=32')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -436,14 +465,43 @@ function MainMap() {
       const cx = Math.floor(MAPS[cMap].width  / 2)
       const cy = Math.floor(MAPS[cMap].height / 2)
 
-      // Salida sur de vuelta al pueblo
-      if (ny >= MAPS[cMap].height - 1) {
+      // Portales Cueva y Torre en mapa_espanol
+      if (cMap === 'mapa_espanol') {
+        if (nx === 25 && ny === 50) {
+          transitionTo('cueva_espanol', 15, 28)
+          return true
+        }
+        if (nx === 75 && ny === 50) {
+          transitionTo('torre_espanol', 15, 28)
+          return true
+        }
+      }
+
+      // Salidas de sub-mapas al mapa principal
+      if (cMap === 'cueva_espanol' || cMap === 'torre_espanol') {
+        if (ny >= MAPS[cMap].height - 1) {
+          transitionTo('mapa_espanol', cMap === 'cueva_espanol' ? 25 : 75, 51)
+          return true
+        }
+      } else if (ny >= MAPS[cMap].height - 1) {
+        // Salida sur de vuelta al pueblo
         transitionTo('pueblo_inicial', Math.floor(MAPS.pueblo_inicial.width/2), Math.floor(MAPS.pueblo_inicial.height/2))
         return true
       }
 
       // Entrar al edificio del jefe
-      if (nx === cx && ny === cy) {
+      if (nx === cx && ny === cy && !cMap.startsWith('cueva_') && !cMap.startsWith('torre_')) {
+        let requiredDefeated = 35;
+        let domainKey = cMap.replace('mapa_', '');
+        
+        // Boss lock
+        if (cMap !== 'ciudad_maestros' && pl.domainProgress && pl.domainProgress[domainKey]) {
+           const defeated = pl.domainProgress[domainKey].studentsDefeated || 0;
+           if (defeated < requiredDefeated) {
+              setDialog({ text: `Puerta Sellada: Para retar al Maestro, primero debes demostrar tu valor derrotando a todos los estudiantes de esta disciplina (Llevas ${defeated}/${requiredDefeated}).`, type: 'info' })
+              return true;
+           }
+        }
         const innerMap = cMap === 'ciudad_maestros' ? 'interior_maestros' : cMap.replace('mapa_', 'interior_')
         transitionTo(innerMap, 5, 9)
         return true
@@ -666,6 +724,28 @@ function MainMap() {
             ctx.drawImage(bImg, px + TS/2 - drawW/2, py + TS/2 - drawH/1.3, drawW, drawH)
           }
         }
+      }
+      
+      // Portales Cueva y Torre en mapa_espanol
+      if (cMap === 'mapa_espanol') {
+        const portals = [
+          { x: 25, y: 50, icon: '🕳️', name: 'Cueva de Ortografía', bg: '#424242' },
+          { x: 75, y: 50, icon: '🏛️', name: 'Torre de Literatura', bg: '#795548' }
+        ];
+        portals.forEach(p => {
+          const { px, py, visible } = inView(p.x, p.y);
+          if (visible) {
+            ctx.fillStyle = p.bg;
+            ctx.fillRect(px, py, TS, TS);
+            ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3;
+            ctx.strokeRect(px + 2, py + 2, TS - 4, TS - 4);
+            drawEmoji(ctx, p.icon, px + TS/2, py + TS/2, TS * 0.7);
+            ctx.fillStyle = '#fff';
+            ctx.font = `bold ${TS * 0.25}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText(p.name, px + TS/2, py - 5);
+          }
+        });
       }
 
       // ── Salida sur en sub-mapas de vuelta al pueblo ──
