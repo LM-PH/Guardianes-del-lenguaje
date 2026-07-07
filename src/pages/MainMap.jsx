@@ -246,29 +246,29 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=29')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=29')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=29')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=29')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=29')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=29')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=29')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=29')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=29')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=29')
-  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=29')
-  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=29')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=30')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=30')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=30')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=30')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=30')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=30')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=30')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=30')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=30')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=30')
+  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=30')
+  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=30')
   // Edificios
-  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=29')
-  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=29')
-  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=29')
-  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=29')
+  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=30')
+  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=30')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=30')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=30')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=29')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=29')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=29')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=29')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=30')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=30')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=30')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=30')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -574,7 +574,7 @@ function MainMap() {
       const cImg = buildingCasaImgRef.current
       if (cImg && (cImg.width > 0 || cImg.naturalWidth > 0)) {
         visibleHouses.forEach(h => {
-          ctx.drawImage(cImg, h.px, h.py, TS * 4, TS * 3)
+          ctx.drawImage(cImg, h.px - TS * 0.75, h.py - TS * 1.5, TS * 5.5, TS * 4.5)
         })
       }
 
@@ -616,8 +616,8 @@ function MainMap() {
           if (type === 'shop') {
             const sImg = buildingTiendaImgRef.current
             if (sImg && (sImg.width > 0 || sImg.naturalWidth > 0)) {
-              const hw = TS * 3; const hh = TS * 3
-              const spx = px - TS; const spy = py - TS * 2.5
+              const hw = TS * 4.5; const hh = TS * 4.5
+              const spx = px - TS * 1.75; const spy = py - TS * 4
               ctx.drawImage(sImg, spx, spy, hw, hh)
             }
             return
@@ -664,8 +664,8 @@ function MainMap() {
             ctx.fill()
             ctx.restore()
             
-            const drawW = TS * 3.2; const drawH = TS * 3.2
-            ctx.drawImage(bImg, px + TS/2 - drawW/2, py + TS/2 - drawH/1.5, drawW, drawH)
+            const drawW = TS * 5; const drawH = TS * 5
+            ctx.drawImage(bImg, px + TS/2 - drawW/2, py + TS/2 - drawH/1.3, drawW, drawH)
           }
         }
       }
