@@ -20,8 +20,10 @@ const MAPS = {
   interior_artes:   { width: 11,  height: 11,  title: 'Estudio de Artes'      },
   interior_ingles:  { width: 11,  height: 11,  title: 'Academia de Inglés'    },
   interior_maestros:{ width: 11,  height: 11,  title: 'Sala del Gran Maestro' },
-  cueva_espanol:    { width: 30,  height: 30,  title: 'Cueva de Ortografía'   },
-  torre_espanol:    { width: 30,  height: 30,  title: 'Torre de Literatura'   },
+  cueva_espanol:    { width: 30,  height: 30,  title: 'Cueva de Ortografía - N1' },
+  cueva_espanol_2:  { width: 30,  height: 30,  title: 'Cueva de Ortografía - N2' },
+  torre_espanol:    { width: 30,  height: 30,  title: 'Torre de Literatura - N1' },
+  torre_espanol_2:  { width: 30,  height: 30,  title: 'Torre de Literatura - N2' },
 }
 
 // ─── Mapeo de skins a emoji ────────────────────────────────────────────────────
@@ -273,29 +275,31 @@ function MainMap() {
   const saveTimeout = useRef(null)
 
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
-  const girlImgRef = useImage('/sprites/girl_v18.png?v=32')
-  const boyImgRef = useImage('/sprites/boy_v18.png?v=32')
-  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=32')
-  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=32')
-  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=32')
-  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=32')
-  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=32')
-  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=32')
-  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=32')
-  const librarianImgRef = useImage('/sprites/librarian.png?v=32')
-  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=32')
-  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=32')
+  const girlImgRef = useImage('/sprites/girl_v18.png?v=33')
+  const boyImgRef = useImage('/sprites/boy_v18.png?v=33')
+  const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=33')
+  const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=33')
+  const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=33')
+  const maestraArtesImgRef = useImage('/sprites/maestra_artes.png?v=33')
+  const maestroEspanolImgRef = useImage('/sprites/maestro_espanol.png?v=33')
+  const granMaestroImgRef = useImage('/sprites/gran_maestro.png?v=33')
+  const shopkeeperImgRef = useImage('/sprites/shopkeeper.png?v=33')
+  const librarianImgRef = useImage('/sprites/librarian.png?v=33')
+  const buildingTiendaImgRef = useImage('/sprites/building_tienda.png?v=33')
+  const buildingCasaImgRef = useImage('/sprites/building_casa.png?v=33')
   // Edificios
-  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=32')
-  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=32')
-  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=32')
-  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=32')
+  const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=33')
+  const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=33')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=33')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=33')
+  const buildingCuevaImgRef = useImage('/sprites/building_cueva.png?v=33')
+  const buildingTorreImgRef = useImage('/sprites/building_torre.png?v=33')
   
   // Mascotas
-  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=32')
-  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=32')
-  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=32')
-  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=32')
+  const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=33')
+  const petGatitoImgRef = useImage('/sprites/sprite_gatito.png?v=33')
+  const petZorritoImgRef = useImage('/sprites/sprite_zorrito.png?v=33')
+  const petDragonImgRef = useImage('/sprites/sprite_dragon.png?v=33')
 
   // Sprites NPC
   // ─── Cargar jugador ────────────────────────────────────────────────────────
@@ -467,20 +471,27 @@ function MainMap() {
 
       // Portales Cueva y Torre en mapa_espanol
       if (cMap === 'mapa_espanol') {
-        if (nx === 25 && ny === 50) {
+        if (nx >= 23 && nx <= 27 && ny >= 48 && ny <= 52) {
           transitionTo('cueva_espanol', 15, 28)
           return true
         }
-        if (nx === 75 && ny === 50) {
+        if (nx >= 73 && nx <= 77 && ny >= 48 && ny <= 52) {
           transitionTo('torre_espanol', 15, 28)
           return true
         }
       }
 
+      // Escaleras a Nivel 2
+      if (cMap === 'cueva_espanol' && nx === 15 && ny === 10) { transitionTo('cueva_espanol_2', 15, 28); return true; }
+      if (cMap === 'torre_espanol' && nx === 15 && ny === 10) { transitionTo('torre_espanol_2', 15, 28); return true; }
+      // Escaleras a Nivel 1 (volver)
+      if (cMap === 'cueva_espanol_2' && ny >= MAPS[cMap].height - 1) { transitionTo('cueva_espanol', 15, 11); return true; }
+      if (cMap === 'torre_espanol_2' && ny >= MAPS[cMap].height - 1) { transitionTo('torre_espanol', 15, 11); return true; }
+
       // Salidas de sub-mapas al mapa principal
       if (cMap === 'cueva_espanol' || cMap === 'torre_espanol') {
         if (ny >= MAPS[cMap].height - 1) {
-          transitionTo('mapa_espanol', cMap === 'cueva_espanol' ? 25 : 75, 51)
+          transitionTo('mapa_espanol', cMap === 'cueva_espanol' ? 25 : 75, 53)
           return true
         }
       } else if (ny >= MAPS[cMap].height - 1) {
@@ -728,24 +739,35 @@ function MainMap() {
       
       // Portales Cueva y Torre en mapa_espanol
       if (cMap === 'mapa_espanol') {
+        const cImg = buildingCuevaImgRef.current;
+        const tImg = buildingTorreImgRef.current;
         const portals = [
-          { x: 25, y: 50, icon: '🕳️', name: 'Cueva de Ortografía', bg: '#424242' },
-          { x: 75, y: 50, icon: '🏛️', name: 'Torre de Literatura', bg: '#795548' }
+          { x: 25, y: 50, img: cImg, name: 'Cueva Ortografía' },
+          { x: 75, y: 50, img: tImg, name: 'Torre Literatura' }
         ];
         portals.forEach(p => {
           const { px, py, visible } = inView(p.x, p.y);
-          if (visible) {
-            ctx.fillStyle = p.bg;
-            ctx.fillRect(px, py, TS, TS);
-            ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3;
-            ctx.strokeRect(px + 2, py + 2, TS - 4, TS - 4);
-            drawEmoji(ctx, p.icon, px + TS/2, py + TS/2, TS * 0.7);
+          if (visible && p.img && (p.img.width > 0 || p.img.naturalWidth > 0)) {
+            const drawW = TS * 5; const drawH = TS * 5;
+            ctx.drawImage(p.img, px + TS/2 - drawW/2, py + TS/2 - drawH/1.2, drawW, drawH);
+            
             ctx.fillStyle = '#fff';
-            ctx.font = `bold ${TS * 0.25}px sans-serif`;
+            ctx.font = `bold ${TS * 0.3}px sans-serif`;
             ctx.textAlign = 'center';
-            ctx.fillText(p.name, px + TS/2, py - 5);
+            ctx.fillText(p.name, px + TS/2, py + TS*1.2);
           }
         });
+      }
+
+      // Escaleras a Nivel 2 en Cueva/Torre
+      if (cMap === 'cueva_espanol' || cMap === 'torre_espanol') {
+        const { px, py, visible } = inView(15, 10);
+        if (visible) {
+          ctx.fillStyle = '#111'; ctx.fillRect(px, py, TS, TS);
+          ctx.fillStyle = '#ffd700'; ctx.font = `bold ${TS*0.5}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText('⬆️', px+TS/2, py+TS/2);
+          ctx.fillStyle = '#fff'; ctx.font = `bold ${TS*0.3}px sans-serif`; ctx.fillText('Nivel 2', px+TS/2, py-5);
+        }
       }
 
       // ── Salida sur en sub-mapas de vuelta al pueblo ──

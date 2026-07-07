@@ -131,8 +131,10 @@ const run = async () => {
         let mw = 100, mh = 100;
         
         if (domain === 'espanol') {
-          if (idx >= 15 && idx < 25) { targetMap = `cueva_${domain}`; mw = 30; mh = 30; }
-          else if (idx >= 25) { targetMap = `torre_${domain}`; mw = 30; mh = 30; }
+          if (idx >= 15 && idx < 20) { targetMap = `cueva_${domain}`; mw = 30; mh = 30; }
+          else if (idx >= 20 && idx < 25) { targetMap = `cueva_${domain}_2`; mw = 30; mh = 30; }
+          else if (idx >= 25 && idx < 30) { targetMap = `torre_${domain}`; mw = 30; mh = 30; }
+          else if (idx >= 30) { targetMap = `torre_${domain}_2`; mw = 30; mh = 30; }
         }
         
         npc.map = targetMap;
