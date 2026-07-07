@@ -126,31 +126,39 @@ const run = async () => {
 
       let idx = 0;
       for (const npc of npcs) {
-        // Distribute: 10 in open map, 5 in cave 1, 5 in cave 2, 3 in each tower level (5 levels) = 35 total
+        // Distribute proportionally across all maps
         let targetMap = `mapa_${domain}`;
         let mw = 100, mh = 100;
         
         if (domain === 'espanol') {
-          if (idx >= 10 && idx < 15) { targetMap = `cueva_${domain}`; mw = 30; mh = 30; }
-          else if (idx >= 15 && idx < 20) { targetMap = `cueva_${domain}_2`; mw = 30; mh = 30; }
-          else if (idx >= 20 && idx < 23) { targetMap = `torre_${domain}`; mw = 30; mh = 30; }
-          else if (idx >= 23 && idx < 26) { targetMap = `torre_${domain}_2`; mw = 30; mh = 30; }
-          else if (idx >= 26 && idx < 29) { targetMap = `torre_${domain}_3`; mw = 30; mh = 30; }
-          else if (idx >= 29 && idx < 32) { targetMap = `torre_${domain}_4`; mw = 30; mh = 30; }
-          else if (idx >= 32 && idx < 35) { targetMap = `torre_${domain}_5`; mw = 30; mh = 30; }
+          const total = npcs.length;
+          const openCount = Math.max(1, Math.floor(total * 0.3));
+          const cave1 = openCount + Math.floor(total * 0.1);
+          const cave2 = cave1 + Math.floor(total * 0.1);
+          const t1 = cave2 + Math.floor(total * 0.1);
+          const t2 = t1 + Math.floor(total * 0.1);
+          const t3 = t2 + Math.floor(total * 0.1);
+          const t4 = t3 + Math.floor(total * 0.1);
+          
+          if (idx >= openCount && idx < cave1) { targetMap = `cueva_${domain}`; mw = 30; mh = 30; }
+          else if (idx >= cave1 && idx < cave2) { targetMap = `cueva_${domain}_2`; mw = 30; mh = 30; }
+          else if (idx >= cave2 && idx < t1) { targetMap = `torre_${domain}`; mw = 30; mh = 30; }
+          else if (idx >= t1 && idx < t2) { targetMap = `torre_${domain}_2`; mw = 30; mh = 30; }
+          else if (idx >= t2 && idx < t3) { targetMap = `torre_${domain}_3`; mw = 30; mh = 30; }
+          else if (idx >= t3 && idx < t4) { targetMap = `torre_${domain}_4`; mw = 30; mh = 30; }
+          else if (idx >= t4) { targetMap = `torre_${domain}_5`; mw = 30; mh = 30; }
         }
         
         npc.map = targetMap;
         const grid = getMapGrid(targetMap, mw, mh);
         
-        // Anti-clumping array (initialize outside this inner loop ideally, but we can just use the DB to check, or a simple array)
         if (!global.placedNpcs) global.placedNpcs = {};
         if (!global.placedNpcs[targetMap]) global.placedNpcs[targetMap] = [];
         const placedInMap = global.placedNpcs[targetMap];
         
         let placed = false;
         let attempts = 0;
-        while (!placed && attempts < 2000) {
+        while (!placed && attempts < 3000) {
           const rx = Math.floor(Math.random() * (mw - 4)) + 2;
           const ry = Math.floor(Math.random() * (mh - 4)) + 2;
           
@@ -161,8 +169,12 @@ const run = async () => {
             }
           }
 
-          // Distancia mínima para no amontonarse
-          const isTooClose = placedInMap.some(p => Math.sqrt((p.x - rx)**2 + (p.y - ry)**2) < 4);
+          // Relax distance rule after 1000 attempts to guarantee placement
+          const minDistance = attempts < 1000 ? (mw === 100 ? 8 : 4) : 0;
+          let isTooClose = false;
+          if (minDistance > 0) {
+            isTooClose = placedInMap.some(p => Math.sqrt((p.x - rx)**2 + (p.y - ry)**2) < minDistance);
+          }
 
           if (!isTooClose && grid[ry] && grid[ry][rx] !== undefined && !SOLID_TILES.includes(grid[ry][rx])) {
             npc.x = rx;
