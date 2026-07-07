@@ -24,6 +24,9 @@ const MAPS = {
   cueva_espanol_2:  { width: 30,  height: 30,  title: 'Cueva de Ortografía - N2' },
   torre_espanol:    { width: 30,  height: 30,  title: 'Torre de Literatura - N1' },
   torre_espanol_2:  { width: 30,  height: 30,  title: 'Torre de Literatura - N2' },
+  torre_espanol_3:  { width: 30,  height: 30,  title: 'Torre de Literatura - N3' },
+  torre_espanol_4:  { width: 30,  height: 30,  title: 'Torre de Literatura - N4' },
+  torre_espanol_5:  { width: 30,  height: 30,  title: 'Torre de Literatura - N5' },
 }
 
 // ─── Mapeo de skins a emoji ────────────────────────────────────────────────────
@@ -211,17 +214,13 @@ function drawTile(ctx, tileId, px, py, size, tick) {
       break
     }
     case 15: // BOOKSHELF
-      ctx.fillStyle = '#5d4037'; ctx.fillRect(px, py, s, s)
-      ctx.fillStyle = '#3e2723'; ctx.fillRect(px, py, s, 4) // top shelf
-      ctx.fillStyle = '#4e342e'; ctx.fillRect(px, py + s/2, s, 4) // middle shelf
-      // Books
-      const colors = ['#d32f2f', '#1976d2', '#388e3c', '#fbc02d', '#7b1fa2']
-      for (let i = 0; i < 4; i++) {
-        ctx.fillStyle = colors[i % colors.length]
-        ctx.fillRect(px + 4 + i*(s/5), py + 6, 6, s/2 - 8)
-        ctx.fillStyle = colors[(i+2) % colors.length]
-        ctx.fillRect(px + 4 + i*(s/5), py + s/2 + 6, 6, s/2 - 8)
-      }
+      // Fill floor first
+      ctx.fillStyle = GBC.floor1; ctx.fillRect(px, py, s, s)
+      // We'll draw the bookshelf on top later in the render loop so it doesn't clip with tiles, or we can just draw it here if we assume TS size is exact. Let's just draw the sprite!
+      // Actually, since we don't have the ref in drawTile, we just draw the floor here, and draw the prop later, OR pass the ref?
+      // MainMap doesn't pass refs to drawTile. Let's just draw a basic shadow here, and draw the real sprite in the main render loop.
+      ctx.fillStyle = GBC.floor1; ctx.fillRect(px, py, s, s)
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(px, py + s/2, s, s/2)
       break
     default:
       ctx.fillStyle = GBC.grass1; ctx.fillRect(px, py, s, s)
@@ -290,10 +289,14 @@ function MainMap() {
   // Edificios
   const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=33')
   const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=33')
-  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=33')
-  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=33')
-  const buildingCuevaImgRef = useImage('/sprites/building_cueva.png?v=33')
-  const buildingTorreImgRef = useImage('/sprites/building_torre.png?v=33')
+  const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=35')
+  const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=35')
+  const buildingCuevaImgRef = useImage('/sprites/building_cueva.png?v=35')
+  const buildingTorreImgRef = useImage('/sprites/building_torre.png?v=35')
+  
+  // Props
+  const elevatorImgRef = useImage('/sprites/sprite_elevator.png?v=35')
+  const bookshelfImgRef = useImage('/sprites/sprite_bookshelf.png?v=35')
   
   // Mascotas
   const petPerritoImgRef = useImage('/sprites/sprite_perrito.png?v=33')
@@ -481,18 +484,28 @@ function MainMap() {
         }
       }
 
-      // Escaleras a Nivel 2
+      // Elevador / Escaleras (Subir)
+      if (cMap.startsWith('torre_espanol') && nx === 15 && ny === 10) {
+        let currentLevel = cMap === 'torre_espanol' ? 1 : parseInt(cMap.replace('torre_espanol_', ''));
+        if (currentLevel < 5) {
+          transitionTo(`torre_espanol_${currentLevel + 1}`, 15, 28);
+          return true;
+        }
+      }
       if (cMap === 'cueva_espanol' && nx === 15 && ny === 10) { transitionTo('cueva_espanol_2', 15, 28); return true; }
-      if (cMap === 'torre_espanol' && nx === 15 && ny === 10) { transitionTo('torre_espanol_2', 15, 28); return true; }
-      // Escaleras a Nivel 1 (volver)
-      if (cMap === 'cueva_espanol_2' && ny >= MAPS[cMap].height - 1) { transitionTo('cueva_espanol', 15, 11); return true; }
-      if (cMap === 'torre_espanol_2' && ny >= MAPS[cMap].height - 1) { transitionTo('torre_espanol', 15, 11); return true; }
 
-      // Salidas de sub-mapas al mapa principal
-      if (cMap === 'cueva_espanol' || cMap === 'torre_espanol') {
-        if (ny >= MAPS[cMap].height - 1) {
-          transitionTo('mapa_espanol', cMap === 'cueva_espanol' ? 25 : 75, 53)
-          return true
+      // Elevador / Escaleras (Bajar / Volver)
+      if ((cMap.startsWith('cueva_espanol') || cMap.startsWith('torre_espanol')) && ny >= MAPS[cMap].height - 1) {
+        if (cMap === 'cueva_espanol_2') {
+          transitionTo('cueva_espanol', 15, 11); return true;
+        } else if (cMap !== 'cueva_espanol' && cMap !== 'torre_espanol') {
+          let currentLevel = parseInt(cMap.replace('torre_espanol_', ''));
+          if (currentLevel === 2) transitionTo('torre_espanol', 15, 11);
+          else transitionTo(`torre_espanol_${currentLevel - 1}`, 15, 11);
+          return true;
+        } else {
+          transitionTo('mapa_espanol', cMap === 'cueva_espanol' ? 25 : 75, 53);
+          return true;
         }
       } else if (ny >= MAPS[cMap].height - 1) {
         // Salida sur de vuelta al pueblo
@@ -759,14 +772,38 @@ function MainMap() {
         });
       }
 
-      // Escaleras a Nivel 2 en Cueva/Torre
-      if (cMap === 'cueva_espanol' || cMap === 'torre_espanol') {
-        const { px, py, visible } = inView(15, 10);
-        if (visible) {
-          ctx.fillStyle = '#111'; ctx.fillRect(px, py, TS, TS);
-          ctx.fillStyle = '#ffd700'; ctx.font = `bold ${TS*0.5}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-          ctx.fillText('⬆️', px+TS/2, py+TS/2);
-          ctx.fillStyle = '#fff'; ctx.font = `bold ${TS*0.3}px sans-serif`; ctx.fillText('Nivel 2', px+TS/2, py-5);
+      // Prop: Bookshelves
+      if (cMap.startsWith('torre_')) {
+        const bsImg = bookshelfImgRef.current;
+        if (bsImg && (bsImg.width > 0 || bsImg.naturalWidth > 0)) {
+          for (let ty = camY; ty <= camY + VH && ty < info.height; ty++) {
+            for (let tx = camX; tx <= camX + VW && tx < info.width; tx++) {
+              if (mg[ty]?.[tx] === 15) {
+                const px = (tx - camX) * TS;
+                const py = (ty - camY) * TS;
+                ctx.drawImage(bsImg, px, py - TS*0.5, TS, TS*1.5);
+              }
+            }
+          }
+        }
+      }
+
+      // Elevador / Escaleras a Nivel Superior en Cueva/Torre
+      if (cMap.startsWith('cueva_espanol') || cMap.startsWith('torre_espanol')) {
+        const isMaxLevel = (cMap === 'cueva_espanol_2' || cMap === 'torre_espanol_5');
+        if (!isMaxLevel) {
+          const { px, py, visible } = inView(15, 10);
+          if (visible) {
+            const eImg = elevatorImgRef.current;
+            if (eImg && (eImg.width > 0 || eImg.naturalWidth > 0)) {
+              ctx.drawImage(eImg, px - TS*0.5, py - TS, TS*2, TS*2);
+            } else {
+              ctx.fillStyle = '#111'; ctx.fillRect(px, py, TS, TS);
+              ctx.fillStyle = '#ffd700'; ctx.font = `bold ${TS*0.5}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+              ctx.fillText('⬆️', px+TS/2, py+TS/2);
+            }
+            ctx.fillStyle = '#fff'; ctx.font = `bold ${TS*0.3}px sans-serif`; ctx.fillText('Subir', px+TS/2, py-5);
+          }
         }
       }
 

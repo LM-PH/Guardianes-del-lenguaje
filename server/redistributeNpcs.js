@@ -126,19 +126,27 @@ const run = async () => {
 
       let idx = 0;
       for (const npc of npcs) {
-        // Distribute: 15 in open map, 10 in cave, 10 in tower
+        // Distribute: 10 in open map, 5 in cave 1, 5 in cave 2, 3 in each tower level (5 levels) = 35 total
         let targetMap = `mapa_${domain}`;
         let mw = 100, mh = 100;
         
         if (domain === 'espanol') {
-          if (idx >= 15 && idx < 20) { targetMap = `cueva_${domain}`; mw = 30; mh = 30; }
-          else if (idx >= 20 && idx < 25) { targetMap = `cueva_${domain}_2`; mw = 30; mh = 30; }
-          else if (idx >= 25 && idx < 30) { targetMap = `torre_${domain}`; mw = 30; mh = 30; }
-          else if (idx >= 30) { targetMap = `torre_${domain}_2`; mw = 30; mh = 30; }
+          if (idx >= 10 && idx < 15) { targetMap = `cueva_${domain}`; mw = 30; mh = 30; }
+          else if (idx >= 15 && idx < 20) { targetMap = `cueva_${domain}_2`; mw = 30; mh = 30; }
+          else if (idx >= 20 && idx < 23) { targetMap = `torre_${domain}`; mw = 30; mh = 30; }
+          else if (idx >= 23 && idx < 26) { targetMap = `torre_${domain}_2`; mw = 30; mh = 30; }
+          else if (idx >= 26 && idx < 29) { targetMap = `torre_${domain}_3`; mw = 30; mh = 30; }
+          else if (idx >= 29 && idx < 32) { targetMap = `torre_${domain}_4`; mw = 30; mh = 30; }
+          else if (idx >= 32 && idx < 35) { targetMap = `torre_${domain}_5`; mw = 30; mh = 30; }
         }
         
         npc.map = targetMap;
         const grid = getMapGrid(targetMap, mw, mh);
+        
+        // Anti-clumping array (initialize outside this inner loop ideally, but we can just use the DB to check, or a simple array)
+        if (!global.placedNpcs) global.placedNpcs = {};
+        if (!global.placedNpcs[targetMap]) global.placedNpcs[targetMap] = [];
+        const placedInMap = global.placedNpcs[targetMap];
         
         let placed = false;
         let attempts = 0;
@@ -153,10 +161,14 @@ const run = async () => {
             }
           }
 
-          if (grid[ry] && grid[ry][rx] !== undefined && !SOLID_TILES.includes(grid[ry][rx])) {
+          // Distancia mínima para no amontonarse
+          const isTooClose = placedInMap.some(p => Math.sqrt((p.x - rx)**2 + (p.y - ry)**2) < 4);
+
+          if (!isTooClose && grid[ry] && grid[ry][rx] !== undefined && !SOLID_TILES.includes(grid[ry][rx])) {
             npc.x = rx;
             npc.y = ry;
             await npc.save();
+            placedInMap.push({x: rx, y: ry});
             placed = true;
           }
           attempts++;
