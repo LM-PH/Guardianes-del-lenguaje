@@ -169,8 +169,15 @@ const run = async () => {
             }
           }
 
+          if (targetMap.startsWith('torre_') && attempts < 500) {
+            const cx = mw / 2; const cy = mh / 2;
+            if (rx >= cx - 4 && rx <= cx + 4 && ry >= cy - 4 && ry <= cy + 4) {
+              attempts++; continue; // Evitar el centro para esparcirlos entre los libreros
+            }
+          }
+
           // Relax distance rule after 1000 attempts to guarantee placement
-          const minDistance = attempts < 1000 ? (mw === 100 ? 8 : 4) : 0;
+          const minDistance = attempts < 1000 ? (mw === 100 ? 8 : (targetMap.startsWith('torre_') ? 2 : 4)) : 0;
           let isTooClose = false;
           if (minDistance > 0) {
             isTooClose = placedInMap.some(p => Math.sqrt((p.x - rx)**2 + (p.y - ry)**2) < minDistance);

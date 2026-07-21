@@ -84,19 +84,64 @@ const generateNPCsAndQuestions = async () => {
           const zonePool = questionsPool[config.subject]?.[zoneName] || [];
           const questionIdsForNpc = [];
 
-          // Barajar las opciones en la zona para asignar un subconjunto único a este PNJ
+          // Barajar el pool para este PNJ
           const shuffledPool = [...zonePool].sort(() => 0.5 - Math.random());
           
           for (let q = 0; q < qCountToAssign; q++) {
             const qId = `q_${npcCounter}_${questionCounter++}`;
             questionIdsForNpc.push(qId);
             
-            const poolQuestion = shuffledPool[q % shuffledPool.length] || {
-              question: `Pregunta de práctica sobre ${zoneName} #${q + 1}`,
-              options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
-              correctAnswer: 1,
-              explanation: 'Explicación de práctica.'
-            };
+            // Si nos quedamos sin preguntas en la zona, tomamos de otra zona aleatoria de la misma materia
+            let poolQuestion = shuffledPool[q];
+            if (!poolQuestion) {
+               const allSubjectQuestions = [].concat(...Object.values(questionsPool[config.subject] || {}));
+               poolQuestion = allSubjectQuestions[Math.floor(Math.random() * allSubjectQuestions.length)] || {
+                 question: `Pregunta de práctica sobre ${zoneName} #${q + 1}`,
+                 options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
+                 correctAnswer: 1,
+                 explanation: 'Explicación de práctica.'
+               };
+            }
+
+            // Adaptar dificultad dinámicamente eliminando opciones incorrectas y barajando
+            let finalOptions = [...(poolQuestion.options || [])];
+            let finalCorrectAnswer = poolQuestion.correctAnswer;
+            
+            if (poolQuestion.type !== 'voice' && finalOptions.length === 4) {
+              const correctOpt = finalOptions[finalCorrectAnswer];
+              let incorrectOpts = finalOptions.map((opt, idx) => ({ opt, idx })).filter(item => item.idx !== finalCorrectAnswer);
+              
+              // Nivel 1: Dejar solo 2 opciones (1 correcta, 1 incorrecta)
+              // Nivel 2: Dejar solo 3 opciones (1 correcta, 2 incorrectas)
+              // Nivel 3: Dejar las 4 opciones
+              if (difficulty === 1) {
+                incorrectOpts = incorrectOpts.sort(() => 0.5 - Math.random()).slice(0, 1);
+              } else if (difficulty === 2) {
+                incorrectOpts = incorrectOpts.sort(() => 0.5 - Math.random()).slice(0, 2);
+              }
+              
+              // Reconstruir las opciones y mezclarlas
+              const optionsToMix = [{ opt: correctOpt, isCorrect: true }, ...incorrectOpts.map(i => ({ opt: i.opt, isCorrect: false }))];
+              optionsToMix.sort(() => 0.5 - Math.random());
+              
+              finalOptions = optionsToMix.map(item => item.opt);
+              finalCorrectAnswer = optionsToMix.findIndex(item => item.isCorrect);
+            }
+
+            // Para que se vean "diferentes", le agregamos una ligera variación o el nombre del alumno al inicio
+            const isVoice = poolQuestion.type === 'voice';
+            let finalQuestionText = poolQuestion.question;
+            if (!isVoice) {
+               const variations = [
+                 `¡Demuestra lo que sabes! ${finalQuestionText}`,
+                 `Pregunta para ti: ${finalQuestionText}`,
+                 `A ver si sabes esto: ${finalQuestionText}`,
+                 `El desafío del Estudiante ${npcCounter}: ${finalQuestionText}`,
+                 `${finalQuestionText}`,
+                 `Concéntrate: ${finalQuestionText}`
+               ];
+               finalQuestionText = variations[Math.floor(Math.random() * variations.length)];
+            }
 
             allQuestions.push({
               questionId: qId,
@@ -107,9 +152,9 @@ const generateNPCsAndQuestions = async () => {
               topic: zoneName,
               type: poolQuestion.type || 'multiple_choice',
               difficulty: difficulty,
-              question: poolQuestion.question,
-              options: poolQuestion.options || [],
-              correctAnswer: poolQuestion.correctAnswer !== undefined ? poolQuestion.correctAnswer : null,
+              question: finalQuestionText,
+              options: finalOptions,
+              correctAnswer: finalCorrectAnswer !== undefined ? finalCorrectAnswer : null,
               expectedAnswer: poolQuestion.expectedAnswer || null,
               keywords: [],
               explanation: poolQuestion.explanation

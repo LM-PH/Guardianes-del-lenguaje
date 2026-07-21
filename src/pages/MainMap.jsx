@@ -799,13 +799,13 @@ function MainMap() {
           if (visible) {
             const eImg = elevatorImgRef.current;
             if (eImg && (eImg.width > 0 || eImg.naturalWidth > 0)) {
-              ctx.drawImage(eImg, px - TS*0.5, py - TS, TS*2, TS*2);
+              ctx.drawImage(eImg, px - TS*1.5, py - TS*2, TS*4, TS*4);
             } else {
               ctx.fillStyle = '#111'; ctx.fillRect(px, py, TS, TS);
               ctx.fillStyle = '#ffd700'; ctx.font = `bold ${TS*0.5}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
               ctx.fillText('⬆️', px+TS/2, py+TS/2);
             }
-            ctx.fillStyle = '#fff'; ctx.font = `bold ${TS*0.3}px sans-serif`; ctx.fillText('Subir', px+TS/2, py-5);
+            ctx.fillStyle = '#fff'; ctx.font = `bold ${TS*0.4}px sans-serif`; ctx.fillText('Subir', px+TS/2, py-10);
           }
         }
       }
