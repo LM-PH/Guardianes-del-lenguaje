@@ -173,6 +173,18 @@ const run = async () => {
             }
           }
 
+          if (targetMap === 'mapa_espanol') {
+            // Evitar spawn en portales de cueva (25, 50) y torre (75, 50) para no estorbar
+            if (rx >= 21 && rx <= 29 && ry >= 46 && ry <= 54) { attempts++; continue; }
+            if (rx >= 71 && rx <= 79 && ry >= 46 && ry <= 54) { attempts++; continue; }
+          }
+
+          if (targetMap.startsWith('cueva_') || targetMap.startsWith('torre_')) {
+            // Evitar escaleras superiores (15, 10) e inferiores/entrada (15, 28)
+            if (rx >= 13 && rx <= 17 && ry >= 8 && ry <= 13) { attempts++; continue; }
+            if (rx >= 13 && rx <= 17 && ry >= 26 && ry <= 30) { attempts++; continue; }
+          }
+
           if (targetMap.startsWith('torre_') && attempts < 500) {
             const cx = mw / 2; const cy = mh / 2;
             if (rx >= cx - 4 && rx <= cx + 4 && ry >= cy - 4 && ry <= cy + 4) {
