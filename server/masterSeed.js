@@ -86,21 +86,48 @@ const generateNPCsAndQuestions = async () => {
 
           // Barajar el pool para este PNJ
           const shuffledPool = [...zonePool].sort(() => 0.5 - Math.random());
+
+          const randItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
           
           for (let q = 0; q < qCountToAssign; q++) {
             const qId = `q_${npcCounter}_${questionCounter++}`;
             questionIdsForNpc.push(qId);
             
-            // Si nos quedamos sin preguntas en la zona, tomamos de otra zona aleatoria de la misma materia
-            let poolQuestion = shuffledPool[q];
-            if (!poolQuestion) {
-               const allSubjectQuestions = [].concat(...Object.values(questionsPool[config.subject] || {}));
-               poolQuestion = allSubjectQuestions[Math.floor(Math.random() * allSubjectQuestions.length)] || {
-                 question: `Pregunta de práctica sobre ${zoneName} #${q + 1}`,
-                 options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
-                 correctAnswer: 1,
-                 explanation: 'Explicación de práctica.'
-               };
+            // Mezclamos preguntas fijas con preguntas generadas por dificultad para evitar repetición
+            let poolQuestion;
+            if (q < 2 && shuffledPool[q]) { 
+              poolQuestion = shuffledPool[q]; // Usar un par fijas como base
+            } else {
+              // Generar preguntas dependientes 100% de la dificultad del estudiante
+              if (config.subject === 'espanol') {
+                 if (difficulty === 1) {
+                    const w = randItem([{c:"camión",w:"camion"}, {c:"lápiz",w:"lapiz"}, {c:"árbol",w:"arbol"}, {c:"corazón",w:"corazon"}, {c:"canción",w:"cancion"}]);
+                    poolQuestion = { question: `¿Cómo se escribe correctamente?`, options: [w.c, w.w, w.w+"s", w.c+"s"], correctAnswer: 0, explanation: `La palabra lleva tilde.` };
+                 } else if (difficulty === 2) {
+                    const v = randItem([{v:"cantar", c:"cantaba", w:"cantava"}, {v:"ir", c:"iba", w:"iva"}, {v:"haber", c:"había", w:"havía"}]);
+                    poolQuestion = { question: `Pretérito imperfecto de ${v.v}:`, options: [v.c, v.w, v.c+"n", v.w+"s"], correctAnswer: 0, explanation: `Regla de la B y V.` };
+                 } else {
+                    const s = randItem(['La casa blanca', 'El perro rápido', 'Un gato perezoso', 'El ave veloz']);
+                    poolQuestion = { question: `En "${s}", ¿cuál es el adjetivo?`, options: [s.split(' ')[2], s.split(' ')[1], s.split(' ')[0], "Ninguno"], correctAnswer: 0, explanation: `El adjetivo describe al sustantivo.` };
+                 }
+              } else if (config.subject === 'ingles') {
+                 if (difficulty === 1) {
+                    const w = randItem([{e:"apple",s:"manzana"}, {e:"dog",s:"perro"}, {e:"cat",s:"gato"}, {e:"book",s:"libro"}]);
+                    poolQuestion = { question: `Translate "${w.s}":`, options: [w.e, w.e+"s", "the "+w.e, "a "+w.e], correctAnswer: 0, explanation: `Vocabulario básico.` };
+                 } else if (difficulty === 2) {
+                    const v = randItem([{e:"went",s:"fui"}, {e:"ate",s:"comí"}, {e:"saw",s:"vi"}, {e:"ran",s:"corrí"}]);
+                    poolQuestion = { question: `Past tense for "${v.s}":`, options: [v.e, v.e+"ed", "was "+v.e, "has "+v.e], correctAnswer: 0, explanation: `Verbos irregulares.` };
+                 } else {
+                    poolQuestion = { question: `Choose correct:`, options: ["I have been there.", "I has been there.", "I have being there.", "I was been there."], correctAnswer: 0, explanation: `Present perfect tense.` };
+                 }
+              } else {
+                 if (difficulty === 1) {
+                    poolQuestion = { question: `Colores primarios incluyen:`, options: ["Rojo", "Verde", "Naranja", "Morado"], correctAnswer: 0, explanation: `Rojo, azul y amarillo.` };
+                 } else {
+                    const a = randItem(["Van Gogh", "Picasso", "Da Vinci", "Dalí", "Monet"]);
+                    poolQuestion = { question: `¿Pintor famoso?`, options: [a, "Beethoven", "Mozart", "Shakespeare"], correctAnswer: 0, explanation: `Es un pintor reconocido.` };
+                 }
+              }
             }
 
             // Adaptar dificultad dinámicamente eliminando opciones incorrectas y barajando

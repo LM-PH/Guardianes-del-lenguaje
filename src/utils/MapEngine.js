@@ -67,8 +67,8 @@ export const generateMap = (mapName, width, height) => {
       const n = noise(x, y, seed);
 
       if (isCave) {
-        // Laberinto rocoso
-        if (n > 0.45 && dist > 3) {
+        // Laberinto rocoso con pasillos garantizados para accesibilidad
+        if (n > 0.55 && dist > 3 && x % 4 !== 0 && y % 4 !== 0) {
           grid[y][x] = TILES.CAVE_WALL;
         }
       } else if (isTower) {
@@ -77,6 +77,14 @@ export const generateMap = (mapName, width, height) => {
           grid[y][x] = TILES.BOOKSHELF;
         }
       } else {
+        // Zonas de aparición de portales libres de árboles para evitar el bug de teletransporte
+        const isPortalSpawn = mapName === 'mapa_espanol' && 
+          ((x >= 22 && x <= 28 && y >= 47 && y <= 55) || (x >= 72 && x <= 78 && y >= 47 && y <= 55));
+          
+        if (isPortalSpawn) {
+          continue; // Dejar libre de obstáculos
+        }
+
         // Árboles y flores
         if (dist > maxDist * 0.65 && n > 0.35) {
           grid[y][x] = TILES.TREE;
