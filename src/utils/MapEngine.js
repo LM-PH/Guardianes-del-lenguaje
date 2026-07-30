@@ -29,9 +29,11 @@ export const generateMap = (mapName, width, height) => {
   let baseTile = TILES.GRASS;
   let isCave = mapName.startsWith('cueva_');
   let isTower = mapName.startsWith('torre_');
+  let isMuseo = mapName === 'museo_artes';
+  let isConservatorio = mapName === 'conservatorio_artes';
   
   if (isCave) baseTile = TILES.CAVE_FLOOR;
-  else if (isTower) baseTile = TILES.WOOD_FLOOR;
+  else if (isTower || isMuseo || isConservatorio) baseTile = TILES.WOOD_FLOOR;
 
   const grid = Array(height).fill(null).map(() => Array(width).fill(baseTile));
   const seed = mapName.length + 7;
@@ -53,7 +55,7 @@ export const generateMap = (mapName, width, height) => {
           }
         }
         if (isCave) grid[y][x] = TILES.CAVE_WALL;
-        else if (isTower) grid[y][x] = TILES.WALL;
+        else if (isTower || isMuseo || isConservatorio) grid[y][x] = TILES.WALL;
         else grid[y][x] = TILES.WATER;
       }
     }
@@ -76,9 +78,21 @@ export const generateMap = (mapName, width, height) => {
         if (x % 4 === 0 && y % 3 !== 0 && dist > 3) {
           grid[y][x] = TILES.BOOKSHELF;
         }
+      } else if (isMuseo) {
+        // Exposiciones espaciadas
+        if (x % 5 === 0 && y % 5 === 0 && dist > 3) {
+          grid[y][x] = TILES.BOOKSHELF;
+        }
+      } else if (isConservatorio) {
+        // Filas como asientos o atriles, y algo de vegetación
+        if (x % 3 === 0 && y > height / 3 && y % 2 !== 0 && dist > 2) {
+          grid[y][x] = TILES.BOOKSHELF;
+        } else if (x % 5 === 0 && y < height / 3 && dist > 2) {
+          grid[y][x] = TILES.TREE; // Decoración interior
+        }
       } else {
         // Zonas de aparición de portales libres de árboles para evitar el bug de teletransporte
-        const isPortalSpawn = mapName === 'mapa_espanol' && 
+        const isPortalSpawn = (mapName === 'mapa_espanol' || mapName === 'mapa_artes') && 
           ((x >= 22 && x <= 28 && y >= 47 && y <= 55) || (x >= 72 && x <= 78 && y >= 47 && y <= 55));
           
         if (isPortalSpawn) {

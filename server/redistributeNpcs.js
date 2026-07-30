@@ -123,7 +123,9 @@ const run = async () => {
         $or: [
           { map: `mapa_${domain}` },
           { map: `cueva_${domain}` },
-          { map: `torre_${domain}` }
+          { map: `torre_${domain}` },
+          { map: `museo_${domain}` },
+          { map: `conservatorio_${domain}` }
         ] 
       });
       console.log(`Reubicando ${npcs.length} NPCs en el dominio de ${domain}...`);
@@ -151,6 +153,13 @@ const run = async () => {
           else if (idx >= t2 && idx < t3) { targetMap = `torre_${domain}_3`; mw = 30; mh = 30; }
           else if (idx >= t3 && idx < t4) { targetMap = `torre_${domain}_4`; mw = 30; mh = 30; }
           else if (idx >= t4) { targetMap = `torre_${domain}_5`; mw = 30; mh = 30; }
+        } else if (domain === 'artes') {
+          const total = npcs.length;
+          const openCount = Math.max(1, Math.floor(total * 0.4)); // 40% outside
+          const museo = openCount + Math.floor(total * 0.3);      // 30% museum
+          
+          if (idx >= openCount && idx < museo) { targetMap = `museo_${domain}`; mw = 30; mh = 30; }
+          else if (idx >= museo) { targetMap = `conservatorio_${domain}`; mw = 30; mh = 30; }
         }
         
         npc.map = targetMap;
@@ -173,8 +182,8 @@ const run = async () => {
             }
           }
 
-          if (targetMap === 'mapa_espanol') {
-            // Evitar spawn en portales de cueva (25, 50) y torre (75, 50) para no estorbar
+          if (targetMap === 'mapa_espanol' || targetMap === 'mapa_artes') {
+            // Evitar spawn en portales (25, 50) y (75, 50) para no estorbar
             if (rx >= 21 && rx <= 29 && ry >= 46 && ry <= 54) { attempts++; continue; }
             if (rx >= 71 && rx <= 79 && ry >= 46 && ry <= 54) { attempts++; continue; }
           }
