@@ -338,14 +338,20 @@ function MainMap() {
       .then(fetchedNpcs => {
         if (mapGrid && mapGrid.length > 0) {
           fetchedNpcs.forEach(n => {
-            // Si está dentro de un árbol o agua, lo movemos a la casilla libre más cercana
-            if (SOLID_TILES.includes(mapGrid[n.y]?.[n.x])) {
+            // Definimos los tiles que garantizan que el jugador pueda llegar a ellos
+            const SAFE_TILES = [TILES.PATH, TILES.FLOOR, TILES.CAVE_FLOOR, TILES.WOOD_FLOOR]
+            
+            // Si el NPC no está en un tile seguro (por ejemplo, está en un árbol o en pasto rodeado de árboles), lo movemos
+            if (!SAFE_TILES.includes(mapGrid[n.y]?.[n.x])) {
                let found = false
-               for (let r = 1; r < 6 && !found; r++) {
+               for (let r = 1; r < 50 && !found; r++) {
                  for (let dx = -r; dx <= r && !found; dx++) {
                    for (let dy = -r; dy <= r && !found; dy++) {
-                      if (!SOLID_TILES.includes(mapGrid[n.y + dy]?.[n.x + dx])) {
-                         n.x += dx; n.y += dy; found = true
+                      // Solo revisar el borde del cuadrado actual para optimizar
+                      if (Math.abs(dx) === r || Math.abs(dy) === r) {
+                        if (SAFE_TILES.includes(mapGrid[n.y + dy]?.[n.x + dx])) {
+                           n.x += dx; n.y += dy; found = true
+                        }
                       }
                    }
                  }
