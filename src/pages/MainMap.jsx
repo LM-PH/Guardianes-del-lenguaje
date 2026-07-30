@@ -337,25 +337,43 @@ function MainMap() {
       .then(r => r.json())
       .then(fetchedNpcs => {
         if (mapGrid && mapGrid.length > 0) {
+          // --- NUEVA LÓGICA: Encontrar TODAS las celdas alcanzables (Flood Fill) ---
+          const height = mapGrid.length;
+          const width = mapGrid[0].length;
+          const cx = Math.floor(width / 2);
+          const cy = Math.floor(height / 2);
+          
+          const reachableTiles = new Set();
+          const queue = [{x: cx, y: cy}];
+          reachableTiles.add(`${cx},${cy}`);
+          
+          const dirs = [[0,1], [1,0], [0,-1], [-1,0]];
+          
+          let head = 0;
+          while (head < queue.length) {
+            const {x, y} = queue[head++];
+            for (const [dx, dy] of dirs) {
+              const nx = x + dx, ny = y + dy;
+              if (nx >= 0 && ny >= 0 && ny < height && nx < width) {
+                if (!SOLID_TILES.includes(mapGrid[ny][nx]) && !reachableTiles.has(`${nx},${ny}`)) {
+                  reachableTiles.add(`${nx},${ny}`);
+                  queue.push({x: nx, y: ny});
+                }
+              }
+            }
+          }
+          
+          const reachableArray = Array.from(reachableTiles).map(s => {
+            const parts = s.split(',');
+            return { x: parseInt(parts[0], 10), y: parseInt(parts[1], 10) };
+          });
+          
           fetchedNpcs.forEach(n => {
-            // Definimos los tiles que garantizan que el jugador pueda llegar a ellos
-            const SAFE_TILES = [TILES.PATH, TILES.FLOOR, TILES.CAVE_FLOOR, TILES.WOOD_FLOOR]
-            
-            // Si el NPC no está en un tile seguro (por ejemplo, está en un árbol o en pasto rodeado de árboles), lo movemos
-            if (!SAFE_TILES.includes(mapGrid[n.y]?.[n.x])) {
-               let found = false
-               for (let r = 1; r < 50 && !found; r++) {
-                 for (let dx = -r; dx <= r && !found; dx++) {
-                   for (let dy = -r; dy <= r && !found; dy++) {
-                      // Solo revisar el borde del cuadrado actual para optimizar
-                      if (Math.abs(dx) === r || Math.abs(dy) === r) {
-                        if (SAFE_TILES.includes(mapGrid[n.y + dy]?.[n.x + dx])) {
-                           n.x += dx; n.y += dy; found = true
-                        }
-                      }
-                   }
-                 }
-               }
+            // Esparcir a los estudiantes aleatoriamente por zonas GARANTIZADAS como alcanzables
+            if (reachableArray.length > 0) {
+               const randomTile = reachableArray[Math.floor(Math.random() * reachableArray.length)];
+               n.x = randomTile.x;
+               n.y = randomTile.y;
             }
           })
         }
