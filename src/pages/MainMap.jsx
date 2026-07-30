@@ -323,6 +323,12 @@ function MainMap() {
       .catch(() => navigate('/create'))
   }, [navigate])
 
+  // ─── Mapa ──────────────────────────────────────────────────────────────────
+  const mapGrid = useMemo(() => {
+    const m = player?.currentMap || 'pueblo_inicial'
+    return generateMap(m, MAPS[m].width, MAPS[m].height)
+  }, [player?.currentMap])
+
   // ─── Cargar NPCs ───────────────────────────────────────────────────────────
   useEffect(() => {
     if (!player) { setNpcs([]); return }
@@ -330,16 +336,15 @@ function MainMap() {
     fetch(`/api/npcs/${targetMap}`)
       .then(r => r.json())
       .then(fetchedNpcs => {
-        const grid = MAPS[targetMap]?.grid
-        if (grid) {
+        if (mapGrid && mapGrid.length > 0) {
           fetchedNpcs.forEach(n => {
             // Si está dentro de un árbol o agua, lo movemos a la casilla libre más cercana
-            if (SOLID_TILES.includes(grid[n.y]?.[n.x])) {
+            if (SOLID_TILES.includes(mapGrid[n.y]?.[n.x])) {
                let found = false
                for (let r = 1; r < 6 && !found; r++) {
                  for (let dx = -r; dx <= r && !found; dx++) {
                    for (let dy = -r; dy <= r && !found; dy++) {
-                      if (!SOLID_TILES.includes(grid[n.y + dy]?.[n.x + dx])) {
+                      if (!SOLID_TILES.includes(mapGrid[n.y + dy]?.[n.x + dx])) {
                          n.x += dx; n.y += dy; found = true
                       }
                    }
@@ -355,13 +360,7 @@ function MainMap() {
         }
       })
       .catch(() => {})
-  }, [player?.currentMap])
-
-  // ─── Mapa ──────────────────────────────────────────────────────────────────
-  const mapGrid = useMemo(() => {
-    const m = player?.currentMap || 'pueblo_inicial'
-    return generateMap(m, MAPS[m].width, MAPS[m].height)
-  }, [player?.currentMap])
+  }, [player?.currentMap, mapGrid])
 
   // ─── Colisiones ────────────────────────────────────────────────────────────
   const isObstacle = useCallback((nx, ny, mapName) => {
@@ -829,28 +828,12 @@ function MainMap() {
 
       // ── NPCs dinámicos (estudiantes como personas) ──
       npcList.forEach(npc => {
-        // Si el NPC está en un tile sólido (árbol), buscar el tile libre más cercano
-        let drawX = npc.x, drawY = npc.y
-        if (mg[npc.y]?.[npc.x] !== undefined && SOLID_TILES.includes(mg[npc.y]?.[npc.x])) {
-          // Buscar tile libre en espiral
-          outer: for (let r = 1; r <= 5; r++) {
-            for (let dy2 = -r; dy2 <= r; dy2++) {
-              for (let dx2 = -r; dx2 <= r; dx2++) {
-                const tx2 = npc.x + dx2, ty2 = npc.y + dy2
-                if (tx2 >= 0 && ty2 >= 0 && tx2 < info.width && ty2 < info.height &&
-                    !SOLID_TILES.includes(mg[ty2]?.[tx2])) {
-                  drawX = tx2; drawY = ty2; break outer
-                }
-              }
-            }
-          }
-        }
         const hash = (npc.name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
         const hueShift = Math.abs(hash) % 360;
         const isGirl = Math.abs(hash) % 2 !== 0;
         
         let npcImg = isGirl ? npcGirlImgRef.current : npcBoyImgRef.current;
-        const { px, py, visible } = inView(drawX, drawY)
+        const { px, py, visible } = inView(npc.x, npc.y)
         if (!visible) return
         const defeated = pl.completedBattles?.includes(npc.npcId)
         
@@ -874,7 +857,7 @@ function MainMap() {
           const studentEmoji = defeated ? '😵' : getStudentEmoji(npc.npcId)
           drawEmoji(ctx, studentEmoji, px + TS/2, py + TS/2, TS * 0.82)
         }
-        const dist = Math.abs(p.x - drawX) + Math.abs(p.y - drawY)
+        const dist = Math.abs(p.x - npc.x) + Math.abs(p.y - npc.y)
         if (!defeated && dist <= 2) {
           ctx.fillStyle = '#ff0000'
           ctx.font = `bold ${TS * 0.45}px monospace`
