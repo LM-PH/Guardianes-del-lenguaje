@@ -308,6 +308,9 @@ const generateNPCsAndQuestions = async () => {
       await Question.insertMany(chunk);
     }
     
+    console.log('Redistribuyendo NPCs entre pisos y submapas...');
+    require('child_process').execSync('node redistributeNpcs.js', { stdio: 'inherit' });
+
     console.log('¡Generación masiva completada exitosamente!');
     process.exit();
 
