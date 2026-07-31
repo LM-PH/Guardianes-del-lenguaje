@@ -29,8 +29,8 @@ export const generateMap = (mapName, width, height) => {
   let baseTile = TILES.GRASS;
   let isCave = mapName.startsWith('cueva_');
   let isTower = mapName.startsWith('torre_');
-  let isMuseo = mapName === 'museo_artes';
-  let isConservatorio = mapName === 'conservatorio_artes';
+  let isMuseo = mapName.startsWith('museo_artes');
+  let isConservatorio = mapName.startsWith('conservatorio_artes');
   
   if (isCave) baseTile = TILES.CAVE_FLOOR;
   else if (isTower || isMuseo || isConservatorio) baseTile = TILES.WOOD_FLOOR;

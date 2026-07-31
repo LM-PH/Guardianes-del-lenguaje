@@ -20,8 +20,12 @@ const MAPS = {
   interior_artes:   { width: 11,  height: 11,  title: 'Estudio de Artes'      },
   interior_ingles:  { width: 11,  height: 11,  title: 'Academia de Inglés'    },
   interior_maestros:{ width: 11,  height: 11,  title: 'Sala del Gran Maestro' },
-  museo_artes:      { width: 30,  height: 30,  title: 'Museo de Arte'         },
-  conservatorio_artes:{ width: 30, height: 30, title: 'Conservatorio de Música' },
+  museo_artes:      { width: 30,  height: 30,  title: 'Museo de Arte - Planta Baja' },
+  museo_artes_2:    { width: 30,  height: 30,  title: 'Museo de Arte - Piso 2' },
+  museo_artes_3:    { width: 30,  height: 30,  title: 'Museo de Arte - Piso 3' },
+  conservatorio_artes: { width: 30, height: 30, title: 'Conservatorio - Planta Baja' },
+  conservatorio_artes_2: { width: 30, height: 30, title: 'Conservatorio - Piso 2' },
+  conservatorio_artes_3: { width: 30, height: 30, title: 'Conservatorio - Piso 3' },
   cueva_espanol:    { width: 30,  height: 30,  title: 'Cueva de Ortografía - N1' },
   cueva_espanol_2:  { width: 30,  height: 30,  title: 'Cueva de Ortografía - N2' },
   torre_espanol:    { width: 30,  height: 30,  title: 'Torre de Literatura - N1' },
@@ -291,6 +295,8 @@ function MainMap() {
   // Edificios
   const buildingEspanolImgRef = useImage('/sprites/building_espanol.png?v=33')
   const buildingArtesImgRef = useImage('/sprites/building_artes.png?v=33')
+  const buildingMuseoImgRef = useImage('/sprites/building_museo.png?v=33')
+  const buildingConservatorioImgRef = useImage('/sprites/building_conservatorio.png?v=33')
   const buildingInglesImgRef = useImage('/sprites/building_ingles.png?v=36')
   const buildingMaestrosImgRef = useImage('/sprites/building_maestros.png?v=36')
   const buildingCuevaImgRef = useImage('/sprites/building_cueva.png?v=36')
@@ -530,21 +536,47 @@ function MainMap() {
         }
       }
       if (cMap === 'cueva_espanol' && nx === 15 && ny === 10) { transitionTo('cueva_espanol_2', 15, 28); return true; }
+      if (cMap.startsWith('museo_artes') && nx === 15 && ny === 10) {
+        let currentLevel = cMap === 'museo_artes' ? 1 : parseInt(cMap.replace('museo_artes_', ''));
+        if (currentLevel < 3) {
+          transitionTo(`museo_artes_${currentLevel + 1}`, 15, 28);
+          return true;
+        }
+      }
+      if (cMap.startsWith('conservatorio_artes') && nx === 15 && ny === 10) {
+        let currentLevel = cMap === 'conservatorio_artes' ? 1 : parseInt(cMap.replace('conservatorio_artes_', ''));
+        if (currentLevel < 3) {
+          transitionTo(`conservatorio_artes_${currentLevel + 1}`, 15, 28);
+          return true;
+        }
+      }
 
       // Elevador / Escaleras (Bajar / Volver)
-      if ((cMap.startsWith('cueva_espanol') || cMap.startsWith('torre_espanol') || cMap === 'museo_artes' || cMap === 'conservatorio_artes') && ny >= MAPS[cMap].height - 1) {
+      if ((cMap.startsWith('cueva_espanol') || cMap.startsWith('torre_espanol') || cMap.startsWith('museo_artes') || cMap.startsWith('conservatorio_artes')) && ny >= MAPS[cMap].height - 1) {
         if (cMap === 'cueva_espanol_2') {
           transitionTo('cueva_espanol', 15, 11); return true;
-        } else if (cMap !== 'cueva_espanol' && cMap !== 'torre_espanol' && cMap !== 'museo_artes' && cMap !== 'conservatorio_artes') {
+        } else if (cMap !== 'cueva_espanol' && !cMap.startsWith('torre_espanol') && !cMap.startsWith('museo_artes') && !cMap.startsWith('conservatorio_artes')) {
           let currentLevel = parseInt(cMap.replace('torre_espanol_', ''));
           if (currentLevel === 2) transitionTo('torre_espanol', 15, 11);
           else transitionTo(`torre_espanol_${currentLevel - 1}`, 15, 11);
           return true;
-        } else if (cMap === 'museo_artes') {
-          transitionTo('mapa_artes', 25, 53);
+        } else if (cMap.startsWith('museo_artes')) {
+          let currentLevel = cMap === 'museo_artes' ? 1 : parseInt(cMap.replace('museo_artes_', ''));
+          if (currentLevel === 1) transitionTo('mapa_artes', 25, 53);
+          else if (currentLevel === 2) transitionTo('museo_artes', 15, 11);
+          else transitionTo(`museo_artes_${currentLevel - 1}`, 15, 11);
           return true;
-        } else if (cMap === 'conservatorio_artes') {
-          transitionTo('mapa_artes', 75, 53);
+        } else if (cMap.startsWith('conservatorio_artes')) {
+          let currentLevel = cMap === 'conservatorio_artes' ? 1 : parseInt(cMap.replace('conservatorio_artes_', ''));
+          if (currentLevel === 1) transitionTo('mapa_artes', 75, 53);
+          else if (currentLevel === 2) transitionTo('conservatorio_artes', 15, 11);
+          else transitionTo(`conservatorio_artes_${currentLevel - 1}`, 15, 11);
+          return true;
+        } else if (cMap.startsWith('torre_espanol')) {
+          let currentLevel = cMap === 'torre_espanol' ? 1 : parseInt(cMap.replace('torre_espanol_', ''));
+          if (currentLevel === 1) transitionTo('mapa_espanol', 75, 53);
+          else if (currentLevel === 2) transitionTo('torre_espanol', 15, 11);
+          else transitionTo(`torre_espanol_${currentLevel - 1}`, 15, 11);
           return true;
         } else {
           transitionTo('mapa_espanol', cMap === 'cueva_espanol' ? 25 : 75, 53);
@@ -557,7 +589,7 @@ function MainMap() {
       }
 
       // Entrar al edificio del jefe
-      if (nx === cx && ny === cy && !cMap.startsWith('cueva_') && !cMap.startsWith('torre_') && cMap !== 'museo_artes' && cMap !== 'conservatorio_artes') {
+      if (nx === cx && ny === cy && !cMap.startsWith('cueva_') && !cMap.startsWith('torre_') && !cMap.startsWith('museo_artes') && !cMap.startsWith('conservatorio_artes')) {
         let requiredDefeated = 35;
         let domainKey = cMap.replace('mapa_', '');
         
@@ -820,8 +852,8 @@ function MainMap() {
 
       // Portales Museo y Conservatorio en mapa_artes
       if (cMap === 'mapa_artes') {
-        const cImg = buildingCasaImgRef?.current || buildingCuevaImgRef.current; // Fallback
-        const tImg = buildingTorreImgRef.current;
+        const cImg = buildingMuseoImgRef.current;
+        const tImg = buildingConservatorioImgRef.current;
         const portals = [
           { x: 25, y: 50, img: cImg, name: 'Museo de Arte' },
           { x: 75, y: 50, img: tImg, name: 'Conservatorio' }
@@ -829,10 +861,9 @@ function MainMap() {
         portals.forEach(p => {
           const { px, py, visible } = inView(p.x, p.y);
           if (visible && p.img && (p.img.width > 0 || p.img.naturalWidth > 0)) {
-            const isTower = p.img === buildingTorreImgRef.current;
             const drawW = TS * 5; 
-            const drawH = isTower ? TS * 12 : TS * 5;
-            const offsetY = isTower ? (drawH * 0.85) : (drawH / 1.2);
+            const drawH = TS * 5;
+            const offsetY = (drawH * 0.85);
             ctx.drawImage(p.img, px + TS/2 - drawW/2, py + TS/2 - offsetY, drawW, drawH);
             
             ctx.fillStyle = '#fff';

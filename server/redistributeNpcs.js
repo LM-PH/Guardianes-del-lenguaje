@@ -120,13 +120,7 @@ const run = async () => {
     for (const domain of domains) {
       // Find all NPCs associated with this domain
       const npcs = await Npc.find({ 
-        $or: [
-          { map: `mapa_${domain}` },
-          { map: `cueva_${domain}` },
-          { map: `torre_${domain}` },
-          { map: `museo_${domain}` },
-          { map: `conservatorio_${domain}` }
-        ] 
+        map: { $regex: new RegExp(`^(mapa|cueva|torre|museo|conservatorio)_${domain}`) }
       });
       console.log(`Reubicando ${npcs.length} NPCs en el dominio de ${domain}...`);
 
@@ -155,11 +149,19 @@ const run = async () => {
           else if (idx >= t4) { targetMap = `torre_${domain}_5`; mw = 30; mh = 30; }
         } else if (domain === 'artes') {
           const total = npcs.length;
-          const openCount = Math.max(1, Math.floor(total * 0.4)); // 40% outside
-          const museo = openCount + Math.floor(total * 0.3);      // 30% museum
+          const openCount = Math.max(1, Math.floor(total * 0.3)); // 30% outside
+          const m1 = openCount + Math.floor(total * 0.12);
+          const m2 = m1 + Math.floor(total * 0.11);
+          const m3 = m2 + Math.floor(total * 0.12);
+          const c1 = m3 + Math.floor(total * 0.12);
+          const c2 = c1 + Math.floor(total * 0.11);
           
-          if (idx >= openCount && idx < museo) { targetMap = `museo_${domain}`; mw = 30; mh = 30; }
-          else if (idx >= museo) { targetMap = `conservatorio_${domain}`; mw = 30; mh = 30; }
+          if (idx >= openCount && idx < m1) { targetMap = `museo_${domain}`; mw = 30; mh = 30; }
+          else if (idx >= m1 && idx < m2) { targetMap = `museo_${domain}_2`; mw = 30; mh = 30; }
+          else if (idx >= m2 && idx < m3) { targetMap = `museo_${domain}_3`; mw = 30; mh = 30; }
+          else if (idx >= m3 && idx < c1) { targetMap = `conservatorio_${domain}`; mw = 30; mh = 30; }
+          else if (idx >= c1 && idx < c2) { targetMap = `conservatorio_${domain}_2`; mw = 30; mh = 30; }
+          else if (idx >= c2) { targetMap = `conservatorio_${domain}_3`; mw = 30; mh = 30; }
         }
         
         npc.map = targetMap;
@@ -175,7 +177,7 @@ const run = async () => {
           const rx = Math.floor(Math.random() * (mw - 4)) + 2;
           const ry = Math.floor(Math.random() * (mh - 4)) + 2;
           
-          if (!targetMap.startsWith('cueva_') && !targetMap.startsWith('torre_')) {
+          if (!targetMap.startsWith('cueva_') && !targetMap.startsWith('torre_') && !targetMap.startsWith('museo_') && !targetMap.startsWith('conservatorio_')) {
             const cx = mw / 2; const cy = mh / 2;
             if (rx >= cx - 9 && rx <= cx + 9 && ry >= cy - 9 && ry <= cy + 9) {
               attempts++; continue;
@@ -188,7 +190,7 @@ const run = async () => {
             if (rx >= 71 && rx <= 79 && ry >= 46 && ry <= 54) { attempts++; continue; }
           }
 
-          if (targetMap.startsWith('cueva_') || targetMap.startsWith('torre_')) {
+          if (targetMap.startsWith('cueva_') || targetMap.startsWith('torre_') || targetMap.startsWith('museo_') || targetMap.startsWith('conservatorio_')) {
             // Evitar escaleras superiores (15, 10) e inferiores/entrada (15, 28)
             if (rx >= 13 && rx <= 17 && ry >= 8 && ry <= 13) { attempts++; continue; }
             if (rx >= 13 && rx <= 17 && ry >= 26 && ry <= 30) { attempts++; continue; }
