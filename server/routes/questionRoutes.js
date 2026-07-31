@@ -13,22 +13,23 @@ router.get('/battle', async (req, res) => {
     const Npc = require('../models/Npc');
     const npc = await Npc.findOne({ npcId });
     
-    let questions;
+    let questions = [];
     
-    if (npc) {
-      // 2. Obtener TODAS las preguntas de ese subject+zone (pool completo)
-      questions = await Question.find({
-        subject: npc.subject,
-        zone: npc.zone
-      });
-      
-      // Si hay muy pocas, ampliar al subject completo
-      if (questions.length < 5) {
-        questions = await Question.find({ subject: npc.subject });
-      }
-    } else {
-      // Fallback: preguntas del npcId original
+    if (npc && npc.questionIds && npc.questionIds.length > 0) {
+      // Obtener las preguntas asignadas explícitamente a este estudiante
+      questions = await Question.find({ questionId: { $in: npc.questionIds } });
+    }
+    
+    // Si no se encontraron por questionIds, buscar por npcId
+    if (!questions || questions.length === 0) {
       questions = await Question.find({ npcId: npcId });
+    }
+
+    // Si aún así no hay suficientes, recurrir al subject/zone
+    if (!questions || questions.length === 0) {
+      if (npc) {
+        questions = await Question.find({ subject: npc.subject, zone: npc.zone });
+      }
     }
 
     // 3. Mezclar aleatoriamente usando Fisher-Yates para mejor aleatoriedad

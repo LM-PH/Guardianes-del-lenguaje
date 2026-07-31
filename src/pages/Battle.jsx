@@ -55,9 +55,9 @@ function Battle() {
   
   // Configuración por dificultad
   const config = {
-    1: { qCount: 5, dmgEnemy: 20, dmgPlayer: 10, xp: 10 },
-    2: { qCount: 7, dmgEnemy: 25, dmgPlayer: 15, xp: 20 },
-    3: { qCount: 10, dmgEnemy: 30, dmgPlayer: 20, xp: 40 },
+    1: { qCount: 4, dmgEnemy: 25, dmgPlayer: 10, xp: 10 },
+    2: { qCount: 4, dmgEnemy: 25, dmgPlayer: 15, xp: 20 },
+    3: { qCount: 4, dmgEnemy: 25, dmgPlayer: 20, xp: 40 },
     boss: { qCount: 12, dmgEnemy: 25, dmgPlayer: 25, xp: 150 },
     finalBoss: { qCount: 15, dmgEnemy: 250 / 8, dmgPlayer: 25, xp: 500 } // 250 HP, ~8 aciertos para ganar
   }
