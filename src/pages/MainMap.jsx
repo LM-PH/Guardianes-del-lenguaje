@@ -890,9 +890,9 @@ function MainMap() {
         }
       }
 
-      // Elevador / Escaleras a Nivel Superior en Cueva/Torre
-      if (cMap.startsWith('cueva_espanol') || cMap.startsWith('torre_espanol')) {
-        const isMaxLevel = (cMap === 'cueva_espanol_2' || cMap === 'torre_espanol_5');
+      // Elevador / Escaleras a Nivel Superior
+      if (cMap.startsWith('cueva_espanol') || cMap.startsWith('torre_espanol') || cMap.startsWith('museo_artes') || cMap.startsWith('conservatorio_artes')) {
+        const isMaxLevel = (cMap === 'cueva_espanol_2' || cMap === 'torre_espanol_5' || cMap === 'museo_artes_3' || cMap === 'conservatorio_artes_3');
         if (!isMaxLevel) {
           const { px, py, visible } = inView(15, 10);
           if (visible) {
@@ -922,7 +922,7 @@ function MainMap() {
           ctx.fillStyle = '#fff'
           ctx.font = `bold ${TS * 0.33}px monospace`
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-          ctx.fillText('🚪 SALIDA AL PUEBLO', px + TS/2, py + TS/2)
+          ctx.fillText('🚪 SALIDA / BAJAR', px + TS/2, py + TS/2)
         }
       }
 
