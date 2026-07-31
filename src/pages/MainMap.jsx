@@ -861,9 +861,9 @@ function MainMap() {
         portals.forEach(p => {
           const { px, py, visible } = inView(p.x, p.y);
           if (visible && p.img && (p.img.width > 0 || p.img.naturalWidth > 0)) {
-            const drawW = TS * 5; 
-            const drawH = TS * 5;
-            const offsetY = (drawH * 0.85);
+            const drawW = TS * 8.5; 
+            const drawH = TS * 8.5;
+            const offsetY = (drawH * 0.82);
             ctx.drawImage(p.img, px + TS/2 - drawW/2, py + TS/2 - offsetY, drawW, drawH);
             
             ctx.fillStyle = '#fff';
