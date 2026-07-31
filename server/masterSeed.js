@@ -104,16 +104,7 @@ const generateNPCsAndQuestions = async () => {
               const correctOpt = finalOptions[finalCorrectAnswer];
               let incorrectOpts = finalOptions.map((opt, idx) => ({ opt, idx })).filter(item => item.idx !== finalCorrectAnswer);
               
-              // Nivel 1: Dejar solo 2 opciones (1 correcta, 1 incorrecta)
-              // Nivel 2: Dejar solo 3 opciones (1 correcta, 2 incorrectas)
-              // Nivel 3: Dejar las 4 opciones
-              if (difficulty === 1) {
-                incorrectOpts = incorrectOpts.sort(() => 0.5 - Math.random()).slice(0, 1);
-              } else if (difficulty === 2) {
-                incorrectOpts = incorrectOpts.sort(() => 0.5 - Math.random()).slice(0, 2);
-              }
-              
-              // Reconstruir las opciones y mezclarlas
+              // Siempre mantener las 4 opciones
               const optionsToMix = [{ opt: correctOpt, isCorrect: true }, ...incorrectOpts.map(i => ({ opt: i.opt, isCorrect: false }))];
               optionsToMix.sort(() => 0.5 - Math.random());
               
@@ -121,20 +112,7 @@ const generateNPCsAndQuestions = async () => {
               finalCorrectAnswer = optionsToMix.findIndex(item => item.isCorrect);
             }
 
-            // Para que se vean "diferentes", le agregamos una ligera variación o el nombre del alumno al inicio
-            const isVoice = poolQuestion.type === 'voice';
             let finalQuestionText = poolQuestion.question;
-            if (!isVoice) {
-               const variations = [
-                 `¡Demuestra lo que sabes! ${finalQuestionText}`,
-                 `Pregunta para ti: ${finalQuestionText}`,
-                 `A ver si sabes esto: ${finalQuestionText}`,
-                 `El desafío del Estudiante ${npcCounter}: ${finalQuestionText}`,
-                 `${finalQuestionText}`,
-                 `Concéntrate: ${finalQuestionText}`
-               ];
-               finalQuestionText = variations[Math.floor(Math.random() * variations.length)];
-            }
 
             allQuestions.push({
               questionId: qId,
