@@ -13,5 +13,6 @@ router.patch('/:userId/position', playerController.updatePosition);
 // router.patch('/:userId/xp', playerController.updateXP);
 // router.patch('/:userId/badge', playerController.addBadge);
 router.post('/:userId/battle-result', playerController.processBattleResult);
+router.post('/:userId/god-mode', playerController.devGodMode);
 
 module.exports = router;

@@ -174,3 +174,45 @@ exports.getRanking = async (req, res) => {
     res.status(500).json({ message: 'Error obteniendo ranking', error: error.message });
   }
 };
+
+// Activar Modo Dios (Dev/Test mode)
+exports.devGodMode = async (req, res) => {
+  try {
+    let player = await Player.findOne({ userId: req.params.userId });
+    if (!player) return res.status(404).json({ message: 'Jugador no encontrado' });
+
+    player.lingocoins = 999999;
+    player.xp = 99999;
+    player.totalXPEarned = 99999;
+    player.playerLevel = 99;
+    player.playerRank = 'Gran Maestro Legendario';
+    player.title = 'Gran Maestro del Lenguaje';
+    player.badges = { espanol: true, artes: true, ingles: true };
+    player.unlockedFinalMap = true;
+    player.completedGame = true;
+    player.finalBossDefeated = true;
+
+    player.domainProgress = {
+      espanol: { xp: 9999, studentsDefeated: 50 },
+      artes: { xp: 9999, studentsDefeated: 50 },
+      ingles: { xp: 9999, studentsDefeated: 50 },
+      integrador: { xp: 9999, studentsDefeated: 50 }
+    };
+
+    player.victoriesBySubject = {
+      espanol: 50,
+      artes: 50,
+      ingles: 50,
+      integrador: 50
+    };
+
+    player.inventory.ownedSkins = ['skin_explorador', 'skin_bibliotecario', 'skin_artista', 'skin_traductor', 'skin_maestro', 'skin_sabio'];
+    player.inventory.ownedPets = ['pet_gatito', 'pet_perrito', 'pet_zorrito', 'pet_dragon'];
+    player.inventory.ownedTitles = ['title_novato', 'title_estudiante', 'title_guardian', 'title_erudito', 'title_leyenda'];
+
+    await player.save();
+    res.json({ message: '⚡ ¡Modo Dios activado con éxito! Créditos, Insignias y Accesorios al máximo.', player });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al activar Modo Dios', error: error.message });
+  }
+};

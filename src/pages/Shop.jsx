@@ -21,6 +21,23 @@ function Shop() {
       .then(data => setCatalog(data))
   }, [userId, authenticatedFetch])
 
+  const activateGodMode = async () => {
+    try {
+      triggerSaveEvent('saving')
+      const res = await authenticatedFetch(`/api/players/${userId}/god-mode`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        setPlayer(data.player)
+        triggerSaveEvent('saved')
+        alert('⚡ MODO DIOS ACTIVADO: 999,999 Lingocoins, Nivel 99, todas las insignias y accesorios desbocados.')
+      } else {
+        alert(data.message)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const buyItem = async (item) => {
     if (player.lingocoins < item.price) {
       alert('No tienes suficientes Lingocoins')
@@ -109,27 +126,46 @@ function Shop() {
       <div style={{ flex: '0 0 45%', backgroundColor: '#f8f8f8', borderBottom: '4px solid #111', display: 'flex', flexDirection: 'column', backgroundImage: 'linear-gradient(#e0e0e0 1px, transparent 1px)', backgroundSize: '100% 20px', fontFamily: '"Press Start 2P", cursive', padding: '10px' }}>
         
         {/* Top Info */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           <div className="rpg-box" style={{ margin: 0, padding: '10px', display: 'inline-block' }}>
             <span style={{ fontSize: '0.8rem', color: '#000' }}>TIENDA LINGO</span>
           </div>
-          <div className="rpg-box" style={{ margin: 0, padding: '10px', display: 'inline-block' }}>
-            <span style={{ fontSize: '0.8rem', color: '#000' }}>💰 {player.lingocoins} LC</span>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button 
+              className="btn-retro"
+              style={{ fontSize: '0.65rem', padding: '6px 10px', backgroundColor: '#e91e63', color: '#fff', margin: 0 }}
+              onClick={activateGodMode}
+            >
+              ⚡ MODO DIOS (MAX CRÉDITOS Y XP)
+            </button>
+            <div className="rpg-box" style={{ margin: 0, padding: '10px', display: 'inline-block' }}>
+              <span style={{ fontSize: '0.8rem', color: '#000' }}>💰 {player.lingocoins} LC</span>
+            </div>
           </div>
         </div>
 
         {/* Mostrador y Vendedor */}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', position: 'relative' }}>
           {/* Vendedor animado */}
-          <div className="sprite-walk-front" style={{ width: '80px', height: '80px', backgroundImage: `url('/sprites/shopkeeper.png')`, backgroundSize: '400% 100%', imageRendering: 'pixelated', position: 'relative', zIndex: 1, marginBottom: '20px' }}></div>
+          <div className="sprite-walk-front" style={{ 
+            width: '90px', 
+            height: '90px', 
+            backgroundImage: `url('/sprites/shopkeeper.png?v=3')`, 
+            backgroundSize: '400% 200%', 
+            backgroundPositionY: '0%',
+            imageRendering: 'pixelated', 
+            position: 'relative', 
+            zIndex: 1, 
+            marginBottom: '20px' 
+          }}></div>
           {/* El Mostrador */}
-          <div style={{ position: 'absolute', bottom: '0', width: '200px', height: '40px', backgroundColor: '#8d6e63', borderTop: '4px solid #5d4037', borderLeft: '4px solid #5d4037', borderRight: '4px solid #5d4037', zIndex: 2, borderTopLeftRadius: '4px', borderTopRightRadius: '4px' }}></div>
+          <div style={{ position: 'absolute', bottom: '0', width: '220px', height: '40px', backgroundColor: '#8d6e63', borderTop: '4px solid #5d4037', borderLeft: '4px solid #5d4037', borderRight: '4px solid #5d4037', zIndex: 2, borderTopLeftRadius: '4px', borderTopRightRadius: '4px' }}></div>
         </div>
 
         {/* Diálogo del Vendedor */}
         <div className="rpg-box" style={{ margin: 0, marginTop: '10px', padding: '10px', height: '60px', display: 'flex', alignItems: 'center' }}>
           <p style={{ margin: 0, fontSize: '0.7rem', color: '#000', lineHeight: '1.4' }}>
-            ¡Hola! Tenemos los mejores artículos. ¿Qué vas a llevar hoy?
+            ¡Hola! Bienvenido a la Tienda Lingo. Tengo los mejores trajes y mascotas para ti.
           </p>
         </div>
       </div>

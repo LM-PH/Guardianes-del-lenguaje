@@ -110,14 +110,27 @@ function Battle() {
       .catch(err => console.error(err))
   }, [userId, authenticatedFetch, npcId, currentConfig.qCount, navigate])
 
-  const getEnemySprite = (name, subject) => {
-    if (isFinalBoss) return '/sprites/gran_maestro.png?v=33';
-    // Siempre usar alumnos para los duelos regulares
+  const getEnemySprite = (name, subject, enemyNpcId) => {
+    if (enemyNpcId === 'gran_maestro_lenguaje' || isFinalBoss) return '/sprites/gran_maestro.png?v=34';
+    if (enemyNpcId === 'maestro_espanol') return '/sprites/maestro_espanol.png?v=34';
+    if (enemyNpcId === 'maestro_artes') return '/sprites/maestra_artes.png?v=34';
+    if (enemyNpcId === 'maestro_ingles') return '/sprites/maestra_ingles.png?v=34';
+
     const hash = (name || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
     const isGirl = Math.abs(hash) % 2 !== 0;
-    const useRedcap = Math.abs(hash) % 3 === 0;
-    if (isGirl) return useRedcap ? '/sprites/student_redcap_girl_final.png?v=33' : '/sprites/girl_final.png?v=33';
-    return useRedcap ? '/sprites/student_redcap_boy_final.png?v=33' : '/sprites/boy_final.png?v=33';
+    const variant = Math.abs(hash) % 4;
+
+    if (isGirl) {
+      if (variant === 0) return '/sprites/npc_girl_uniform.png?v=34';
+      if (variant === 1) return '/sprites/student_redcap_girl.png?v=34';
+      if (variant === 2) return '/sprites/girl_v17.png?v=34';
+      return '/sprites/girl_v18.png?v=34';
+    } else {
+      if (variant === 0) return '/sprites/npc_boy_uniform.png?v=34';
+      if (variant === 1) return '/sprites/student_redcap_boy.png?v=34';
+      if (variant === 2) return '/sprites/boy_v17.png?v=34';
+      return '/sprites/boy_v18.png?v=34';
+    }
   };
 
   const getSkinEmoji = (eqSkin) => {
@@ -347,7 +360,7 @@ function Battle() {
             {/* Sprite GBA: fila 0 = facing down (hacia el jugador), 4 cols x 4 rows */}
             <div className="sprite-walk-front" style={{ 
               position: 'relative', zIndex: 1, width: '80px', height: '80px', 
-              backgroundImage: `url('${getEnemySprite(npcName, subject)}')`, 
+              backgroundImage: `url('${getEnemySprite(npcName, subject, npcId)}')`, 
               backgroundSize: '400% 400%',
               backgroundPositionY: '0%',  /* Fila 0 = down = mirando hacia jugador */
               imageRendering: 'pixelated' 

@@ -21,6 +21,23 @@ function Inventory() {
       .then(data => setCatalog(data))
   }, [userId, authenticatedFetch])
 
+  const activateGodMode = async () => {
+    try {
+      triggerSaveEvent('saving')
+      const res = await authenticatedFetch(`/api/players/${userId}/god-mode`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        setPlayer(data.player)
+        triggerSaveEvent('saved')
+        alert('⚡ MODO DIOS ACTIVADO: 999,999 Lingocoins, Nivel 99, todas las insignias y accesorios desbocados.')
+      } else {
+        alert(data.message)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const equipItem = async (item) => {
     try {
       triggerSaveEvent('saving')
@@ -123,7 +140,8 @@ function Inventory() {
         )}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '15px', flexWrap: 'wrap' }}>
+        <button className="btn-retro" style={{ backgroundColor: '#e91e63', color: '#fff' }} onClick={activateGodMode}>⚡ MODO DIOS (MAX CRÉDITOS Y XP)</button>
         <button className="btn-retro" onClick={() => navigate('/shop')}>🏪 Ir a la Tienda</button>
         <button className="btn-retro success" onClick={() => navigate('/map')}>🗺️ Volver al Mapa</button>
       </div>
