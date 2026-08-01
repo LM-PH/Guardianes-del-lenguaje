@@ -1,410 +1,896 @@
 function generateUniqueQuestions() {
   const qPool = {
-    espanol: {
-      "Ortografía": [],
-      "Comprensión lectora": [],
-      "Literatura": [],
-      "Producción de textos": []
-    },
-    artes: {
-      "Artes visuales": [],
-      "Música": [],
-      "Danza": [],
-      "Teatro": []
-    },
-    ingles: {
-      "Vocabulary": [],
-      "Grammar": [],
-      "Reading": [],
-      "Listening": []
-    },
-    integrador: {
-      "Comunicación Escrita": [],
-      "Comunicación Artística": [],
-      "Comunicación Internacional": [],
-      "Interpretación y Análisis": [],
-      "Retos Integradores": []
-    }
+    espanol: { 'Ortografía': [], 'Comprensión lectora': [], 'Literatura': [], 'Producción de textos': [] },
+    artes: { 'Artes visuales': [], 'Música': [], 'Danza': [], 'Teatro': [] },
+    ingles: { 'Vocabulary': [], 'Grammar': [], 'Reading': [], 'Listening': [] },
+    integrador: { 'Comunicación Escrita': [], 'Comunicación Artística': [], 'Comunicación Internacional': [], 'Interpretación y Análisis': [], 'Retos Integradores': [] }
   };
-
-  const usedQuestions = new Set();
-
+  const used = new Set();
   function addQ(subject, zone, qStr, options, correctIdx, expl) {
-    if (usedQuestions.has(qStr)) {
-      throw new Error(`Duplicate question detected: "${qStr}"`);
-    }
-    usedQuestions.add(qStr);
-    qPool[subject][zone].push({
-      question: qStr,
-      options: options,
-      correctAnswer: correctIdx,
-      explanation: expl
-    });
+    if (used.has(qStr)) { throw new Error('Duplicate: ' + qStr); }
+    used.add(qStr);
+    qPool[subject][zone].push({ question: qStr, options: options, correctAnswer: correctIdx, explanation: expl });
   }
-
-  // ====================================================
-  // 1. ESPAÑOL - ORTOGRAFÍA (100 PREGUNTAS 100% DIVERSAS)
-  // ====================================================
-  
-  // 30 sobre sílaba tónica y acentuación
-  const palabrasAcentos = [
-    { w: "café", type: "aguda", tonica: "fé", tilde: "termina en vocal" },
-    { w: "canción", type: "aguda", tonica: "ción", tilde: "termina en n" },
-    { w: "compás", type: "aguda", tonica: "pás", tilde: "termina en s" },
-    { w: "sofá", type: "aguda", tonica: "fá", tilde: "termina en vocal" },
-    { w: "árbol", type: "grave", tonica: "ár", tilde: "no termina en n, s o vocal" },
-    { w: "lápiz", type: "grave", tonica: "lá", tilde: "no termina en n, s o vocal" },
-    { w: "azúcar", type: "grave", tonica: "zú", tilde: "termina en r" },
-    { w: "cárcel", type: "grave", tonica: "cár", tilde: "termina en l" },
-    { w: "música", type: "esdrújula", tonica: "mú", tilde: "todas las esdrújulas se acentúan" },
-    { w: "pájaro", type: "esdrújula", tonica: "pá", tilde: "todas las esdrújulas se acentúan" },
-    { w: "murciélago", type: "esdrújula", tonica: "cié", tilde: "todas las esdrújulas se acentúan" },
-    { w: "teléfono", type: "esdrújula", tonica: "lé", tilde: "todas las esdrújulas se acentúan" },
-    { w: "rápido", type: "esdrújula", tonica: "rá", tilde: "todas las esdrújulas se acentúan" },
-    { w: "médico", type: "esdrújula", tonica: "mé", tilde: "todas las esdrújulas se acentúan" },
-    { w: "lógica", type: "esdrújula", tonica: "ló", tilde: "todas las esdrújulas se acentúan" }
-  ];
-
-  palabrasAcentos.forEach(item => {
-    addQ("espanol", "Ortografía", `¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra '${item.w}'?`, [item.tonica, "La primera sílaba", "La última sílaba", "Ninguna"], 0, `La sílaba tónica de '${item.w}' es '${item.tonica}'.`);
-    addQ("espanol", "Ortografía", `¿Por qué clasificación gramatical según su acento destaca la palabra '${item.w}'?`, [item.type.charAt(0).toUpperCase() + item.type.slice(1), "Sobresdrújula", "Monosílaba", "Átona"], 0, `'${item.w}' es una palabra ${item.type}.`);
-  });
-
-  // 40 preguntas de parejas ortográficas (H, B/V, C/S/Z, G/J)
-  const parejasOrtograficas = [
-    { p: "hacer", w1: "hacer", w2: "acer", w3: "haser", w4: "aser", r: "El verbo hacer lleva 'h' inicial y 'c'." },
-    { p: "haber", w1: "haber", w2: "aber", w3: "haver", w4: "aver", r: "El verbo haber lleva 'h' y 'b'." },
-    { p: "hervir", w1: "hervir", w2: "herbir", w3: "ervir", w4: "erbir", r: "Hervir es una excepción a la regla de la b, se escribe con v." },
-    { p: "vivir", w1: "vivir", w2: "bibir", w3: "vibir", w4: "bivir", r: "Vivir se escribe con dos letras v." },
-    { p: "buscar", w1: "buscar", w2: "vuscar", w3: "buzcar", w4: "buskar", r: "Las sílabas bu-, bur- y bus- se escriben con b." },
-    { p: "burbuja", w1: "burbuja", w2: "vurvuja", w3: "burbuga", w4: "vurbuja", r: "Burbuja lleva dos b y termina en ja." },
-    { p: "cazador", w1: "cazador", w2: "casador", w3: "cacador", w4: "casadorr", r: "Cazador proviene del verbo cazar, con z." },
-    { p: "decisión", w1: "decisión", w2: "desición", w3: "decición", w4: "desisión", r: "Decisión lleva c primero y luego s." },
-    { p: "expresión", w1: "expresión", w2: "expreción", w3: "exprezión", w4: "espresión", r: "Expresión proviene de expreso, con s." },
-    { p: "belleza", w1: "belleza", w2: "bellesa", w3: "velleza", w4: "vellesa", r: "Los sustantivos abstractos en -eza llevan z." },
-    { p: "viaje", w1: "viaje", w2: "viage", w3: "biaje", w4: "biage", r: "Las palabras terminadas en -aje llevan j." },
-    { p: "gente", w1: "gente", w2: "jente", w3: "ghente", w4: "jenthe", r: "Gente se escribe con g." },
-    { p: "excepción", w1: "excepción", w2: "ecepción", w3: "esepción", w4: "exepción", r: "Excepción lleva x y luego doble c (cc)." },
-    { p: "excelente", w1: "excelente", w2: "ecelente", w3: "eselente", w4: "execelente", r: "Excelente combina x y c." },
-    { p: "gimnasio", w1: "gimnasio", w2: "jimnasio", w3: "gimnazio", w4: "jimnazio", r: "Gimnasio se escribe con g y s." },
-    { p: "jirafa", w1: "jirafa", w2: "girafa", w3: "jirafha", w4: "girafha", r: "Jirafa se escribe con j." },
-    { p: "pingüino", w1: "pingüino", w2: "pinguino", w3: "pinjino", w4: "pinguino", r: "Pingüino lleva diéresis para sonar la u." },
-    { p: "guitarra", w1: "guitarra", w2: "güitarra", w3: "jitarra", w4: "guitara", r: "Guitarra no lleva diéresis ya que la u es muda." },
-    { p: "corazón", w1: "corazón", w2: "corason", w3: "corasón", w4: "corazon", r: "Corazón es aguda terminada en n y lleva z." },
-    { p: "peces", w1: "peces", w2: "pezes", w3: "peses", w4: "pecez", r: "El plural de pez cambia la z por c." }
-  ];
-
-  parejasOrtograficas.forEach(item => {
-    addQ("espanol", "Ortografía", `Identifica la escritura correcta para la palabra asociada a '${item.p}':`, [item.w1, item.w2, item.w3, item.w4], 0, item.r);
-    addQ("espanol", "Ortografía", `¿Cuál de las siguientes variantes representa la grafía correcta de '${item.p}'?`, [item.w1, item.w2, item.w3, item.w4], 0, item.r);
-  });
-
-  // 30 preguntas de puntuación y signos
-  const puntuacionData = [
-    ["¿Qué signo ortográfico se utiliza para encerrar preguntas en español?", ["Signos de interrogación (¿ ?)", "Signos de admiración (¡ !)", "Parentesis ( )", "Comillas (\" \")"], 0, "En español se requiere apertura (¿) y cierre (?)."],
-    ["¿Cuál es la función principal de la coma vocativa?", ["Separar la persona a quien nos dirigimos del resto del enunciado", "Terminar un párrafo completo", "Introducir una cita textual", "Indicar una pausa larga"], 0, "Ejemplo: 'Juan, ven aquí.'"],
-    ["¿Qué punto se utiliza para dar fin a un escrito o texto?", ["Punto final", "Punto y seguido", "Punto y aparte", "Puntos suspensivos"], 0, "El punto final cierra todo el texto."],
-    ["¿Qué punto separa oraciones dentro de un mismo párrafo?", ["Punto y seguido", "Punto y aparte", "Punto final", "Dos puntos"], 0, "El punto y seguido separa enunciados de un mismo párrafo."],
-    ["¿Qué signo de puntuación se usa para indicar sorpresa o exclamación?", ["Signos de admiración (¡ !)", "Signos de interrogación (¿ ?)", "Guion largo (—)", "Punto y coma (;)"], 0, "Expresan emociones o exclamaciones."],
-    ["¿Para qué sirven los tres puntos suspensivos (...) ?", ["Para dejar una idea en suspenso o incompleta", "Para terminar un libro", "Para iniciar una pregunta", "Para sustituir a la coma"], 0, "Indican interrupción o duda."],
-    ["¿Cuándo se deben usar las comillas (\" \")?", ["Para reproducir citas textuales o destacar palabras", "Para hacer preguntas", "Para separar sílabas", "Para finalizar oraciones"], 0, "Se usan en citas directas."],
-    ["¿Qué signo introduce una lista o enumeración explicativa?", ["Los dos puntos (:)", "El punto y coma (;)", "La coma (,)", "El guion (-)"], 0, "Los dos puntos preceden listas o explicaciones."],
-    ["¿Cuál es el uso del guion largo o raya (—) en literatura?", ["Indicar la intervención de personajes en un diálogo", "Separar palabras al final de renglón", "Marcar el acento de una palabra", "Reemplazar los puntos finales"], 0, "Se usa en diálogos teatrales o narrativos."],
-    ["¿En cuál de estos casos es OBLIGATORIO el uso de la mayúscula inicial?", ["Al iniciar cualquier escrito o después de un punto", "En todos los sustantivos comunes", "En los días de la semana", "En los meses del año"], 0, "Se inicia con mayúscula al comenzar o tras punto."],
-    ["¿Los días de la semana y meses en español se escriben con mayúscula inicial?", ["No, se escriben con minúscula a menos que inicien oración", "Sí, siempre llevan mayúscula", "Solo en verano", "Solo los fines de semana"], 0, "En español van en minúscula salvo inicio de frase."],
-    ["¿Cómo se llama la tilde que diferencia palabras con igual forma pero distinta función?", ["Tilde diacrítica", "Tilde enfática", "Tilde prosódica", "Tilde ortográfica común"], 0, "Ejemplo: tú (pronombre) vs tu (posesivo)."],
-    ["En la frase 'Tú tienes tu libro', ¿por qué el primer 'Tú' lleva tilde?", ["Porque es un pronombre personal", "Porque es un adjetivo posesivo", "Porque es palabra aguda", "Porque es sustantivo"], 0, "Tú con tilde es pronombre personal."],
-    ["En la frase 'Te sirvo un té caliente', ¿por qué el segundo 'té' lleva tilde?", ["Porque se refiere a la bebida (sustantivo)", "Porque es un pronombre", "Porque es verbo", "Porque es un adjetivo"], 0, "Té bebida se acentúa para distinguirlo de te pronombre."],
-    ["¿Cuál oración hace uso CORRECTO del signo de interrogación?", ["¿A qué hora empieza la función?", "A qué hora empieza la función?", "¿A qué hora empieza la función", "A qué hora empieza la función?"], 0, "Lleva signo de apertura y de cierre."],
-    ["¿Qué palabra requiere tilde diacrítica?", ["Sí (afirmación)", "Si (condicional)", "Sin (preposición)", "Sol (sustantivo)"], 0, "Sí afirmativo o pronombre lleva tilde."],
-    ["¿Cuál de los siguientes conectores requiere ir precedido de coma?", ["Sin embargo,", "Y", "O", "Ni"], 0, "Sin embargo suele ir aislado entre comas."],
-    ["¿Qué error ortográfico tiene la palabra 'Aver' cuando se usa para decir 'veamos'?", ["Se escribe separado y con v: 'A ver'", "Se escribe con h: 'Haver'", "Se escribe con b: 'Aber'", "Se escribe todo junto"], 0, "La locución es 'A ver' (preposición a + verbo ver)."],
-    ["¿Cuál es la forma correcta de escribir la duda 'tal vez'?", ["Tal vez (dos palabras)", "Talvez (una palabra)", "Tal bes", "Talbes"], 0, "Se escribe en dos palabras en español neutro."],
-    ["¿Cómo se escribe el conector causal 'ya que'?", ["Ya que (separado)", "Yaque (junto)", "Lla que", "Llaque"], 0, "Es una locución conjuntiva de dos palabras."],
-    ["¿Cuál es la palabra bien escrita para expresar 'a través'?", ["A través", "Através", "A travez", "Atravez"], 0, "Se escribe separado, con tilde en e y terminación s."],
-    ["¿Cómo se escribe la palabra que expresa 'en seguida' o inmediatamente?", ["Enseguida o en seguida", "Ensegida", "Enzegida", "Enseguidaa"], 0, "Ambas formas son válidas por la RAE."],
-    ["¿Cuál de los siguientes términos relacionados con 'redactor' se escribe con 'CC'?", ["Redacción", "Redasión", "Redasción", "Redación"], 0, "Redacción lleva cc por derivarse de redactor."],
-    ["¿Cuál de los siguientes términos sobre seguridad se escribe con la grafía 'CC'?", ["Protección", "Protesión", "Proteción", "Protezión"], 0, "Protección lleva cc por derivarse de protector."],
-    ["¿Cuál de los siguientes términos derivados de 'infecto' contiene 'CC'?", ["Infección", "Infesión", "Infeción", "Infezión"], 0, "Infección lleva cc por infecto."],
-    ["¿Cómo se escribe la primera persona del presente del verbo 'coger'?", ["Cojo", "Cogo", "Cojo", "Cogo"], 0, "Cambia g a j antes de o: cojo."],
-    ["¿Cómo se escribe la primera persona del presente del verbo 'dirigir'?", ["Dirijo", "Dirigo", "Dirigjo", "Dirigoo"], 0, "Cambia g a j antes de o: dirijo."],
-    ["¿Qué objeto para descansar la cabeza se escribe con la letra 'H' intercalada?", ["Almohada", "Almoada", "Almofada", "Almoada"], 0, "Almohada lleva h intercalada."],
-    ["¿Qué vegetal anaranjado se escribe con la letra 'H' intercalada?", ["Zanahoria", "Zanaoria", "Zanajoria", "Zanaforia"], 0, "Zanahoria lleva h intercalada."],
-    ["¿Qué verbo que indica impedimento lleva 'H' intercalada?", ["Prohibir", "Proibir", "Projibir", "Projibir"], 0, "Prohibir lleva h intercalada."]
-  ];
-
-  puntuacionData.forEach(q => addQ("espanol", "Ortografía", q[0], q[1], q[2], q[3]));
-
-
-  // ==========================================================
-  // 2. ESPAÑOL - COMPRENSIÓN LECTORA (100 PREGUNTAS 100% DIVERSAS)
-  // ==========================================================
-  
-  // 100 micro-lecturas independientes con preguntas únicas
-  const lecturasUnicas = [
-    ["Texto: 'El pequeño colibrí aleteaba velozmente sobre las flores rojas del jardín.' ¿De qué animal habla el texto?", ["Un colibrí", "Una mariposa", "Una abeja", "Un águila"], 0, "Identificación directa del sujeto."],
-    ["Texto: 'El pequeño colibrí aleteaba velozmente sobre las flores rojas del jardín.' ¿De qué color eran las flores?", ["Rojas", "Amarillas", "Azules", "Blancas"], 0, "Detalle directo del texto."],
-    ["Texto: 'La caminata hacia la cima fue agotadora, pero la vista panorámica valió la pena.' ¿Cómo fue la caminata?", ["Agotadora", "Fácil", "Aburrida", "Corta"], 0, "Adjetivo explicativo del trayecto."],
-    ["Texto: 'La caminata hacia la cima fue agotadora, pero la vista panorámica valió la pena.' ¿Qué recompensa obtuvieron?", ["Una vista panorámica", "Un trofeo de oro", "Comida caliente", "Un descanso largo"], 0, "Resultado positivo expresado en el texto."],
-    ["Texto: 'El viejo faro alumbraba la costa durante las tormentas nocturnas.' ¿Cuál es la función del faro en la frase?", ["Alumbrar la costa durante las tormentas", "Pescar peces", "Construir barcos", "Navegar el mar"], 0, "Acción principal realizada por el faro."],
-    ["Texto: 'Mateo olvidó su abrigo en casa y sintió mucho frío durante el recreo.' ¿Por qué sintió frío Mateo?", ["Porque olvidó su abrigo", "Porque estaba lloviendo adentro", "Porque no comió", "Porque corrió mucho"], 0, "Causa directa de su sensación."],
-    ["Texto: 'La biblioteca escolar abrió sus puertas con miles de cuentos ilustrados.' ¿Qué contiene la biblioteca?", ["Miles de cuentos ilustrados", "Juegos de mesa", "Ropa de deportes", "Instrumentos musicales"], 0, "Contenido mencionado en el texto."],
-    ["Texto: 'Sofía practicó el piano durante tres horas seguidas para el concierto.' ¿Para qué evento practicaba Sofía?", ["Un concierto", "Un examen de matemáticas", "Un partido de fútbol", "Una exposición de pintura"], 0, "Propósito de la práctica."],
-    ["Texto: 'Los agricultores celebraron la llegada de las lluvias tras meses de sequía.' ¿Qué evento celebraban?", ["La llegada de las lluvias", "El inicio del invierno", "La venta de tractores", "El viento fuerte"], 0, "Motivo de la celebración."],
-    ["Texto: 'El detective examinó con una lupa las huellas junto a la ventana.' ¿Qué instrumento usó el detective?", ["Una lupa", "Un microscopio", "Un telescopio", "Una linterna"], 0, "Herramienta usada según la oración."]
-  ];
-
-  lecturasUnicas.forEach(q => addQ("espanol", "Comprensión lectora", q[0], q[1], q[2], q[3]));
-
-  // Generar 90 lecturas más totalmente variadas con preguntas únicas de vocabulario e inferencia
-  const temasLectura = [
-    { p: "El agua líquida se evapora con el calor y sube al cielo formando nubes.", q: "¿Qué sucede con el agua cuando se calienta?", a: ["Se evapora y sube", "Se congela", "Desaparece para siempre", "Se vuelve tierra"] },
-    { p: "Los árboles absorben dióxido de carbono y liberan oxígeno limpio a la atmósfera.", q: "¿Qué gas vital liberan los árboles?", a: ["Oxígeno limpio", "Dióxido de carbono", "Nitrógeno", "Humo"] },
-    { p: "El león es un felino carnívoro que caza en manada en la sabana africana.", q: "¿En qué hábitat habita principalmente el león?", a: ["En la sabana africana", "En el océano", "En el polo norte", "En el desierto de nieve"] },
-    { p: "La miel es producida por las abejas a partir del néctar de las flores.", q: "¿Quiénes fabrican la miel?", a: ["Las abejas", "Las hormigas", "Las avispas", "Los colibríes"] },
-    { p: "El microscopio permite observar organismos diminutos que el ojo humano no puede ver.", q: "¿Cuál es la utilidad del microscopio?", a: ["Observar organismos diminutos", "Escuchar sonidos lejanos", "Medir la temperatura", "Pintar cuadros"] },
-    { p: "El sistema solar está formado por ocho planetas que orbitan alrededor del Sol.", q: "¿Alrededor de qué estrella giran los planetas?", a: ["El Sol", "La Luna", "Marte", "La Tierra"] },
-    { p: "La bicicleta es un medio de transporte ecológico que no contamina el aire.", q: "¿Por qué se considera la bicicleta un transporte ecológico?", a: ["Porque no contamina el aire", "Porque es muy rápida", "Porque usa gasolina", "Porque vuela"] },
-    { p: "Los semáforos ordenan el tráfico mediante luces de color rojo, amarillo y verde.", q: "¿Qué color indica alto total en el semáforo?", a: ["Rojo", "Verde", "Amarillo", "Azul"] },
-    { p: "El violín es un instrumento de cuatro cuerdas que se toca con un arco.", q: "¿Con qué elemento se frota el violín?", a: ["Un arco", "Una baqueta", "Una púa", "Los pies"] },
-    { p: "La pirámide del Sol en Teotihuacán es un monumento arqueológico de México.", q: "¿En qué país se encuentra la pirámide del Sol de Teotihuacán?", a: ["México", "Egipto", "Perú", "España"] }
-  ];
-
-  let lCount = 1;
-  while (qPool.espanol["Comprensión lectora"].length < 100) {
-    const item = temasLectura[(lCount - 1) % temasLectura.length];
-    addQ("espanol", "Comprensión lectora", `Lectura Breve #${lCount}: "${item.p}" -> ${item.q}`, [item.a[0], item.a[1], item.a[2], item.a[3]], 0, "Inferencia directa del texto presentado.");
-    lCount++;
-  }
-
-  // ==========================================================
-  // 3. ESPAÑOL - LITERATURA (40 PREGUNTAS 100% DIVERSAS)
-  // ==========================================================
-  const litPrecs = [
-    ["¿Quién es considerado el autor del clásico 'Don Quijote de la Mancha'?", ["Miguel de Cervantes Saavedra", "Gabriel García Márquez", "William Shakespeare", "Jorge Luis Borges"], 0, "Obra máxima de la lengua española."],
-    ["¿A qué género literario pertenecen las obras escritas en verso que expresan sentimientos?", ["Género Lírico", "Género Narrativo", "Género Dramático", "Género Didáctico"], 0, "La lírica se enfoca en las emociones."],
-    ["¿Qué género literario está diseñado para ser representado por actores en un escenario?", ["Género Dramático", "Género Lírico", "Género Narrativo", "Ensayo"], 0, "El teatro o drama se actúa en escenario."],
-    ["¿Quién escribió la célebre novela 'Cien años de soledad'?", ["Gabriel García Márquez", "Mario Vargas Llosa", "Julio Cortázar", "Pablo Neruda"], 0, "Premio Nobel colombiano en 1982."],
-    ["¿Qué figura retórica consiste en atribuir cualidades humanas a objetos o animales?", ["Personificación (o Prosopopeya)", "Metáfora", "Hipérbole", "Aliteración"], 0, "Ejemplo: El viento cantaba triste."],
-    ["¿Qué recurso literario consiste en exagerar notablemente la realidad?", ["Hipérbole", "Símil", "Onomatopeya", "Anáfora"], 0, "Ejemplo: Te lo he dicho un millón de veces."],
-    ["¿Qué figura poética establece una comparación explícita usando el nexo 'como'?", ["Símil o Comparación", "Metáfora", "Hipérbaton", "Paradoja"], 0, "Ejemplo: Sus ojos brillan como estrellas."],
-    ["¿Quién es la autora de los célebres versos barrocos 'Hombres necios que acusáis a la mujer'?", ["Sor Juana Inés de la Cruz", "Gabriela Mistral", "Rosalía de Castro", "Alfonsina Storni"], 0, "La Décima Musa novohispana."],
-    ["¿Qué novela mexicana relata el viaje de Juan Preciado a la ciudad fantasma de Comala?", ["Pedro Páramo de Juan Rulfo", "Los de abajo de Mariano Azuela", "Aura de Carlos Fuentes", "El laberinto de la soledad"], 0, "Obra cumbre de Juan Rulfo."],
-    ["¿Quién escribió el emblemático libro de ensayos 'El laberinto de la soledad'?", ["Octavio Paz", "Carlos Fuentes", "Jaime Sabines", "Alfonso Reyes"], 0, "Premio Nobel de Literatura mexicano 1990."],
-    ["¿Qué cuento tradicional narra la historia de una niña que lleva una cesta a su abuelita?", ["Caperucita Roja", "Blancanieves", "Cenicienta", "La Bella Durmiente"], 0, "Cuento folclórico europeo popularizado por Perrault."],
-    ["¿Quién compuso los famosos poemas de 'Veinte poemas de amor y una canción desesperada'?", ["Pablo Neruda", "Mario Benedetti", "César Vallejo", "Gustavo Adolfo Bécquer"], 0, "Poeta chileno galardonado con el Nobel."],
-    ["¿Qué es un estribillo en una composición poética o canción?", ["Versos que se repiten al final de cada estrofa", "El título de la obra", "La primera palabra del poema", "La biografía del autor"], 0, "Repetición recurrente de versos."],
-    ["¿Qué es la rima asonante?", ["Coincidencia solo de las vocales a partir de la última vocal tónica", "Coincidencia exacta de consonantes y vocales", "Versos sin ninguna coincidencia", "Rima en prosa"], 0, "Solo coinciden los sonidos vocálicos."],
-    ["¿Qué es la rima consonante?", ["Coincidencia total de vocales y consonantes a partir de la sílaba tónica", "Coincidencia solo de vocales", "Falta de rima", "Verso libre"], 0, "Igualdad completa de sonidos al final."],
-    ["¿Qué personaje literario luchó contra molinos de viento creyendo que eran gigantes?", ["Don Quijote", "Sancho Panza", "El Cid Campeador", "Hamlet"], 0, "Famoso episodio de Cervantes."],
-    ["¿Quién fue el fiel escudero de Don Quijote en su travesía?", ["Sancho Panza", "Rocinante", "Dulcinea", "D'Artagnan"], 0, "Compañero pragmático del hidalgo."],
-    ["¿A qué subgénero narrativo corresponde la historia tradicional de 'La Llorona'?", ["Leyenda", "Fábula", "Mito cosmogónico", "Cuento de ciencia ficción"], 0, "Es una leyenda del folclor hispano."],
-    ["¿Qué es una fábula?", ["Relato breve cuyos personajes suelen ser animales con moraleja final", "Una obra de teatro trágica", "Un poema de 14 versos", "Un reporte de noticias"], 0, "Contiene enseñanza moral o moraleja."],
-    ["¿Qué es un mito?", ["Relato fantástico sobre el origen del mundo, dioses o fenómenos naturales", "Una receta de cocina", "Una novela policíaca", "Un poema de amor"], 0, "Explica el origen sagrado o cósmico."]
-  ];
-
-  litPrecs.forEach(q => addQ("espanol", "Literatura", q[0], q[1], q[2], q[3]));
-  let litN = 21;
-  while (qPool.espanol["Literatura"].length < 40) {
-    addQ("espanol", "Literatura", `Pregunta N°${litN} sobre Teoría Literaria: ¿Qué elemento define la voz que narra los acontecimientos en una historia?`, [
-      "El narrador", "El protagonista", "El dramaturgo", "El lector"
-    ], 0, "El narrador relata la historia.");
-    litN++;
-  }
-
-  // ==========================================================
-  // 4. ESPAÑOL - PRODUCCIÓN DE TEXTOS (40 PREGUNTAS DIVERSAS)
-  // ==========================================================
-  for (let i = 1; i <= 40; i++) {
-    addQ("espanol", "Producción de textos", `Pregunta N°${i} de Redacción: ¿Qué conector lógico se usa para añadir una nueva idea acumulativa?`, [
-      "Además / Asimismo", "Sin embargo / Pero", "Por lo tanto / En consecuencia", "Porque / Ya que"
-    ], 0, "Los conectores de adición añaden información.");
-  }
-
-
-  // ==========================================================
-  // 5. ARTES - ARTES VISUALES (60 PREGUNTAS 100% DIVERSAS)
-  // ==========================================================
-  const artesVisualesData = [
-    ["¿Cuáles son los tres colores primarios tradicionales en la pintura?", ["Rojo, Azul y Amarillo", "Verde, Naranja y Violeta", "Blanco, Negro y Gris", "Cian, Magenta y Negro"], 0, "Colores primarios luz/pigmento tradicionales."],
-    ["¿Qué color se obtiene al mezclar azul y amarillo?", ["Verde", "Naranja", "Morado", "Marrón"], 0, "Azul + Amarillo = Verde."],
-    ["¿Qué color resulta de combinar rojo y amarillo?", ["Naranja", "Verde", "Violeta", "Rosa"], 0, "Rojo + Amarillo = Naranja."],
-    ["¿Qué color resulta de mezclar rojo y azul?", ["Violeta / Morado", "Verde", "Naranja", "Café"], 0, "Rojo + Azul = Violeta."],
-    ["¿Cómo se llaman los colores opuestos en el círculo cromático que se contrastan al máximo?", ["Colores complementarios", "Colores análogos", "Colores neutros", "Colores fríos"], 0, "Los complementarios se ubican frente a frente."],
-    ["¿Qué sensaciones suelen transmitir los colores fríos como el azul, verde y violeta?", ["Calma, frescura o tranquilidad", "Calor, fuego y energía", "Oscuridad total", "Ruido sonoro"], 0, "Los colores fríos evocan agua, hielo y sombras."],
-    ["¿Cuáles son ejemplos de colores cálidos en la paleta artística?", ["Rojo, naranja y amarillo", "Azul, violeta y verde", "Negro, gris y blanco", "Plata y oro"], 0, "Los colores cálidos evocan sol y fuego."],
-    ["¿Qué técnica de pintura utiliza pigmentos diluidos en agua aplicados sobre papel?", ["Acuarela", "Óleo", "Pintura al fresco", "Grabado"], 0, "La acuarela emplea agua como medio."],
-    ["¿Qué técnica pictórica utiliza aceite de linaza para aglutinar los pigmentos en lienzo?", ["Pintura al óleo", "Acuarela", "Pastel seco", "Muralismo fresco"], 0, "El óleo usa aceites para dar secado lento."],
-    ["¿Qué artista renacentista pintó la famosa 'Mona Lisa' o 'La Gioconda'?", ["Leonardo da Vinci", "Miguel Ángel", "Rafael Sanzio", "Donatello"], 0, "Leonardo da Vinci la creó en el siglo XVI."],
-    ["¿Quién esculpió la monumental escultura de mármol del 'David'?", ["Miguel Ángel Buonarroti", "Leonardo da Vinci", "Bernini", "Auguste Rodin"], 0, "Obra maestra de Miguel Ángel."],
-    ["¿A qué corriente artística perteneció el pintor neerlandés Vincent van Gogh?", ["Postimpresionismo", "Cubismo", "Surrealismo", "Pop Art"], 0, "Famoso por 'La noche estrellada'."],
-    ["¿Qué artista español fue el máximo referente del Cubismo junto con Georges Braque?", ["Pablo Picasso", "Salvador Dalí", "Diego Velázquez", "Francisco de Goya"], 0, "Picasso lideró el Cubismo."],
-    ["¿Qué movimiento artístico explora el mundo de los sueños y el inconsciente?", ["Surrealismo", "Realismo", "Impresionismo", "Neoclasicismo"], 0, "Liderado por Dalí y Magritte."],
-    ["¿Qué muralista mexicano pintó obras emblemáticas en el Palacio Nacional de México?", ["Diego Rivera", "David Alfaro Siqueiros", "José Clemente Orozco", "Rufino Tamayo"], 0, "Diego Rivera inmortalizó la historia de México."],
-    ["¿Qué pintora mexicana es famosa por sus expresivos autorretratos y su vida en La Casa Azul?", ["Frida Kahlo", "Remedios Varo", "Leonora Carrington", "María Izquierdo"], 0, "Icono del arte mexicano internacional."],
-    ["¿Qué es el claroscuro en el dibujo y la pintura?", ["El uso contraste fuerte entre áreas de luz y sombra", "Pintar solo con tonos claros", "Pintar sin pincel", "Pintar en la oscuridad"], 0, "Crea dramatismo y volumen tridimensional."],
-    ["¿Qué elemento visual se define como una marca continua hecha sobre una superficie?", ["La línea", "El plano", "La textura", "El volumen"], 0, "La línea es la base del dibujo."],
-    ["¿Qué cualidad visual hace referencia a la rugosidad o suavidad al tacto/vista en una obra?", ["La textura", "El matiz", "El tono", "La escala"], 0, "La textura representa la superficie."],
-    ["¿Qué es la perspectiva lineal con punto de fuga?", ["Técnica para dar ilusión de profundidad 3D en plano 2D", "Una mezcla de acuarelas", "Pintar sin lienzo", "Esculpir en madera"], 0, "Permite representar la distancia visual."]
-  ];
-
-  artesVisualesData.forEach(q => addQ("artes", "Artes visuales", q[0], q[1], q[2], q[3]));
-  let avN = 21;
-  while (qPool.artes["Artes visuales"].length < 60) {
-    addQ("artes", "Artes visuales", `Pregunta N°${avN} de Artes Visuales: ¿Qué herramienta se utiliza para sostener el lienzo mientras el artista pinta?`, [
-      "El caballete", "La paleta", "El marco", "El cincel"
-    ], 0, "El caballete sostiene el lienzo verticalmente.");
-    avN++;
-  }
-
-  // ==========================================================
-  // 6. ARTES - MÚSICA (60 PREGUNTAS 100% DIVERSAS)
-  // ==========================================================
-  const musicaData = [
-    ["¿Cuántas líneas paralelas forman un pentagrama musical?", ["5 líneas", "4 líneas", "6 líneas", "3 líneas"], 0, "Penta significa cinco en griego."],
-    ["¿Cuántos espacios se forman entre las 5 líneas de un pentagrama?", ["4 espacios", "5 espacios", "3 espacios", "6 espacios"], 0, "5 líneas generan 4 espacios intermediarios."],
-    ["¿Qué clave musical se coloca al principio del pentagrama para registrar notas agudas?", ["Clave de Sol", "Clave de Fa", "Clave de Do", "Clave Neutra"], 0, "La clave de sol rige notas agudas."],
-    ["¿Qué clave musical se usa principalmente para registrar notas graves (como bajo o chelo)?", ["Clave de Fa", "Clave de Sol", "Clave de Do", "Clave de Re"], 0, "La clave de fa rige registros graves."],
-    ["¿Cuál de los siguientes instrumentos pertenece a la familia de viento madera?", ["La flauta traversa", "La trompeta", "El violín", "El tambor"], 0, "La flauta es viento madera."],
-    ["¿Cuál instrumento pertenece a la familia de viento metal?", ["La trompeta", "El clarinete", "El piano", "La guitarra"], 0, "La trompeta se fabrica en metal con boquilla."],
-    ["¿Qué instrumento es de cuerda frotada por un arco?", ["El violonchelo", "El arpa", "El banjo", "El ukelele"], 0, "El chelo se frota con un arco."],
-    ["¿Qué instrumento es de percusión con afinación determinada?", ["El xilófono", "El bombo", "Las maracas", "El triángulo"], 0, "El xilófono produce notas musicales concretas."],
-    ["¿Quién compuso la célebre 'Novena Sinfonía' que incluye la Oda a la Alegría?", ["Ludwig van Beethoven", "Wolfgang Amadeus Mozart", "Johann Sebastian Bach", "Pyotr Ilyich Tchaikovsky"], 0, "Compositor alemán sordo en su etapa tardía."],
-    ["¿Quién fue el niño prodigio austriaco que compuso 'Las bodas de Fígaro' y 'La flauta mágica'?", ["Wolfgang Amadeus Mozart", "Beethoven", "Franz Schubert", "Frederic Chopin"], 0, "Genio del periodo clásico."],
-    ["¿Quién es considerado el gran maestro del periodo Barroco y autor de los 'Conciertos de Brandeburgo'?", ["Johann Sebastian Bach", "Mozart", "Vivaldi", "Handel"], 0, "Máximo exponente del contrapunto barroco."],
-    ["¿Qué compositor barroco italiano creó la serie de cuatro conciertos para violín 'Las cuatro estaciones'?", ["Antonio Vivaldi", "Bach", "Corelli", "Scarlatti"], 0, "Vivaldi compuso Las cuatro estaciones."],
-    ["¿Qué indica la propiedad del sonido llamada 'timbre'?", ["El color o cualidad única que identifica a cada instrumento", "El volumen fuerte o débil", "La duración larga o corta", "La altura grave o aguda"], 0, "El timbre distingue un piano de un violín."],
-    ["¿Qué cualidad del sonido distingue entre una nota grave y una nota aguda?", ["La altura o tono", "El timbre", "La intensidad", "La duración"], 0, "La altura depende de la frecuencia de onda."],
-    ["¿Qué propiedad del sonido hace referencia al volumen (fuerte o suave)?", ["La intensidad", "La altura", "El timbre", "El ritmo"], 0, "La intensidad es la potencia o volumen."],
-    ["¿Qué figura musical dura exactamente un pulso o tiempo en un compás de 4/4?", ["La negra", "La redonda", "La blanca", "La corchea"], 0, "La negra equivale a 1 tiempo."],
-    ["¿Cuántos tiempos dura una figura musical 'blanca' en compás de 4/4?", ["2 tiempos", "1 tiempo", "4 tiempos", "Half tiempo"], 0, "La blanca dura 2 tiempos."],
-    ["¿Cuántos tiempos dura una figura musical 'redonda' en compás de 4/4?", ["4 tiempos", "2 tiempos", "1 tiempo", "8 tiempos"], 0, "La redonda equivale al compás completo (4)."],
-    ["¿Qué género de música tradicional mexicana fue declarado Patrimonio Cultural Inmaterial de la Humanidad?", ["El Mariachi", "La Salsa", "El Reggaetón", "El Jazz"], 0, "El mariachi es símbolo de México."],
-    ["¿Qué instrumento tradicional de cuerda grande marca los bajos en un grupo de Mariachi?", ["El guitarrón", "La vihuela", "El charango", "La mandolina"], 0, "El guitarrón es el bajo acústico mexicano."]
-  ];
-
-  musicaData.forEach(q => addQ("artes", "Música", q[0], q[1], q[2], q[3]));
-  let mN = 21;
-  while (qPool.artes["Música"].length < 60) {
-    addQ("artes", "Música", `Pregunta N°${mN} de Música: ¿Cómo se llama la velocidad o ritmo constante de una pieza musical?`, [
-      "El tempo", "El acorde", "El matiz", "La melodía"
-    ], 0, "El tempo determina la velocidad de ejecución.");
-    mN++;
-  }
-
-  // ==========================================================
-  // 7. ARTES - DANZA (40 PREGUNTAS DIVERSAS)
-  // ==========================================================
-  for (let i = 1; i <= 40; i++) {
-    addQ("artes", "Danza", `Pregunta N°${i} de Danza: ¿Cómo se llama el diseño estructurado de pasos y movimientos en un baile?`, [
-      "La coreografía", "El guion", "La escenografía", "La utilería"
-    ], 0, "La coreografía organiza los movimientos dancísticos.");
-  }
-
-  // ==========================================================
-  // 8. ARTES - TEATRO (40 PREGUNTAS DIVERSAS)
-  // ==========================================================
-  for (let i = 1; i <= 40; i++) {
-    addQ("artes", "Teatro", `Pregunta N°${i} de Teatro: ¿Cómo se llaman los objetos físicos que los actores usan en escena (relojes, cartas, espadas)?`, [
-      "La utilería", "La escenografía", "El vestuario", "Las acotaciones"
-    ], 0, "La utilería comprende los objetos manejados en actuación.");
-  }
-
-
-  // ==========================================================
-  // 9. INGLES - VOCABULARY (60 PREGUNTAS DIVERSAS)
-  // ==========================================================
-  const inglesVocab = [
-    ["Apple", "Manzana", "Naranja", "Plátano", "Uva"],
-    ["Dog", "Perro", "Gato", "Pájaro", "Rata"],
-    ["Cat", "Gato", "Perro", "Caballo", "Vaca"],
-    ["Book", "Libro", "Cuaderno", "Pluma", "Mesa"],
-    ["House", "Casa", "Escuela", "Edificio", "Parque"],
-    ["Water", "Agua", "Leche", "Jugo", "Refresco"],
-    ["School", "Escuela", "Hospital", "Tienda", "Banco"],
-    ["Teacher", "Profesor/a", "Estudiante", "Doctor", "Policía"],
-    ["Friend", "Amigo/a", "Enemigo", "Hermano", "Padre"],
-    ["Sun", "Sol", "Luna", "Estrella", "Nube"],
-    ["Moon", "Luna", "Sol", "Tierra", "Cielo"],
-    ["Tree", "Árbol", "Flor", "Planta", "Piedra"],
-    ["Computer", "Computadora", "Teléfono", "Televisión", "Radio"],
-    ["Red", "Rojo", "Azul", "Verde", "Amarillo"],
-    ["Blue", "Azul", "Rojo", "Negro", "Blanco"],
-    ["Green", "Verde", "Amarillo", "Rosa", "Morado"],
-    ["Big", "Grande", "Pequeño", "Alto", "Bajo"],
-    ["Small", "Pequeño", "Grande", "Largo", "Ancho"],
-    ["Happy", "Feliz", "Triste", "Enojado", "Cansado"],
-    ["Sad", "Triste", "Feliz", "Contento", "Sorprendido"],
-    ["Bread", "Pan", "Queso", "Carne", "Arroz"],
-    ["Milk", "Leche", "Agua", "Jugo", "Café"],
-    ["Doctor", "Médico/a", "Maestro", "Ingeniero", "Piloto"],
-    ["Car", "Coche/Auto", "Bicicleta", "Avión", "Barco"],
-    ["Window", "Ventana", "Puerta", "Pared", "Techo"],
-    ["Door", "Puerta", "Ventana", "Silla", "Mesa"],
-    ["Pencil", "Lápiz", "Bolígrafo", "Regla", "Goma"],
-    ["Chair", "Silla", "Mesa", "Cama", "Sofá"],
-    ["Table", "Mesa", "Silla", "Escritorio", "Armario"],
-    ["Bed", "Cama", "Mesa", "Silla", "Lámpara"]
-  ];
-
-  inglesVocab.forEach((item, idx) => {
-    addQ("ingles", "Vocabulary", `What is the Spanish translation for the English word "${item[0]}"?`, [item[1], item[2], item[3], item[4]], 0, `"${item[0]}" means "${item[1]}".`);
-    addQ("ingles", "Vocabulary", `Select the correct English word for "${item[1]}":`, [item[0], item[2], item[3], item[4]], 0, `"${item[1]}" in English is "${item[0]}".`);
-  });
-
-  // ==========================================================
-  // 10. INGLES - GRAMMAR (60 PREGUNTAS DIVERSAS)
-  // ==========================================================
-  for (let i = 1; i <= 60; i++) {
-    addQ("ingles", "Grammar", `Grammar Exercise #${i}: Which auxiliary verb is used to form Simple Present questions with "You"?`, [
-      "Do", "Does", "Is", "Are"
-    ], 0, 'We use "Do" for I/You/We/They in Simple Present questions.');
-  }
-
-  // ==========================================================
-  // 11. INGLES - READING (40 PREGUNTAS DIVERSAS)
-  // ==========================================================
-  for (let i = 1; i <= 40; i++) {
-    addQ("ingles", "Reading", `Reading Passage #${i}: "Peter loves reading adventure books in the library." What does Peter love to do?`, [
-      "Reading adventure books", "Playing soccer", "Cooking dinner", "Sleeping in class"
-    ], 0, "Direct comprehension from the short sentence.");
-  }
-
-  // ==========================================================
-  // 12. INGLES - LISTENING (40 PREGUNTAS DIVERSAS)
-  // ==========================================================
-  for (let i = 1; i <= 40; i++) {
-    addQ("ingles", "Listening", `Listening Practice #${i}: Speaker says: "Could you please open the window?" What is requested?`, [
-      "To open the window", "To close the door", "To turn on the light", "To sit down"
-    ], 0, "The speaker asks to open the window.");
-  }
-
-  // ==========================================================
-  // 13. INTEGRADOR (200 PREGUNTAS 100% DIVERSAS)
-  // ==========================================================
-  for (let i = 1; i <= 40; i++) {
-    addQ("integrador", "Comunicación Escrita", `Reto Escrito #${i}: ¿Cuál es la función del resumen en un reporte académico?`, [
-      "Sintetizar las ideas principales de un texto extenso", "Agregar opiniones personales sin fundamento", "Aumentar el número de páginas", "Cambiar el idioma original"
-    ], 0, "El resumen sintetiiza lo esencial.");
-
-    addQ("integrador", "Comunicación Artística", `Reto Artístico #${i}: ¿Cómo contribuye el diseño de iluminación en una obra de teatro?`, [
-      "Crea atmósfera, época y enfatiza emociones en escena", "Reemplaza el guion escrito", "Sustituye la voz de los actores", "Apaga el sonido del teatro"
-    ], 0, "La iluminación aporta dramatismo y ambiente.");
-
-    addQ("integrador", "Comunicación Internacional", `Reto Internacional #${i}: Why is learning English important for global communication?`, [
-      "Because it connects people across different countries and cultures", "Because it is the only language in the world", "To stop using Spanish", "To avoid reading books"
-    ], 0, "English acts as a global bridge language.");
-
-    addQ("integrador", "Interpretación y Análisis", `Reto de Análisis #${i}: Al interpretar una metáfora poética, ¿qué debemos identificar?`, [
-      "El sentido figurado y la relación entre los dos elementos", "La cantidad de letras de la palabra", "El tipo de papel impreso", "La hora en que se escribió"
-    ], 0, "Las metáforas requieren interpretar el sentido figurado.");
-
-    addQ("integrador", "Retos Integradores", `Reto Integrador Final #${i}: ¿Qué ventaja ofrece combinar las artes visuales y el lenguaje escrito?`, [
-      "Enriquece el mensaje combinando estímulos me visuales y textuales", "Hace que el libro sea imposible de leer", "Elimina la creatividad", "Reduce el vocabulario"
-    ], 0, "La combinación multimedia refuerza el impacto comunicativo.");
-  }
-
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'café\'?', ["fé", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'fé\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'canción\'?', ["ción", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'ción\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'compás\'?', ["pás", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'pás\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'sofá\'?', ["fá", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'fá\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'mamá\'?', ["má", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'má\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'papá\'?', ["pá", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'pá\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'Perú\'?', ["rú", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'rú\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'manatí\'?', ["tí", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'tí\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'jardín\'?', ["dín", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'dín\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'botón\'?', ["tón", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'tón\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'árbol\'?', ["ár", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'ár\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'lápiz\'?', ["lá", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'lá\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'azúcar\'?', ["zú", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'zú\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'cárcel\'?', ["cár", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'cár\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'cómic\'?', ["có", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'có\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'fácil\'?', ["fá", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'fá\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'difícil\'?', ["fí", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'fí\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'túnel\'?', ["tú", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'tú\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'ángel\'?', ["án", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'án\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'líder\'?', ["lí", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'lí\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'música\'?', ["mú", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'mú\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'pájaro\'?', ["pá", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'pá\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'murciélago\'?', ["cié", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'cié\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'teléfono\'?', ["lé", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'lé\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'rápido\'?', ["rá", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'rá\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'médico\'?', ["mé", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'mé\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'lógica\'?', ["ló", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'ló\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'brújula\'?', ["brú", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'brú\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'sábado\'?', ["sá", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'sá\'.');
+  addQ('espanol', 'Ortografía', '¿En qué sílaba recae la fuerza de voz (sílaba tónica) de la palabra \'cámara\'?', ["cá", "En la sílaba inicial", "En la sílaba intermedia", "Ninguna"], 0, 'Su sílaba tónica es \'cá\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'hacer\'?', ["Hacer", "Acer", "Haser", "Aser"], 0, 'Se escribe \'Hacer\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'haber\'?', ["Haber", "Aber", "Haver", "Aver"], 0, 'Se escribe \'Haber\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'hervir\'?', ["Hervir", "Herbir", "Ervir", "Erbir"], 0, 'Se escribe \'Hervir\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'vivir\'?', ["Vivir", "Bibir", "Vibir", "Bivir"], 0, 'Se escribe \'Vivir\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'buscar\'?', ["Buscar", "Vuscar", "Buzcar", "Buskar"], 0, 'Se escribe \'Buscar\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'burbuja\'?', ["Burbuja", "Vurvuja", "Burbuga", "Vurbuja"], 0, 'Se escribe \'Burbuja\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'cazador\'?', ["Cazador", "Casador", "Cacador", "Casadorr"], 0, 'Se escribe \'Cazador\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'decisión\'?', ["Decisión", "Desición", "Decición", "Desisión"], 0, 'Se escribe \'Decisión\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'expresión\'?', ["Expresión", "Expreción", "Exprezión", "Espresión"], 0, 'Se escribe \'Expresión\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'belleza\'?', ["Belleza", "Bellesa", "Velleza", "Vellesa"], 0, 'Se escribe \'Belleza\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'viaje\'?', ["Viaje", "Viage", "Biaje", "Biage"], 0, 'Se escribe \'Viaje\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'gente\'?', ["Gente", "Jente", "Genteh", "Jenthe"], 0, 'Se escribe \'Gente\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'excepción\'?', ["Excepción", "Ecepción", "Esepción", "Exepción"], 0, 'Se escribe \'Excepción\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'excelente\'?', ["Excelente", "Ecelente", "Eselente", "Execelente"], 0, 'Se escribe \'Excelente\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'gimnasio\'?', ["Gimnasio", "Jimnasio", "Gimnazio", "Jimnazio"], 0, 'Se escribe \'Gimnasio\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'jirafa\'?', ["Jirafa", "Girafa", "Jirafha", "Girafha"], 0, 'Se escribe \'Jirafa\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'pingüino\'?', ["Pingüino", "Pinguino", "Pinjino", "Pinguino"], 0, 'Se escribe \'Pingüino\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'guitarra\'?', ["Guitarra", "Güitarra", "Jitarra", "Guitara"], 0, 'Se escribe \'Guitarra\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'corazón\'?', ["Corazón", "Corason", "Corasón", "Corazon"], 0, 'Se escribe \'Corazón\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'peces\'?', ["Peces", "Pezes", "Peses", "Pecez"], 0, 'Se escribe \'Peces\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'iba\'?', ["Iba", "Iva", "Hiba", "Hiva"], 0, 'Se escribe \'Iba\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'valla\'?', ["Valla", "Baya", "Vaya", "Balla"], 0, 'Se escribe \'Valla\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'ahí\'?', ["Ahí", "Hay", "¡Ay!", "Ahy"], 0, 'Se escribe \'Ahí\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'halla\'?', ["Halla", "Haya", "Avanza", "Aya"], 0, 'Se escribe \'Halla\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'éxito\'?', ["Éxito", "Écsito", "Ésito", "Écito"], 0, 'Se escribe \'Éxito\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'imagen\'?', ["Imagen", "Imágen", "Imagenn", "Imajen"], 0, 'Se escribe \'Imagen\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'examen\'?', ["Examen", "Exámen", "Esamen", "Examenes"], 0, 'Se escribe \'Examen\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'exámenes\'?', ["Exámenes", "Examens", "Examenes", "Esámenes"], 0, 'Se escribe \'Exámenes\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'joven\'?', ["Joven", "Jóven", "Jovenn", "Jovenes"], 0, 'Se escribe \'Joven\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'jóvenes\'?', ["Jóvenes", "Jovenes", "Jóvens", "Jóbenes"], 0, 'Se escribe \'Jóvenes\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'árboles\'?', ["Árboles", "Arboles", "Árbols", "Arbols"], 0, 'Se escribe \'Árboles\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'carácter\'?', ["Carácter", "Caracter", "Caráctere", "Caractér"], 0, 'Se escribe \'Carácter\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'caracteres\'?', ["Caracteres", "Carácteres", "Caracteres", "Caractéres"], 0, 'Se escribe \'Caracteres\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'régimen\'?', ["Régimen", "Regimen", "Regímen", "Regimenes"], 0, 'Se escribe \'Régimen\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'regímenes\'?', ["Regímenes", "Regimenes", "Regímen", "Regímenes"], 0, 'Se escribe \'Regímenes\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'héroe\'?', ["Héroe", "Heroe", "Eroe", "Héroes"], 0, 'Se escribe \'Héroe\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'heroico\'?', ["Heroico", "Heróico", "Eroico", "Heroico"], 0, 'Se escribe \'Heroico\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'sílaba\'?', ["Sílaba", "Silaba", "Cílaba", "Zílaba"], 0, 'Se escribe \'Sílaba\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'gramática\'?', ["Gramática", "Gramatica", "Gramátika", "Gramatika"], 0, 'Se escribe \'Gramática\'.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma ortográficamente correcta de escribir \'lógica\'?', ["Lógica", "Logica", "Lógika", "Logika"], 0, 'Se escribe \'Lógica\'.');
+  addQ('espanol', 'Ortografía', '¿Qué signo se coloca al principio y final de una pregunta en español?', ["Signos de interrogación (¿ ?)", "Signos de admiración", "Paréntesis", "Comillas"], 0, 'Apertura y cierre.');
+  addQ('espanol', 'Ortografía', '¿Qué signo expresa sorpresa o emoción intensa?', ["Signos de admiración (¡ !)", "Interrogación", "Punto y coma", "Guion"], 0, 'Exclamación.');
+  addQ('espanol', 'Ortografía', '¿Qué punto separa dos párrafos distintos?', ["Punto y aparte", "Punto y seguido", "Punto final", "Dos puntos"], 0, 'Punto y aparte.');
+  addQ('espanol', 'Ortografía', '¿Qué punto da cierre definitivo a todo un texto?', ["Punto final", "Punto y seguido", "Punto y aparte", "Coma"], 0, 'Punto final.');
+  addQ('espanol', 'Ortografía', '¿Para qué sirven las comillas en un texto?', ["Para señalar citas textuales exactas", "Para hacer preguntas", "Para separar sílabas", "Para omitir palabras"], 0, 'Citas textuales.');
+  addQ('espanol', 'Ortografía', '¿Qué signo introduce una enumeración o explicación?', ["Dos puntos (:)", "Punto y coma (;)", "Coma (,)", "Guion (-)"], 0, 'Dos puntos.');
+  addQ('espanol', 'Ortografía', '¿Qué signo señala el diálogo de un personaje en narrativa?', ["Guion largo (—)", "Comillas", "Paréntesis", "Asterisco"], 0, 'Guion largo.');
+  addQ('espanol', 'Ortografía', '¿En qué caso se debe iniciar obligatoriamente con mayúscula?', ["Al empezar una oración o tras un punto", "En todos los sustantivos", "En los días de la semana", "En los meses"], 0, 'Tras punto.');
+  addQ('espanol', 'Ortografía', '¿Los días de la semana en español llevan mayúscula inicial?', ["No, van en minúscula salvo inicio de frase", "Sí, siempre", "Solo los lunes", "Solo fines de semana"], 0, 'Minúscula.');
+  addQ('espanol', 'Ortografía', '¿Qué tilde diferencia palabras homónimas como \'tú\' y \'tu\'?', ["Tilde diacrítica", "Tilde prosódica", "Tilde enfática", "Tilde átona"], 0, 'Diacrítica.');
+  addQ('espanol', 'Ortografía', 'En \'Él vino a mi casa\', ¿por qué \'Él\' lleva tilde?', ["Porque es pronombre personal", "Porque es artículo", "Porque es verbo", "Porque es sustantivo"], 0, 'Pronombre.');
+  addQ('espanol', 'Ortografía', 'En \'Te invito a tomar un té\', ¿por qué \'té\' lleva tilde?', ["Porque se refiere a la bebida (sustantivo)", "Porque es pronombre", "Porque es adjetivo", "Porque es preposición"], 0, 'Bebida.');
+  addQ('espanol', 'Ortografía', '¿Qué palabra requiere tilde por ser afirmativa?', ["Sí", "Si", "Sin", "Se"], 0, 'Sí afirmativo.');
+  addQ('espanol', 'Ortografía', '¿Cuál conector va aislado entre comas?', ["Sin embargo,", "Y", "O", "Pero"], 0, 'Sin embargo,');
+  addQ('espanol', 'Ortografía', '¿Cómo se escribe correctamente la duda \'a ver\'?', ["A ver (preposición a + verbo ver)", "Aver", "Haver", "Haber"], 0, 'A ver.');
+  addQ('espanol', 'Ortografía', '¿Cómo se escribe el conector \'ya que\'?', ["Ya que (separado)", "Yaque", "Lla que", "Llaque"], 0, 'Ya que.');
+  addQ('espanol', 'Ortografía', '¿Cuál es la forma correcta de escribir \'a través\'?', ["A través", "Através", "A travez", "Atravez"], 0, 'A través.');
+  addQ('espanol', 'Ortografía', '¿Cómo se escribe la palabra que significa inmediatamente?', ["Enseguida o en seguir", "Ensegida", "Enzegida", "Enseguidaa"], 0, 'Enseguida.');
+  addQ('espanol', 'Ortografía', '¿Cómo se escribe la primera persona del presente de \'coger\'?', ["Cojo", "Cogo", "Cojjo", "Coggo"], 0, 'Cojo.');
+  addQ('espanol', 'Ortografía', '¿Cómo se escribe la primera persona del presente de \'dirigir\'?', ["Dirijo", "Dirigo", "Dirigjo", "Dirigoo"], 0, 'Dirijo.');
+  addQ('espanol', 'Ortografía', '¿Qué objeto para descansar la cabeza lleva H intercalada?', ["Almohada", "Almoada", "Almofada", "Almoada"], 0, 'Almohada.');
+  addQ('espanol', 'Ortografía', '¿Qué vegetal anaranjado lleva H intercalada?', ["Zanahoria", "Zanaoria", "Zanajoria", "Zanaforia"], 0, 'Zanahoria.');
+  addQ('espanol', 'Ortografía', '¿Qué verbo que indica impedimento lleva H intercalada?', ["Prohibir", "Proibir", "Projibir", "Projibir"], 0, 'Prohibir.');
+  addQ('espanol', 'Ortografía', '¿Cuál es el plural de \'luz\'?', ["Luces", "Luzes", "Luses", "Luzas"], 0, 'Luces.');
+  addQ('espanol', 'Ortografía', '¿Cuál es el plural de \'cruz\'?', ["Cruces", "Cruzes", "Cruses", "Cruzas"], 0, 'Cruces.');
+  addQ('espanol', 'Ortografía', '¿Cuál es el plural de \'voz\'?', ["Voces", "Vozes", "Voses", "Vozas"], 0, 'Voces.');
+  addQ('espanol', 'Ortografía', '¿Cuál es el plural de \'audaz\'?', ["Audaces", "Audazes", "Audases", "Audazas"], 0, 'Audaces.');
+  addQ('espanol', 'Ortografía', '¿Cuál es el plural de \'capaz\'?', ["Capaces", "Capazes", "Capases", "Capazas"], 0, 'Capaces.');
+  addQ('espanol', 'Ortografía', '¿Cuál es el plural de \'arroz\'?', ["Arroces", "Arrozes", "Arroses", "Arrozas"], 0, 'Arroces.');
+  addQ('espanol', 'Ortografía', '¿Cuál es el plural de \'vez\'?', ["Veces", "Vezes", "Veses", "Vezas"], 0, 'Veces.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El colibrí aletea velozmente sobre las flores rojas.\' -> ¿Qué ave realiza la acción?', ["El colibrí", "La mariposa", "La abeja", "El águila"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La caminata hacia la cima fue agotadora pero valió la pena.\' -> ¿Cómo se describe el trayecto?', ["Agotadora", "Fácil", "Corta", "Sin esfuerzo"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El faro alumbraba la costa durante las tormentas nocturnas.\' -> ¿Qué función cumple el faro?', ["Alumbrar la costa", "Pescar peces", "Construir barcos", "Navegar"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'Mateo olvidó su abrigo y sintió frío en el recreo.\' -> ¿Por qué sintió frío Mateo?', ["Olvidó su abrigo", "Llovía adentro", "Estaba cansado", "Corrió mucho"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La biblioteca escolar abrió con miles de cuentos ilustrados.\' -> ¿Qué ofrece la biblioteca?', ["Cuentos ilustrados", "Juegos de mesa", "Ropa deportiva", "Comida"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'Sofía practicó el piano durante tres horas seguidas.\' -> ¿Qué instrumento tocó Sofía?', ["El piano", "La guitarra", "El violín", "La flauta"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'Los agricultores celebraron la llegada de las lluvias tras la sequía.\' -> ¿Qué evento celebraron?', ["La llegada de las lluvias", "El viento", "La nieve", "El calor"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El detective examinó con una lupa las huellas en la ventana.\' -> ¿Qué objeto usó el detective?', ["Una lupa", "Un microscopio", "Un telescopio", "Una linterna"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El barco zarpó al amanecer con destino al puerto del sur.\' -> ¿A qué hora salió el barco?', ["Al amanecer", "A mediodía", "Al anochecer", "A medianoche"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El perro guardián ladró fuertemente durante la noche.\' -> ¿Quién ladró en la noche?', ["El perro guardián", "El gato", "El vecino", "El lobo"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La semilla germinó gracias al agua y la luz del sol.\' -> ¿Qué necesitó la semilla para crecer?', ["Agua y luz del sol", "Sombra y hielo", "Viento y fuego", "Arena seca"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El cocinero preparó una sopa caliente para el invierno.\' -> ¿Qué alimento preparó?', ["Una sopa caliente", "Un helado", "Una ensalada fría", "Un pastel"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El tren llegó puntual a la estación central a las cinco.\' -> ¿A qué hora llegó el tren?', ["A las cinco", "A las tres", "A las ocho", "A las doce"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La pintora mezcló azul y amarillo para obtener verde.\' -> ¿Qué color obtuvo la pintora?', ["Verde", "Rojo", "Negro", "Rosa"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El carpintero construyó una mesa sólida de madera de roble.\' -> ¿De qué material hizo la mesa?', ["Madera de roble", "Plástico", "Vidrio", "Metal"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El astronauta contempló la Tierra desde la estación espacial.\' -> ¿Desde dónde observó la Tierra?', ["Desde la estación espacial", "Desde un avión", "Desde una montaña", "Desde el mar"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El médico recetó descanso y jarabe para la tos del paciente.\' -> ¿Qué recetó el médico?', ["Descanso y jarabe", "Ejercicio intenso", "Comida picante", "Viajar"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La abeja recolecta néctar de las flores para fabricar miel.\' -> ¿Qué producto fabrican las abejas?', ["Miel", "Cera de vela", "Jugo de fruta", "Azúcar"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El atleta entrenó diariamente para ganar la medalla de oro.\' -> ¿Qué premio buscaba el atleta?', ["La medalla de oro", "Un diploma de papel", "Una copa de cristal", "Un carro"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El reloj de la torre sonó doce veces a la medianoche.\' -> ¿Cuántas veces sonó el reloj?', ["Doce veces", "Seis veces", "Una vez", "Diez veces"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La maestra enseñó la lección de historia con un mapa antiguo.\' -> ¿Qué recurso utilizó la maestra?', ["Un mapa antiguo", "Una película", "Un libro de química", "Una guitarra"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El panadero horneó pan fresco desde muy temprano en la mañana.\' -> ¿Qué producto elaboró?', ["Pan fresco", "Pasteles de chocolate", "Galletas de avena", "Pizzas"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El gato persiguió a una mariposa por el jardín florecido.\' -> ¿A qué insecto persiguió el gato?', ["A una mariposa", "A una mosca", "A una abeja", "A una hormiga"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La lluvia intensa inundó las calles principales de la ciudad.\' -> ¿Qué provocó la lluvia intensa?', ["Inundó las calles", "Secó los ríos", "Limpio los techos", "Derribó árboles"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El músico afinó las cuerdas de su guitarra antes del concierto.\' -> ¿Qué instrumento afinó?', ["Su guitarra", "El piano", "La batería", "El bajo"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El niño guardó sus juguetes en una caja de madera.\' -> ¿Dónde guardó sus juguetes?', ["En una caja de madera", "Bajo la cama", "En el armario", "En la mochila"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La escritora redactó su nueva novela durante sus vacaciones.\' -> ¿Qué tipo de texto escribió?', ["Una novela", "Un poema corto", "Una noticia", "Una carta"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El viento fuerte sopló las hojas secas de los árboles.\' -> ¿Qué movió el viento fuerte?', ["Las hojas secas", "Las piedras", "Las casas", "Los coches"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La científica descubrió una nueva especie de planta en la selva.\' -> ¿Qué descubrió la científica?', ["Una nueva especie de planta", "Un tesoro", "Una cueva", "Un río"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El estudiante repasó sus apuntes antes de iniciar el examen.\' -> ¿Qué hizo antes del examen?', ["Repasó sus apuntes", "Durmió una siesta", "Jugó videojuegos", "Comió fruta"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El bombero apagó el fuego de la cocina rápidamente.\' -> ¿Qué apagó el bombero?', ["El fuego de la cocina", "Una vela", "Una fogata", "El motor"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La actriz ensayó sus diálogos frente al espejo del camerino.\' -> ¿Dónde ensayó sus diálogos?', ["Frente al espejo del camerino", "En el escenario", "En su casa", "En la calle"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El pescador atrapó un pez dorado al caer la tarde.\' -> ¿Qué pescó el pescador?', ["Un pez dorado", "Un pulpo", "Un tiburón", "Una bota"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El arqueólogo encontró vasijas antiguas en las ruinas.\' -> ¿Qué artefactos halló?', ["Vasijas antiguas", "Monedas de oro", "Libros", "Armas"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La bailarina giró con elegancia en el centro de la pista.\' -> ¿Cómo giró la bailarina?', ["Con elegancia", "Rápidamente", "Con torpeza", "Sin ritmo"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El jardinero regó las rosas rojas al salir el sol.\' -> ¿Qué flores regó?', ["Las rosas rojas", "Los tulipanes", "Los claveles", "Los girasoles"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El cartero entregó una carta urgente en la oficina central.\' -> ¿Qué entregó el cartero?', ["Una carta urgente", "Un paquete grande", "Un periódico", "Una revista"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El escultor talló una figura de mármol en su taller.\' -> ¿Qué material usó el escultor?', ["Mármol", "Madera", "Arcilla", "Metal"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El piloto maniobró el avión a través de las densas nubes.\' -> ¿Qué vehículo manejaba?', ["El avión", "El barco", "El helicóptero", "El tren"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La veterinaria examinó al cachorro enfermo en su clínica.\' -> ¿A quién atendió la veterinaria?', ["Al cachorro enfermo", "A un gatito", "A un pájaro", "A un caballo"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El zapatero reparó la suela rota de los zapatos de cuero.\' -> ¿Qué objeto arregló?', ["La suela de los zapatos", "La correa del reloj", "El bolso", "La chaqueta"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El agricultor cosechó manzanas maduras durante el otoño.\' -> ¿Qué fruta cosechó?', ["Manzanas maduras", "Naranjas", "Plátanos", "Uvas"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La diseñadora dibujó el boceto de un vestido elegante.\' -> ¿Qué prenda diseñó?', ["Un vestido elegante", "Un pantalón", "Una camisa", "Un abrigo"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El marinero ajustó las velas del barco ante la tormenta.\' -> ¿Qué parte del barco ajustó?', ["Las velas", "El timón", "El ancla", "El motor"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El mecánico reemplazó el aceite del motor del automóvil.\' -> ¿Qué líquido cambió?', ["El aceite del motor", "El agua", "La gasolina", "El líquido de frenos"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La abuela tejió una bufanda de lana para el invierno.\' -> ¿Qué prenda tejió?', ["Una bufanda de lana", "Un gorro", "Unos guantes", "Un calcetín"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El periodista entrevistó al ganador del torneo de ajedrez.\' -> ¿A quién entrevistó?', ["Al ganador de ajedrez", "Al árbitro", "Al organizador", "Al público"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El turista fotografió el monumento histórico de la plaza.\' -> ¿Qué fotografió?', ["El monumento histórico", "La fuente", "Las palomas", "Los árboles"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La cantante interpretó una hermosa melodía en el teatro.\' -> ¿Qué realizó?', ["Interpretó una melodía", "Tocó la batería", "Bailó tap", "Pintó un cuadro"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El vendedor ofreció frutas frescas en el mercado local.\' -> ¿Qué vendía?', ["Frutas frescas", "Verduras", "Ropa", "Herramientas"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El policía dirigió el tránsito durante la hora pico.\' -> ¿Qué función cumplió?', ["Dirigió el tránsito", "Arrestó a alguien", "Patrulló el parque", "Escribió un informe"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El cocinero horneó una pizza de queso y tomate.\' -> ¿Qué platillo preparó?', ["Una pizza de queso", "Una hamburguesa", "Un taco", "Una ensalada"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El estudiante consultó el diccionario para buscar un significado.\' -> ¿Qué libro usó?', ["El diccionario", "Una enciclopedia", "Una novela", "Un atlas"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La niña pintó un paisaje de montañas en su lienzo.\' -> ¿Qué tema pintó?', ["Un paisaje de montañas", "Un retrato", "Una flor", "Un animal"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El campesino sembró maíz en el campo fértil.\' -> ¿Qué grano sembró?', ["Maíz", "Trigo", "Arroz", "Frijol"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El nadador cruzó la piscina olímpica en diez segundos.\' -> ¿Dónde nadó?', ["En la piscina olímpica", "En el lago", "En el río", "En el mar"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La doctora escuchó el corazón del niño con el estetoscopio.\' -> ¿Qué instrumento médico usó?', ["El estetoscopio", "El termómetro", "La linterna", "El otoscopio"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El carpintero lijó la superficie de la mesa de madera.\' -> ¿Qué acción realizó?', ["Lijó la superficie", "Pintó las patas", "Cortó la madera", "Clavó los esquineros"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La bibliotecaria clasificó los libros por tema y autor.\' -> ¿Cómo organizó los libros?', ["Por tema y autor", "Por color", "Por tamaño", "Por fecha"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El cazador observó las huellas del venado en la nieve.\' -> ¿De qué animal eran las huellas?', ["Del venado", "Del oso", "Del lobo", "Del zorro"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El pastelero decoró el pastel con crema y fresas.\' -> ¿Con qué ingrediente decoró?', ["Crema y fresas", "Chocolate", "Caramelo", "Frutos secos"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El poeta recitó sus versos ante la audiencia del recital.\' -> ¿Qué recitó?', ["Sus versos", "Un ensayo", "Un cuento", "Una noticia"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El pescador lanzó su red al agua al despuntar el alba.\' -> ¿Qué objeto usó?', ["Su red", "Una caña", "Un anzuelo", "Una trampa"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La entrenadora motivó al equipo antes del partido final.\' -> ¿A quién animó?', ["Al equipo", "Al árbitro", "A la porra", "Al rival"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El alpinista escaló la montaña más alta del continente.\' -> ¿Qué hazaña realizó?', ["Escaló la montaña", "Cruzó el desierto", "Nadó el océano", "Voló en globo"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El biólogo estudió el comportamiento de las aves migratorias.\' -> ¿Qué animales analizó?', ["Las aves migratorias", "Los peces", "Los reptiles", "Los mamíferos"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La maestra enseñó las tablas de multiplicar a los alumnos.\' -> ¿Qué tema enseñó?', ["Las tablas de multiplicar", "La suma", "La resta", "La división"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El músico compuso una melodía alegre para la película.\' -> ¿Qué tipo de música creó?', ["Una melodía alegre", "Una canción triste", "Un ritmo rápido", "Un vals"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El conductor detuvo el autobús en la parada de la avenida.\' -> ¿Dónde paró el autobús?', ["En la parada de la avenida", "En el garaje", "En el semáforo", "En la esquina"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La niña alimentó a los peces del estanque con migas de pan.\' -> ¿A quién alimentó?', ["A los peces del estanque", "A los patos", "A las palomas", "Al perro"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El artesano moldeó una vasija de barro en su torno.\' -> ¿De qué material era la vasija?', ["De barro", "De vidrio", "De metal", "De madera"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El escritor publicó su primer libro de historias cortas.\' -> ¿Qué publicó?', ["Su primer libro de historias", "Un poema", "Un artículo", "Una biografía"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El fontanero reparó la fuga de agua en la tubería principal.\' -> ¿Qué arreglo hizo?', ["Reparó la fuga de agua", "Cambió el grifo", "Limpio el desagüe", "Instaló la ducha"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La abogada defendió el caso ante el juez del tribunal.\' -> ¿Dónde presentó el caso?', ["Ante el juez del tribunal", "En la comisaría", "En la oficina", "En la calle"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El electricista cambió el fusible quemado del tablero.\' -> ¿Qué componente reemplazó?', ["El fusible quemado", "El cable", "El interruptor", "La bombilla"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La soprano cantó un aria emotiva durante la ópera.\' -> ¿Qué interpretó?', ["Un aria emotiva", "Un coro", "Un dueto", "Una canción popular"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El agricultor regó el cultivo de trigo al mediodía.\' -> ¿Qué siembra regó?', ["El cultivo de trigo", "El maíz", "El frijol", "La cebada"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El niño voló su cometa en el parque en un día ventoso.\' -> ¿Qué juguete usó?', ["Su cometa", "Su pelota", "Su bicicleta", "Su patineta"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La doctora examinó la radiografía del brazo fracturado.\' -> ¿Qué estudio médico revisó?', ["La radiografía del brazo", "Un análisis de sangre", "Una ecografía", "Una tomografía"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El cocinero cortó las verduras en pequeños cubos.\' -> ¿Cómo cortó las verduras?', ["En pequeños cubos", "En tiras largas", "En rodajas finas", "En trozos grandes"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El árbitro pitó el final del encuentro deportivo.\' -> ¿Qué indicó el árbitro?', ["El final del encuentro", "Una falta", "Un penal", "Un tiempo fuera"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El fotógrafo utilizó un trípode para estabilizar la cámara.\' -> ¿Qué accesorio usó?', ["Un trípode", "Un flash", "Un lente", "Un filtro"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La joven leyó un capítulo entero del libro de historia.\' -> ¿Cuánto leyó?', ["Un capítulo entero", "Dos páginas", "El libro completo", "El prólogo"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El jardinero podó los arbustos del parque público.\' -> ¿Qué plantas podó?', ["Los arbustos", "Los árboles", "Las flores", "El césped"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El pescador limpió su bote de madera tras la jornada.\' -> ¿Qué objeto limpió?', ["Su bote de madera", "La red", "Los cañas", "Los peces"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La farmacéutica entregó los medicamentos de la receta.\' -> ¿Qué vendió?', ["Los medicamentos", "Productos de belleza", "Dulces", "Juguetes"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El cartero dejó los paquetes en el buzón de la entrada.\' -> ¿Dónde colocó los paquetes?', ["En el buzón de la entrada", "En la puerta", "En el suelo", "En la ventana"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El escenógrafo pintó el fondo del escenario teatral.\' -> ¿Qué trabajo realizó?', ["Pintó el fondo del escenario", "Diseñó la ropa", "Ajustó la luz", "Escribió el guion"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El carnicero cortó los filetes de carne fresca.\' -> ¿Qué alimento preparó?', ["Filetes de carne fresca", "Pollo", "Pescado", "Jamón"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La modista cosió el dobladillo del pantalón negro.\' -> ¿Qué arreglo hizo?', ["El dobladillo del pantalón", "Bordó una flor", "Cambió el cierre", "Puso un botón"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El soplador de vidrio creó una jarra transparente.\' -> ¿Qué objeto moldeó?', ["Una jarra transparente", "Un vaso", "Un plato", "Una botella"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El camarero sirvió el café caliente en la mesa cuatro.\' -> ¿Qué bebida entregó?', ["El café caliente", "Un té", "Un jugo", "Agua"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La profesora corrigió los exámenes de español con pluma roja.\' -> ¿Con qué corrigió?', ["Con pluma roja", "Con lápiz", "Con marcador", "Con pluma azul"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El jardinero plantó tulipanes en el cantero del jardín.\' -> ¿Qué flores sembró?', ["Tulipanes", "Rosas", "Margaritas", "Girasoles"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El relojero reemplazó la pila del reloj de pulsera.\' -> ¿Qué pieza cambió?', ["La pila del reloj", "Las agujas", "El cristal", "La correa"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El pintor aplicó una capa de barniz sobre el cuadro.\' -> ¿Qué producto colocó?', ["Una capa de barniz", "Pintura fresca", "Agua", "Aceite"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'La pianista tocó una sonata de Mozart en el recital.\' -> ¿Qué obra interpretó?', ["Una sonata de Mozart", "Un vals", "Una marcha", "Un nocturno"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El panadero preparó galletas de avena y miel.\' -> ¿Qué horneó?', ["Galletas de avena y miel", "Pasteles", "Pan de dulce", "Donas"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El astrónomo observó los anillos de Saturno con su telescopio.\' -> ¿Qué planeta observó?', ["Saturno", "Júpiter", "Marte", "Venus"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Comprensión lectora', 'Lectura: \'El marinero contempló el faro en la costa de la isla.\' -> ¿Qué construcción contempló el marinero?', ["El faro", "El muelle", "La torre", "La casa"], 0, 'Detalle directo del texto.');
+  addQ('espanol', 'Literatura', '¿Quién es el célebre autor de \'Don Quijote de la Mancha\'?', ["Miguel de Cervantes Saavedra", "Gabriel García Márquez", "William Shakespeare", "Jorge Luis Borges"], 0, 'Escrita por Cervantes.');
+  addQ('espanol', 'Literatura', '¿A qué género pertenece la poesía emotiva e íntima?', ["Género Lírico", "Género Narrativo", "Género Dramático", "Género Didáctico"], 0, 'Lírica.');
+  addQ('espanol', 'Literatura', '¿Qué género está escrito para ser representado por actores?', ["Género Dramático", "Género Lírico", "Género Narrativo", "Ensayo"], 0, 'Drama.');
+  addQ('espanol', 'Literatura', '¿Quién escribió \'Cien años de soledad\'?', ["Gabriel García Márquez", "Mario Vargas Llosa", "Julio Cortázar", "Pablo Neruda"], 0, 'García Márquez.');
+  addQ('espanol', 'Literatura', '¿Qué figura atribuye cualidades humanas a animales?', ["Personificación", "Metáfora", "Hipérbole", "Aliteración"], 0, 'Personificación.');
+  addQ('espanol', 'Literatura', '¿Qué recurso literario exagera notablemente la realidad?', ["Hipérbole", "Símil", "Onomatopeya", "Anáfora"], 0, 'Hipérbole.');
+  addQ('espanol', 'Literatura', '¿Qué figura poética compara dos elementos usando \'como\'?', ["Símil o Comparación", "Metáfora", "Hipérbaton", "Paradoja"], 0, 'Símil.');
+  addQ('espanol', 'Literatura', '¿Quién escribió \'Hombres necios que acusáis a la mujer\'?', ["Sor Juana Inés de la Cruz", "Gabriela Mistral", "Rosalía de Castro", "Alfonsina Storni"], 0, 'Sor Juana.');
+  addQ('espanol', 'Literatura', '¿Qué novela mexicana relata la historia de Juan Preciado en Comala?', ["Pedro Páramo", "Los de abajo", "Aura", "El laberinto de la soledad"], 0, 'Juan Rulfo.');
+  addQ('espanol', 'Literatura', '¿Quién escribió el ensayo \'El laberinto de la soledad\'?', ["Octavio Paz", "Carlos Fuentes", "Jaime Sabines", "Alfonso Reyes"], 0, 'Octavio Paz.');
+  addQ('espanol', 'Literatura', '¿Qué cuento tradicional narra sobre una niña y una caperuza roja?', ["Caperucita Roja", "Blancanieves", "Cenicienta", "La Bella Durmiente"], 0, 'Caperucita Roja.');
+  addQ('espanol', 'Literatura', '¿Quién compuso \'Veinte poemas de amor y una canción desesperada\'?', ["Pablo Neruda", "Mario Benedetti", "César Vallejo", "Bécquer"], 0, 'Pablo Neruda.');
+  addQ('espanol', 'Literatura', '¿Qué es el estribillo en un poema o canción?', ["Versos que se repiten al final de estrofas", "El título", "La primera palabra", "La dedicatoria"], 0, 'Estribillo.');
+  addQ('espanol', 'Literatura', '¿Qué caracteriza a la rima asonante?', ["Coincidencia solo de vocales desde la vocal tónica", "Coincidencia total", "Sin rima", "Verso libre"], 0, 'Asonante.');
+  addQ('espanol', 'Literatura', '¿Qué caracteriza a la rima consonante?', ["Coincidencia total de vocales y consonantes desde la vocal tónica", "Coincidencia solo de vocales", "Sin rima", "Verso libre"], 0, 'Consonante.');
+  addQ('espanol', 'Literatura', '¿Qué personaje atacó molinos de viento creyendo que eran gigantes?', ["Don Quijote", "Sancho Panza", "El Cid", "Hamlet"], 0, 'Don Quijote.');
+  addQ('espanol', 'Literatura', '¿Quién fue el fiel escudero de Don Quijote?', ["Sancho Panza", "Rocinante", "Dulcinea", "D'Artagnan"], 0, 'Sancho Panza.');
+  addQ('espanol', 'Literatura', '¿A qué subgénero narrativo pertenece \'La Llorona\'?', ["Leyenda", "Fábula", "Mito cosmogónico", "Ciencia ficción"], 0, 'Leyenda.');
+  addQ('espanol', 'Literatura', '¿Qué relato breve entre animales incluye moraleja?', ["Fábula", "Novela", "Poema de 14 versos", "Noticia"], 0, 'Fábula.');
+  addQ('espanol', 'Literatura', '¿Qué es un mito en literatura?', ["Relato fantástico sobre el origen del mundo o dioses", "Receta", "Novela policial", "Poema de amor"], 0, 'Mito.');
+  addQ('espanol', 'Literatura', '¿Quién escribió el clásico \'Romeo y Julieta\'?', ["William Shakespeare", "Molière", "Dante Alighieri", "Goethe"], 0, 'Shakespeare.');
+  addQ('espanol', 'Literatura', '¿Qué poeta renacentista florentino escribió \'La Divina Comedia\'?', ["Dante Alighieri", "Petrarca", "Boccaccio", "Machiavelo"], 0, 'Dante Alighieri.');
+  addQ('espanol', 'Literatura', '¿Qué dramaturgo francés escribió la comedia \'El ávaro\'?', ["Molière", "Racine", "Corneille", "Voltaire"], 0, 'Molière.');
+  addQ('espanol', 'Literatura', '¿Quién escribió el poema épico \'La Ilíada\'?', ["Homero", "Sófocles", "Eurípides", "Virgilio"], 0, 'Homero.');
+  addQ('espanol', 'Literatura', '¿Qué autor romano compuso la epopeya \'La Eneida\'?', ["Virgilio", "Ovidio", "Horacio", "Séneca"], 0, 'Virgilio.');
+  addQ('espanol', 'Literatura', '¿Qué tragedia griega relata la historia del rey de Tebas y la esfinge?', ["Edipo Rey de Sófocles", "Antígona", "Medea", "Prometeo encadenado"], 0, 'Edipo Rey.');
+  addQ('espanol', 'Literatura', '¿Quién escribió \'Rayuela\', la famosa novela que se puede leer en varios órdenes?', ["Julio Cortázar", "Borges", "Bioy Casares", "Sábato"], 0, 'Julio Cortázar.');
+  addQ('espanol', 'Literatura', '¿Qué autor argentino escribió los célebres cuentos de \'Ficciones\'?', ["Jorge Luis Borges", "Cortázar", "Vargas Llosa", "Rulfo"], 0, 'Jorge Luis Borges.');
+  addQ('espanol', 'Literatura', '¿Quién es la autora de \'La casa de los espíritus\'?', ["Isabel Allende", "Laura Esquivel", "Marcela Serrano", "Elena Poniatowska"], 0, 'Isabel Allende.');
+  addQ('espanol', 'Literatura', '¿Qué novela mexicana de Laura Esquivel combina cocina y amor prohibido?', ["Como agua para chocolate", "Aura", "Pedro Páramo", "Las muertas"], 0, 'Como agua para chocolate.');
+  addQ('espanol', 'Literatura', '¿Quién escribió la obra poética \'Los versos del capitán\'?', ["Pablo Neruda", "Gabriela Mistral", "Vicente Huidobro", "Nicanor Parra"], 0, 'Pablo Neruda.');
+  addQ('espanol', 'Literatura', '¿Qué poeta chilena fue la primera latinoamericana en ganar el Premio Nobel?', ["Gabriela Mistral", "Isabel Allende", "Sor Juana", "Alfonsina Storni"], 0, 'Gabriela Mistral en 1945.');
+  addQ('espanol', 'Literatura', '¿Quién escribió \'La metamorfosis\', la novela sobre Gregor Samsa?', ["Franz Kafka", "Thomas Mann", "Hermann Hesse", "Bertolt Brecht"], 0, 'Franz Kafka.');
+  addQ('espanol', 'Literatura', '¿Qué autor ruso escribió las monumentales novelas \'Guerra y paz\' y \'Ana Karenina\'?', ["León Tolstói", "Fiódor Dostoyevski", "Antón Chéjov", "Aleksandr Pushkin"], 0, 'León Tolstói.');
+  addQ('espanol', 'Literatura', '¿Quién escribió \'Crimen y castigo\'?', ["Fiódor Dostoyevski", "Tolstói", "Gógol", "Turguénev"], 0, 'Dostoyevski.');
+  addQ('espanol', 'Literatura', '¿Qué poeta uruguayo escribió \'La tregua\' y \'Poemas de la oficina\'?', ["Mario Benedetti", "Eduardo Galeano", "Horacio Quiroga", "Juan Carlos Onetti"], 0, 'Mario Benedetti.');
+  addQ('espanol', 'Literatura', '¿Quién escribió los cuentos de selva \'Cuentos de amor de locura y de muerte\'?', ["Horacio Quiroga", "Benedetti", "Galeano", "Cortázar"], 0, 'Horacio Quiroga.');
+  addQ('espanol', 'Literatura', '¿Qué obra anónima española es el gran cantar de gesta del siglo XII?', ["Cantar de mio Cid", "El Conde Lucanor", "La Celestina", "El Libro de Buen Amor"], 0, 'Cantar de mio Cid.');
+  addQ('espanol', 'Literatura', '¿Quién escribió la célebre obra teatral \'La vida es sueño\'?', ["Pedro Calderón de la Barca", "Lope de Vega", "Tirso de Molina", "Quevedo"], 0, 'Calderón de la Barca.');
+  addQ('espanol', 'Literatura', '¿Quién es conocido como \'El Fénix de los Ingenios\' y autor de \'Fuenteovejuna\'?', ["Lope de Vega", "Calderón de la Barca", "Cervantes", "Góngora"], 0, 'Lope de Vega.');
+  addQ('espanol', 'Producción de textos', '¿Qué conector expresa causa o motivo?', ["Porque / Ya que", "Sin embargo", "Por lo tanto", "Además"], 0, 'Causa.');
+  addQ('espanol', 'Producción de textos', '¿Qué conector expresa consecuencia o resultado?', ["Por lo tanto / En consecuencia", "Pero", "Porque", "Asimismo"], 0, 'Consecuencia.');
+  addQ('espanol', 'Producción de textos', '¿Qué conector expresa oposición o contraste?', ["Sin embargo / No obstante", "Además", "Por ejemplo", "Porque"], 0, 'Contraste.');
+  addQ('espanol', 'Producción de textos', '¿Qué conector expresa adición o suma de ideas?', ["Además / Asimismo", "Por consiguiente", "Pero", "Ya que"], 0, 'Adición.');
+  addQ('espanol', 'Producción de textos', '¿Qué conector introduce una ejemplificación?', ["Por ejemplo / Verbigracia", "Sin embargo", "En conclusión", "Porque"], 0, 'Ejemplo.');
+  addQ('espanol', 'Producción de textos', '¿Qué conector indica finalidad u objetivo?', ["Para que / Con el fin de", "Aunque", "Sin embargo", "Por lo tanto"], 0, 'Finalidad.');
+  addQ('espanol', 'Producción de textos', '¿Qué conector establece una condición?', ["Si / Siempre que", "Pero", "Además", "Por ejemplo"], 0, 'Condición.');
+  addQ('espanol', 'Producción de textos', '¿Qué conector marca la conclusión final de un ensayo?', ["En conclusión / Para finalizar", "Porque", "Además", "Por ejemplo"], 0, 'Conclusión.');
+  addQ('espanol', 'Producción de textos', '¿Qué orden cronológico abre la presentación de un tema?', ["En primer lugar / Para empezar", "Por lo tanto", "Sin embargo", "Finalmente"], 0, 'Apertura.');
+  addQ('espanol', 'Producción de textos', '¿Qué orden cronológico marca el cierre de argumentos?', ["Finalmente / Por último", "Porque", "Además", "En primer lugar"], 0, 'Cierre.');
+  addQ('espanol', 'Producción de textos', '¿Qué elemento gramatical constituye la unidad fundamental de un párrafo?', ["La oración principal", "El verso", "La métrica", "La rima"], 0, 'Oración principal.');
+  addQ('espanol', 'Producción de textos', '¿Qué propiedad textual exige que las ideas de un escrito no se contradigan?', ["La coherencia", "La cohesión", "La adecuación", "La rima"], 0, 'Coherencia.');
+  addQ('espanol', 'Producción de textos', '¿Qué propiedad textual asegura el correcto enlace sintáctico mediante conectores?', ["La cohesión", "La coherencia", "El estilo", "El género"], 0, 'Cohesión.');
+  addQ('espanol', 'Producción de textos', '¿Qué propiedad textual adapte el lenguaje al receptor y contexto formal o informal?', ["La adecuación", "La ortografía", "La rima", "La métrica"], 0, 'Adecuación.');
+  addQ('espanol', 'Producción de textos', '¿Cómo se denomina la primera versión borrador de un escrito?', ["Borrador o manuscrito previo", "Edición final", "Publicación", "Impresión"], 0, 'Borrador.');
+  addQ('espanol', 'Producción de textos', '¿Qué fase de la redacción consiste en verificar la ortografía y puntuación?', ["La revisión y edición", "La lluvia de ideas", "La planificación", "La publicación"], 0, 'Revisión.');
+  addQ('espanol', 'Producción de textos', '¿Qué tipo de texto tiene como propósito persuadir al lector sobre un punto de vista?', ["Texto argumentativo", "Texto descriptivo", "Texto instructivo", "Texto expositivo"], 0, 'Argumentativo.');
+  addQ('espanol', 'Producción de textos', '¿Qué tipo de texto explica de forma objetiva un tema científico o informativo?', ["Texto expositivo", "Texto poético", "Texto dramático", "Texto ficticio"], 0, 'Expositivo.');
+  addQ('espanol', 'Producción de textos', '¿Qué tipo de texto relata acontecimientos reales o imaginarios en un tiempo?', ["Texto narrativo", "Texto descriptivo", "Texto instructivo", "Texto argumentativo"], 0, 'Narrativo.');
+  addQ('espanol', 'Producción de textos', '¿Qué tipo de texto brinda características detalladas de un objeto, persona o lugar?', ["Texto descriptivo", "Texto expositivo", "Texto argumentativo", "Texto narrativo"], 0, 'Descriptivo.');
+  addQ('espanol', 'Producción de textos', '¿Qué tipo de texto guía paso a paso al usuario para realizar un procedimiento?', ["Texto instructivo o manual", "Texto narrativo", "Texto poético", "Ensayo"], 0, 'Instructivo.');
+  addQ('espanol', 'Producción de textos', '¿En qué sección de un ensayo se presenta la tesis u opinión principal?', ["En la introducción", "En la conclusión", "En el glosario", "En la bibliografía"], 0, 'Introducción.');
+  addQ('espanol', 'Producción de textos', '¿Dónde se exponen las evidencias y razonamientos que respaldan la postura?', ["En el cuerpo o desarrollo", "En el título", "En la portada", "En la conclusión"], 0, 'Desarrollo.');
+  addQ('espanol', 'Producción de textos', '¿Qué parte de un texto síntetiza los argumentos y cierra la reflexión?', ["La conclusión", "La introducción", "El índice", "Las notas a pie"], 0, 'Conclusión.');
+  addQ('espanol', 'Producción de textos', '¿Qué es la tesis de un ensayo?', ["La postura u opinión central que el autor defiende", "El título del libro", "El índice de temas", "La biografía"], 0, 'Tesis.');
+  addQ('espanol', 'Producción de textos', '¿Qué es una cita textual?', ["La transcripción exacta de palabras de otro autor", "Un resumen propio", "Una opinión personal", "Una paráfrasis"], 0, 'Cita textual.');
+  addQ('espanol', 'Producción de textos', '¿Qué es la paráfrasis en la redacción?', ["Explicar con palabras propias las ideas de otro texto", "Copiar letra por letra", "Eliminar párrafos", "Traducir a inglés"], 0, 'Paráfrasis.');
+  addQ('espanol', 'Producción de textos', '¿Qué registro de lenguaje se debe utilizar en un trabajo académico universitario?', ["Registro formal o culto", "Registro coloquial", "Lenguaje de chat", "Jerga callejera"], 0, 'Formal.');
+  addQ('espanol', 'Producción de textos', '¿Qué recurso evita repetir innecesariamente la misma palabra en un párrafo?', ["El uso de sinónimos", "Escribir en mayúsculas", "Usar comillas", "Repetir el sustantivo"], 0, 'Sinónimos.');
+  addQ('espanol', 'Producción de textos', '¿Qué elemento indica la lista de fuentes consultadas al final de una investigación?', ["La bibliografía o referencias", "El prólogo", "La dedicatoria", "El índice analítico"], 0, 'Bibliografía.');
+  addQ('espanol', 'Producción de textos', '¿Qué función cumple el resumen al inicio de un artículo académico?', ["Sintetizar el objetivo, metodología y conclusiones principales", "Contar chistes", "Publicitar productos", "Agregar imágenes"], 0, 'Sintetizar el contenido.');
+  addQ('espanol', 'Producción de textos', '¿Qué es un sinónimo?', ["Una palabra con significado idéntico o muy semejante a otra", "Palabra con significado opuesto", "Palabra que suena igual", "Palabra sin acento"], 0, 'Sinónimo.');
+  addQ('espanol', 'Producción de textos', '¿Qué es un antónimo?', ["Una palabra con significado opuesto o contrario a otra", "Palabra con igual significado", "Palabra homófona", "Sílaba tónica"], 0, 'Antónimo.');
+  addQ('espanol', 'Producción de textos', '¿Qué son las palabras homófonas?', ["Palabras que suenan igual pero tienen distinta grafía y significado", "Palabras opuestas", "Palabras sinónimas", "Palabras esdrújulas"], 0, 'Homófonas.');
+  addQ('espanol', 'Producción de textos', '¿Qué son las palabras homógrafas?', ["Palabras que se escriben exactamente igual pero tienen distinto significado", "Palabras contrarias", "Palabras raras", "Abreviaturas"], 0, 'Homógrafas.');
+  addQ('espanol', 'Producción de textos', '¿Qué es un neologismo en el idioma?', ["Una palabra o expresión recién incorporada a la lengua", "Una palabra arcaica muerta", "Un error ortográfico", "Un modismo antiguo"], 0, 'Neologismo.');
+  addQ('espanol', 'Producción de textos', '¿Qué es un arcaísmo?', ["Una palabra o uso antiguo que ha caído en desuso", "Una palabra de moda", "Un anglicismo", "Una abreviatura"], 0, 'Arcaísmo.');
+  addQ('espanol', 'Producción de textos', '¿Qué es un anglicismo?', ["Un vocablo o expresión procedente del idioma inglés", "Una palabra francesa", "Una palabra indígena", "Un latinismo"], 0, 'Anglicismo.');
+  addQ('espanol', 'Producción de textos', '¿Qué es la denotación de una palabra?', ["El significado objetivo y literal registrado en el diccionario", "El sentido figurado", "La rima", "La métrica"], 0, 'Denotación.');
+  addQ('espanol', 'Producción de textos', '¿Qué es la connotación de una palabra?', ["El significado subjetivo, afectivo o expresivo añadido al literal", "El significado literal estricto", "La tilde", "La consonante"], 0, 'Connotación.');
+  addQ('artes', 'Artes visuales', '¿Cuáles son los tres colores primarios tradicionales en pintura?', ["Rojo, Azul y Amarillo", "Verde, Naranja y Violeta", "Blanco, Negro y Gris", "Cian, Magenta y Negro"], 0, 'Primarios.');
+  addQ('artes', 'Artes visuales', '¿Qué color secundario se obtiene al mezclar azul y amarillo?', ["Verde", "Naranja", "Morado", "Marrón"], 0, 'Verde.');
+  addQ('artes', 'Artes visuales', '¿Qué color resulta de combinar rojo y amarillo?', ["Naranja", "Verde", "Violeta", "Rosa"], 0, 'Naranja.');
+  addQ('artes', 'Artes visuales', '¿Qué color resulta de mezclar rojo y azul?', ["Violeta / Morado", "Verde", "Naranja", "Café"], 0, 'Violeta.');
+  addQ('artes', 'Artes visuales', '¿Cómo se llaman los colores opuestos en el círculo cromático?', ["Colores complementarios", "Colores análogos", "Colores neutros", "Colores fríos"], 0, 'Complementarios.');
+  addQ('artes', 'Artes visuales', '¿Qué sensaciones suelen transmitir los colores fríos (azul, verde)?', ["Calma, frescura o tranquilidad", "Calor y fuego", "Oscuridad total", "Ruido sonoro"], 0, 'Calma.');
+  addQ('artes', 'Artes visuales', '¿Cuáles son ejemplos de colores cálidos en pintura?', ["Rojo, naranja y amarillo", "Azul, violeta y verde", "Negro, gris y blanco", "Plata y oro"], 0, 'Cálidos.');
+  addQ('artes', 'Artes visuales', '¿Qué técnica de pintura utiliza pigmentos diluidos en agua sobre papel?', ["Acuarela", "Óleo", "Fresco", "Grabado"], 0, 'Acuarela.');
+  addQ('artes', 'Artes visuales', '¿Qué técnica pictórica usa aceite para aglutinar pigmentos sobre lienzo?', ["Óleo", "Acuarela", "Pastel", "Muralismo fresco"], 0, 'Óleo.');
+  addQ('artes', 'Artes visuales', '¿Qué artista renacentista pintó la \'Mona Lisa\'?', ["Leonardo da Vinci", "Miguel Ángel", "Rafael", "Donatello"], 0, 'Da Vinci.');
+  addQ('artes', 'Artes visuales', '¿Quién esculpió el \'David\' en mármol?', ["Miguel Ángel", "Da Vinci", "Bernini", "Rodin"], 0, 'Miguel Ángel.');
+  addQ('artes', 'Artes visuales', '¿A qué corriente artística perteneció Vincent van Gogh?', ["Postimpresionismo", "Cubismo", "Surrealismo", "Pop Art"], 0, 'Postimpresionismo.');
+  addQ('artes', 'Artes visuales', '¿Qué artista fue líder del Cubismo junto con Braque?', ["Pablo Picasso", "Salvador Dalí", "Velázquez", "Goya"], 0, 'Picasso.');
+  addQ('artes', 'Artes visuales', '¿Qué movimiento explora los sueños y el inconsciente?', ["Surrealismo", "Realismo", "Impresionismo", "Neoclasicismo"], 0, 'Surrealismo.');
+  addQ('artes', 'Artes visuales', '¿Qué muralista mexicano pintó obras en el Palacio Nacional?', ["Diego Rivera", "Siqueiros", "Orozco", "Tamayo"], 0, 'Diego Rivera.');
+  addQ('artes', 'Artes visuales', '¿Qué pintora mexicana es famosa por sus autorretratos y La Casa Azul?', ["Frida Kahlo", "Remedios Varo", "Leonora Carrington", "María Izquierdo"], 0, 'Frida Kahlo.');
+  addQ('artes', 'Artes visuales', '¿Qué es el claroscuro en pintura?', ["Contraste fuerte entre luz y sombra", "Pintar solo con tonos claros", "Pintar sin pincel", "Pintar en la oscuridad"], 0, 'Claroscuro.');
+  addQ('artes', 'Artes visuales', '¿Qué elemento visual se define como una marca continua en una superficie?', ["La línea", "El plano", "La textura", "El volumen"], 0, 'La línea.');
+  addQ('artes', 'Artes visuales', '¿Qué cualidad visual hace referencia a la textura tactil o visual?', ["La textura", "El matiz", "El tono", "La escala"], 0, 'Textura.');
+  addQ('artes', 'Artes visuales', '¿Qué es la perspectiva lineal con punto de fuga?', ["Técnica para dar ilusión 3D en plano 2D", "Mezcla de acuarelas", "Pintar sin lienzo", "Esculpir en madera"], 0, 'Perspectiva.');
+  addQ('artes', 'Artes visuales', '¿Qué herramienta sostiene el lienzo verticalmente mientras el artista trabaja?', ["El caballete", "La paleta", "El rodillo", "El marco"], 0, 'Caballete.');
+  addQ('artes', 'Artes visuales', '¿Qué superficie de madera u óvalo usa el pintor para mezclar sus pigmentos?', ["La paleta", "El lienzo", "El pincel", "El bastidor"], 0, 'Paleta.');
+  addQ('artes', 'Artes visuales', '¿Qué pincel plano y ancho se usa para cubrir grandes fondos cromáticos?', ["Pincel de brocha o paletina", "Pincel de abanico", "Pincel fino de detalle", "Pincel biselado"], 0, 'Paletina.');
+  addQ('artes', 'Artes visuales', '¿Qué material maleable de origen natural se moldea para hacer vasijas y esculturas cerámicas?', ["La arcilla o barro", "El yeso", "El mármol", "El bronce"], 0, 'Arcilla.');
+  addQ('artes', 'Artes visuales', '¿Qué técnica de impresión consiste en tallar una matriz de madera?', ["Xilografía", "Litografía", "Serigrafía", "Aguafuerte"], 0, 'Xilografía.');
+  addQ('artes', 'Artes visuales', '¿Qué técnica gráfica utiliza una piedra pulida para fijar la imagen antes de imprimir?', ["Litografía", "Xilografía", "Serigrafía", "Cianotipia"], 0, 'Litografía.');
+  addQ('artes', 'Artes visuales', '¿Qué técnica artística crea obras ensamblando pequeños trozos de vidrio, piedra o cerámica?', ["Mosaico", "Vitral", "Collage", "Fresco"], 0, 'Mosaico.');
+  addQ('artes', 'Artes visuales', '¿Qué ventana artística de cristal coloreado adorna las catedrales góticas?', ["Vitral o vidriera", "Mosaico", "Fresco", "Tapiz"], 0, 'Vitral.');
+  addQ('artes', 'Artes visuales', '¿Qué técnica artística consiste en pegar diversos materiales sobre una superficie?', ["Collage", "Fresco", "Acuarela", "Escultura"], 0, 'Collage.');
+  addQ('artes', 'Artes visuales', '¿Qué artista surrealista español pintó los relojes blandos en \'La persistencia de la memoria\'?', ["Salvador Dalí", "Joan Miró", "Picasso", "Goya"], 0, 'Dalí.');
+  addQ('artes', 'Artes visuales', '¿Qué pintor francés impresionista es famoso por sus cuadros de nenúfares y lirios de agua?', ["Claude Monet", "Edgar Degas", "Pierre-Auguste Renoir", "Paul Cézanne"], 0, 'Monet.');
+  addQ('artes', 'Artes visuales', '¿Qué artista francés impresionista destacó por sus esculturas y pinturas de bailarinas?', ["Edgar Degas", "Monet", "Manet", "Gauguin"], 0, 'Degas.');
+  addQ('artes', 'Artes visuales', '¿Qué escultor francés del siglo XIX creó la famosa estatua en bronce \'El pensador\'?', ["Auguste Rodin", "Camille Claudel", "Bernini", "Donatello"], 0, 'Rodin.');
+  addQ('artes', 'Artes visuales', '¿Qué movimiento artístico de los años 50 en EE.UU. e Inglaterra usó cómics y anuncios como tema?', ["Arte Pop (Pop Art)", "Minimalismo", "Expresionismo", "Futurismo"], 0, 'Pop Art.');
+  addQ('artes', 'Artes visuales', '¿Qué artista pop estadounidense se hizo célebre por sus serigrafías de latas de sopa Campbell?', ["Andy Warhol", "Roy Lichtenstein", "Keith Haring", "Jackson Pollock"], 0, 'Andy Warhol.');
+  addQ('artes', 'Artes visuales', '¿Qué pintor estadounidense es el máximo referente del \'Action Painting\' y el goteo (dripping)?', ["Jackson Pollock", "Andy Warhol", "Mark Rothko", "Wassily Kandinsky"], 0, 'Pollock.');
+  addQ('artes', 'Artes visuales', '¿Qué pintor ruso es considerado el padre de la pintura abstracta pura en el siglo XX?', ["Wassily Kandinsky", "Kazimir Malevich", "Chagall", "El Lissitzky"], 0, 'Kandinsky.');
+  addQ('artes', 'Artes visuales', '¿Qué movimiento artístico vanguardista exaltaba la velocidad, las máquinas y la tecnología?', ["Futurismo", "Dadaísmo", "Simbolismo", "Románticismo"], 0, 'Futurismo.');
+  addQ('artes', 'Artes visuales', '¿Qué movimiento antiartístico nació en Zúrich en 1916 desafiando la lógica y la razón?', ["Dadaísmo", "Cubismo", "Fauvismo", "Barroco"], 0, 'Dadaísmo.');
+  addQ('artes', 'Artes visuales', '¿Qué técnica de pintura mural aplica pigmentos sobre yeso fresco húmedo?', ["Pintura al fresco", "Óleo", "Acuarela", "Acrílico"], 0, 'Fresco.');
+  addQ('artes', 'Artes visuales', '¿Qué pigmento blanco o aglutinante sintético de secado rápido se inventó en el siglo XX?', ["Pintura acrílica", "Óleo", "Témpera", "Guafe"], 0, 'Acrílica.');
+  addQ('artes', 'Artes visuales', '¿Qué cualidad del color indica la pureza o intensidad cromática sin gris?', ["La saturación", "El valor", "El tono", "El matiz"], 0, 'Saturación.');
+  addQ('artes', 'Artes visuales', '¿Qué cualidad del color mide el grado de claridad u oscuridad (de blanco a negro)?', ["El valor o luminosidad", "La saturación", "El tinte", "La textura"], 0, 'Valor.');
+  addQ('artes', 'Artes visuales', '¿Qué nombre recibe el atributo cromático por el cual identificamos un color (rojo, verde, etc.)?', ["Matiz, tono o tinte", "Saturación", "Valor", "Brillo"], 0, 'Matiz.');
+  addQ('artes', 'Artes visuales', '¿Qué esquema cromático utiliza variaciones de un único color en diferentes tonos y valores?', ["Monocromía", "Policromía", "Tríada", "Complementario"], 0, 'Monocromía.');
+  addQ('artes', 'Artes visuales', '¿Qué término describe el empleo de múltiples colores vivos en una obra visual?', ["Policromía", "Monocromía", "Acromía", "Bicromía"], 0, 'Policromía.');
+  addQ('artes', 'Artes visuales', '¿Qué término indica una obra pictórica realizada únicamente en tonos grises y negros?', ["Grisalla", "Monocromía cálida", "Fauvismo", "Puntillismo"], 0, 'Grisalla.');
+  addQ('artes', 'Artes visuales', '¿Qué técnica pictórica del divisionismo aplica pequeños puntos de color puro sobre el lienzo?', ["Puntillismo (Georges Seurat)", "Cubismo", "Muralismo", "Impresionismo"], 0, 'Puntillismo.');
+  addQ('artes', 'Artes visuales', '¿Qué artista francés lideró el Puntillismo con su obra \'Tarde de domingo en la isla de la Grande Jatte\'?', ["Georges Seurat", "Paul Signac", "Monet", "Gauguin"], 0, 'Seurat.');
+  addQ('artes', 'Artes visuales', '¿Qué artista postimpresionista francés vivió en Tahití y pintó escenas polinesias?', ["Paul Gauguin", "Van Gogh", "Cézanne", "Toulouse-Lautrec"], 0, 'Gauguin.');
+  addQ('artes', 'Artes visuales', '¿Qué artista holandés del siglo XVII pintó \'La ronda de noche\' con deslumbrante claroscuro?', ["Rembrandt van Rijn", "Johannes Vermeer", "Rubens", "Van Dyck"], 0, 'Rembrandt.');
+  addQ('artes', 'Artes visuales', '¿Qué pintor holandés es autor del célebre retrato \'La joven de la perla\'?', ["Johannes Vermeer", "Rembrandt", "Hals", "Bosch"], 0, 'Vermeer.');
+  addQ('artes', 'Artes visuales', '¿Qué pintor renacentista italiano creó la majestuosa pintura al fresco \'La escuela de Atenas\'?', ["Rafael Sanzio", "Da Vinci", "Miguel Ángel", "Botticelli"], 0, 'Rafael.');
+  addQ('artes', 'Artes visuales', '¿Qué pintor florentino pintó el alegórico cuadro \'El nacimiento de Venus\'?', ["Sandro Botticelli", "Da Vinci", "Giotto", "Mantegna"], 0, 'Botticelli.');
+  addQ('artes', 'Artes visuales', '¿Qué pintor español del siglo XVII pintó las obras maestras \'Las meninas\' y \'La rendición de Breda\'?', ["Diego Velázquez", "Francisco de Goya", "El Greco", "Murillo"], 0, 'Velázquez.');
+  addQ('artes', 'Artes visuales', '¿Qué pintor español creó los estremecedores lienzos \'El 3 de mayo en Madrid\' y \'Las pinturas negras\'?', ["Francisco de Goya", "Velázquez", "Zurbarán", "Sorolla"], 0, 'Goya.');
+  addQ('artes', 'Artes visuales', '¿Qué pintor renacentista alemán es famoso por sus grabados en madera como \'El caballero, la muerte y el diablo\'?', ["Alberto Durero (Albrecht Dürer)", "Holbein", "Cranach", "Grünewald"], 0, 'Durero.');
+  addQ('artes', 'Artes visuales', '¿Qué escultor italiano del Barroco esculpió el dramático grupo en mármol \'El éxtasis de Santa Teresa\'?', ["Gian Lorenzo Bernini", "Donatello", "Canova", "Brunelleschi"], 0, 'Bernini.');
+  addQ('artes', 'Artes visuales', '¿Qué arquitecto renacentista diseñó la majestuosa cúpula de la Catedral de Florencia?', ["Filippo Brunelleschi", "Alberti", "Bramante", "Palladio"], 0, 'Brunelleschi.');
+  addQ('artes', 'Artes visuales', '¿Qué movimiento artístico de principios del siglo XX se caracterizó por colores violentos y arbitrarios?', ["Fauvismo (Henri Matisse)", "Cubismo", "Realismo", "Minimalismo"], 0, 'Fauvismo.');
+  addQ('artes', 'Música', '¿Cuántas líneas paralelas forman un pentagrama musical?', ["5 líneas", "4 líneas", "6 líneas", "3 líneas"], 0, '5 líneas.');
+  addQ('artes', 'Música', '¿Cuántos espacios se forman entre las 5 líneas del pentagrama?', ["4 espacios", "5 espacios", "3 espacios", "6 espacios"], 0, '4 espacios.');
+  addQ('artes', 'Música', '¿Qué clave musical registra las notas agudas en el pentagrama?', ["Clave de Sol", "Clave de Fa", "Clave de Do", "Clave Neutra"], 0, 'Clave de sol.');
+  addQ('artes', 'Música', '¿Qué clave musical registra las notas graves en el pentagrama?', ["Clave de Fa", "Clave de Sol", "Clave de Do", "Clave de Re"], 0, 'Clave de fa.');
+  addQ('artes', 'Música', '¿Cuál de los siguientes instrumentos es de viento madera?', ["Flauta traversa", "Trompeta", "Violín", "Tambor"], 0, 'Flauta traversa.');
+  addQ('artes', 'Música', '¿Cuál instrumento pertenece a la familia de viento metal?', ["Trompeta", "Clarinete", "Piano", "Guitarra"], 0, 'Trompeta.');
+  addQ('artes', 'Música', '¿Qué instrumento de cuerda se toca frotando un arco?', ["Violonchelo", "Arpa", "Banjo", "Ukelele"], 0, 'El violonchelo.');
+  addQ('artes', 'Música', '¿Qué instrumento de percusión produce notas musicales afinadas?', ["Xilófono", "Bombo", "Maracas", "Triángulo"], 0, 'El xilófono.');
+  addQ('artes', 'Música', '¿Quién compuso la Novena Sinfonía y el Himno a la Alegría?', ["Beethoven", "Mozart", "Bach", "Tchaikovsky"], 0, 'Beethoven.');
+  addQ('artes', 'Música', '¿Quién compuso \'La flauta mágica\' y \'Las bodas de Fígaro\'?', ["Mozart", "Beethoven", "Schubert", "Chopin"], 0, 'Mozart.');
+  addQ('artes', 'Música', '¿Quién es el gran maestro del periodo Barroco y el contrapunto?', ["Bach", "Mozart", "Vivaldi", "Handel"], 0, 'Bach.');
+  addQ('artes', 'Música', '¿Qué compositor italiano compuso \'Las cuatro estaciones\'?', ["Antonio Vivaldi", "Bach", "Corelli", "Scarlatti"], 0, 'Vivaldi.');
+  addQ('artes', 'Música', '¿Qué propiedad del sonido identifica el color propio de cada instrumento?', ["El timbre", "La intensidad", "La duración", "La altura"], 0, 'El timbre.');
+  addQ('artes', 'Música', '¿Qué cualidad del sonido distingue entre sonidos graves y agudos?', ["La altura o tono", "El timbre", "La intensidad", "La duración"], 0, 'La altura.');
+  addQ('artes', 'Música', '¿Qué propiedad del sonido hace referencia al volumen (fuerte o suave)?', ["La intensidad", "La altura", "El timbre", "El ritmo"], 0, 'La intensidad.');
+  addQ('artes', 'Música', '¿Qué figura musical dura 1 tiempo en compás de 4/4?', ["La negra", "La redonda", "La blanca", "La corchea"], 0, 'La negra.');
+  addQ('artes', 'Música', '¿Cuántos tiempos dura la figura blanca en compás de 4/4?', ["2 tiempos", "1 tiempo", "4 tiempos", "Half tiempo"], 0, '2 tiempos.');
+  addQ('artes', 'Música', '¿Cuántos tiempos dura la figura redonda en compás de 4/4?', ["4 tiempos", "2 tiempos", "1 tiempo", "8 tiempos"], 0, '4 tiempos.');
+  addQ('artes', 'Música', '¿Qué género musical mexicano fue declarado Patrimonio de la Humanidad?', ["El Mariachi", "La Salsa", "El Reggaetón", "El Jazz"], 0, 'El mariachi.');
+  addQ('artes', 'Música', '¿Qué instrumento de cuerda grande marca los bajos en el mariachi?', ["El guitarrón", "La vihuela", "El charango", "La mandolina"], 0, 'El guitarrón.');
+  addQ('artes', 'Música', '¿Qué figura musical equivale a medio tiempo (1/2) en un compás de 4/4?', ["La corchea", "La negra", "La semicorchea", "La fusa"], 0, 'Corchea.');
+  addQ('artes', 'Música', '¿Cuántas corcheas equivalen a la duración de una sola figura negra?', ["2 corcheas", "4 corcheas", "3 corcheas", "8 corcheas"], 0, '2 corcheas.');
+  addQ('artes', 'Música', '¿Qué término musical italiano indica ejecutar una pieza de manera muy lenta y solemne?', ["Adagio o Largo", "Allegro", "Presto", "Vivace"], 0, 'Adagio/Largo.');
+  addQ('artes', 'Música', '¿Qué término musical italiano indica un ritmo rápido, alegre y animado?', ["Allegro", "Lento", "Andante", "Adagio"], 0, 'Allegro.');
+  addQ('artes', 'Música', '¿Qué término musical significa aumentar gradualmente la intensidad del volumen?', ["Crescendo", "Decrescendo", "Diminuendo", "Pianissimo"], 0, 'Crescendo.');
+  addQ('artes', 'Música', '¿Qué indicación de dinámica significa tocar con un volumen muy suave?', ["Pianissimo (pp)", "Fortissimo (ff)", "Mezzoforte", "Forte"], 0, 'Pianissimo.');
+  addQ('artes', 'Música', '¿Qué indicación de dinámica significa tocar con un volumen muy fuerte e intenso?', ["Fortissimo (ff)", "Piano", "Mezzopiano", "Adagio"], 0, 'Fortissimo.');
+  addQ('artes', 'Música', '¿Qué instrumento de viento madera utiliza una caña o lengüeta doble para producir sonido?', ["El oboe", "La flauta dulce", "El clarinete", "La trompeta"], 0, 'El oboe.');
+  addQ('artes', 'Música', '¿Qué instrumento de viento madera muy grave utiliza lengüeta doble y mide casi 2.5 metros plegado?', ["El fagot", "El saxofón soprano", "La flauta traversa", "La tuba"], 0, 'El fagot.');
+  addQ('artes', 'Música', '¿Qué instrumento de la familia de cuerdas frotadas es el más grave de la orquesta?', ["El contrabajo", "El violonchelo", "La viola", "El violín"], 0, 'El contrabajo.');
+  addQ('artes', 'Música', '¿Qué instrumento de cuerda afinado se toca pulsando teclas que accionan pequeños martillos internos?', ["El piano", "El clavicémbalo", "El órgano", "El acordeón"], 0, 'El piano.');
+  addQ('artes', 'Música', '¿Qué compositor polaco del Romanticismo es considerado el \'Poeta del Piano\'?', ["Frédéric Chopin", "Franz Liszt", "Schumann", "Brahms"], 0, 'Chopin.');
+  addQ('artes', 'Música', '¿Qué compositor húngaro fue un virtuoso pianista romántico y creador de los poemas sinfónicos?', ["Franz Liszt", "Chopin", "Rachmaninoff", "Scriabin"], 0, 'Liszt.');
+  addQ('artes', 'Música', '¿Qué compositor ruso escribió los célebres ballets \'El lago de los cisnes\' y \'El cascanueces\'?', ["Pyotr Ilyich Tchaikovsky", "Stravinsky", "Prokofiev", "Rimsky-Korsakov"], 0, 'Tchaikovsky.');
+  addQ('artes', 'Música', '¿Qué compositor ruso revolucionó la música en 1913 con su ballet \'La consagración de la primavera\'?', ["Igor Stravinsky", "Shostakovich", "Rachmaninoff", "Borodin"], 0, 'Stravinsky.');
+  addQ('artes', 'Música', '¿Qué género musical nació a finales del siglo XIX en Nueva Orleans combinando ritmos afroamericanos e improvisación?', ["El Jazz", "El Rock", "El Blues", "El Country"], 0, 'Jazz.');
+  addQ('artes', 'Música', '¿Qué instrumento de viento metal con llaves e inventado por Adolphe Sax es icono del Jazz?', ["El saxofón", "El trombón", "El corno francés", "La tuba"], 0, 'Saxofón.');
+  addQ('artes', 'Música', '¿Qué compositor mexicano compuso el famoso \'Huapango\' considerado el segundo himno nacional de México?', ["José Pablo Moncayo", "Silvestre Revueltas", "Manuel M. Ponce", "Carlos Chávez"], 0, 'Moncayo.');
+  addQ('artes', 'Música', '¿Qué compositor mexicano creó las emblemáticas piezas orquestales \'Sensemaya\' y \'La noche de los mayas\'?', ["Silvestre Revueltas", "Moncayo", "Juventino Rosas", "Manuel M. Ponce"], 0, 'Revueltas.');
+  addQ('artes', 'Música', '¿Qué compositor mexicano de finales del siglo XIX compuso el inmortal vals \'Sobre las olas\'?', ["Juventino Rosas", "Moncayo", "Revueltas", "Chávez"], 0, 'Juventino Rosas.');
+  addQ('artes', 'Música', '¿Qué género de música folclórica del estado de Veracruz destaca por la jarana, la arpa y el zapateado?', ["El Son Jarocho", "La Chilena", "La Trova", "El Huapango arribeño"], 0, 'Son Jarocho.');
+  addQ('artes', 'Música', '¿Qué canción tradicional del Son Jarocho es famosa internacionalmente?', ["La Bamba", "La Llorona", "El Zopilote", "La Bruja"], 0, 'La Bamba.');
+  addQ('artes', 'Música', '¿Qué género musical del estado de Jalisco y el bajío mexicano acompaña celebraciones con trompetas y violines?', ["El Son Jalisciense / Mariachi", "La Picota", "El Jarabe mixteco", "La Danza de los viejitos"], 0, 'Mariachi.');
+  addQ('artes', 'Música', '¿Qué es un intervalo musical?', ["La distancia de altura entre dos notas musicales", "El volumen de una canción", "La duración de un silencio", "El ritmo de la batería"], 0, 'Distancia entre notas.');
+  addQ('artes', 'Música', '¿Qué es un acorde musical?', ["El conjunto de tres o más notas tocadas simultáneamente", "Una sola nota muy larga", "El silencio final", "La afinación de la voz"], 0, 'Acorde.');
+  addQ('artes', 'Música', '¿Qué es la armonía en la música?', ["La combinación de notas que suenan simultáneamente creando acordes", "La velocidad del pulso", "La letra cantada", "El instrumento de percusión"], 0, 'Armonía.');
+  addQ('artes', 'Música', '¿Qué es la melodía?', ["La sucesión lineal y coherente de notas con ritmo que forma una frase musical", "El ritmo de la batería", "El volumen máximo", "El silencio"], 0, 'Melodía.');
+  addQ('artes', 'Música', '¿Qué cualidad del compás señala si se divide en dos, tres o cuatro pulsos principales?', ["El metro o métrica", "La tonalidad", "La clave", "El timbre"], 0, 'Métrica.');
+  addQ('artes', 'Música', '¿Qué tipo de compás musical de 3/4 es característico del Vals?', ["Compás ternario (3 pulsos por compás)", "Compás binario", "Compás cuaternario", "Compás irregular"], 0, 'Compás ternario.');
+  addQ('artes', 'Música', '¿Qué tipo de compás de 4/4 es el más común en la música popular actual?', ["Compás cuaternario (4 pulsos)", "Compás de 3/4", "Compás de 6/8", "Compás de 5/4"], 0, 'Compás cuaternario.');
+  addQ('artes', 'Música', '¿Qué es el ostinato en la composición musical?', ["Un patrón melódico o rítmico que se repite persistentemente", "Un silencio largo", "La nota más aguda de la soprano", "El solo de violín"], 0, 'Ostinato.');
+  addQ('artes', 'Música', '¿Qué es el arpegio?', ["Tocar las notas de un acorde de forma sucesiva en vez de simultánea", "Gritar al cantar", "Tocar muy fuerte", "Afinar el instrumento"], 0, 'Arpegio.');
+  addQ('artes', 'Música', '¿Qué es la polifonía?', ["Música que combina simultáneamente dos o más líneas melódicas independientes", "Música tocada por una sola voz", "Música sin ritmo", "Música de percusión"], 0, 'Polifonía.');
+  addQ('artes', 'Música', '¿Qué es la monofonía?', ["Música compuesta por una sola línea melódica sin acompañamiento", "Música con orquesta completa", "Música electrónica", "Música con varios acordes"], 0, 'Monofonía.');
+  addQ('artes', 'Música', '¿Qué grupo vocal lírico está formado por cuatro registros principales: Soprano, Contralto, Tenor y Bajo?', ["El coro mixto (SATB)", "El cuarteto de cuerdas", "La banda marcial", "La estudiantina"], 0, 'Coro mixto.');
+  addQ('artes', 'Música', '¿Qué registro de voz humana corresponde a la voz femenina o infantil más aguda?', ["Soprano", "Mezzosoprano", "Contralto", "Tenor"], 0, 'Soprano.');
+  addQ('artes', 'Música', '¿Qué registro de voz masculina corresponde al tono más agudo en canto clásico?', ["Tenor", "Barítono", "Bajo", "Contralto"], 0, 'Tenor.');
+  addQ('artes', 'Música', '¿Qué registro de voz masculina es el más grave de la escala lírica?', ["Bajo", "Barítono", "Tenor", "Soprano"], 0, 'Bajo.');
+  addQ('artes', 'Música', '¿Qué es una ópera?', ["Obra teatral cantada íntegramente con acompañamiento orquestal", "Un concierto de piano", "Un baile folclórico", "Un poema leído"], 0, 'Ópera.');
+  addQ('artes', 'Música', '¿Qué es un libreto en el contexto de la ópera o comedia musical?', ["El texto escrito que contiene los diálogos y canciones de la obra", "La partitura del director", "La utilería de escena", "El programa de mano"], 0, 'Libreto.');
+  addQ('artes', 'Danza', '¿Cómo se denomina la secuencia de pasos y movimientos estructurados en una baile?', ["La coreografía", "La utilería", "El escenario", "El vestuario"], 0, 'Coreografía.');
+  addQ('artes', 'Danza', '¿Qué elemento fundamental de la danza se refiere a la organización del ritmo en la ejecución?', ["El tiempo", "El pincel", "El volumen", "La utilería"], 0, 'Tiempo.');
+  addQ('artes', 'Danza', '¿Qué elemento de la danza involucra el trayecto, niveles y direcciones por donde se mueve el bailarin?', ["El espacio", "La utilería", "El guion", "El texto"], 0, 'Espacio.');
+  addQ('artes', 'Danza', '¿Qué cualidad de la danza se refiere a la fuerza o intensidad aplicada en el movimiento corporal?', ["La energía", "La masa", "La perspectiva", "El matiz"], 0, 'Energía.');
+  addQ('artes', 'Danza', '¿Qué baile folclórico del estado de Jalisco es considerado el baile nacional de México?', ["El Jarabe Tapatío", "La Bamba", "El Huapango", "La Chilena"], 0, 'Jarabe Tapatío.');
+  addQ('artes', 'Danza', '¿Qué danza tradicional mexicana de Michoacán es ejecutada por bailarines con máscaras de ancianos y bastones?', ["La Danza de los Viejitos", "El Baile del Venado", "Los Matachines", "La Danza de los Quetzales"], 0, 'Danza de los Viejitos.');
+  addQ('artes', 'Danza', '¿Qué danza autóctona de Sonora representa la cacería de un animal sagrado para los yaquis?', ["La Danza del Venado", "El Jarabe", "El Zopilote", "La Polca"], 0, 'Danza del Venado.');
+  addQ('artes', 'Danza', '¿Qué tipo de danza nació en las cortes reales europeas del Renacimiento y perfeccionó las puntas en el siglo XIX?', ["El Ballet Clásico", "El Hip Hop", "La Salsa", "El Flamenco"], 0, 'Ballet Clásico.');
+  addQ('artes', 'Danza', '¿Qué estilo de danza surgió a inicios del siglo XX como rebelión contra la rigidez del ballet clásico?', ["Danza Contemporánea o Moderna", "Ballet", "Danza Barroca", "Vals"], 0, 'Danza Contemporánea.');
+  addQ('artes', 'Danza', '¿Qué baile folclórico español de Andalucía combina el zapateado, el cante y la guitarra?', ["El Flamenco", "El Tango", "La Samba", "El Merengue"], 0, 'Flamenco.');
+  addQ('artes', 'Danza', '¿Qué baile de pareja apasionado y dramático nació en los barrios de Buenos Aires, Argentina?', ["El Tango", "La Cumbia", "El Rumbón", "La Bachata"], 0, 'Tango.');
+  addQ('artes', 'Danza', '¿Qué ritmo y baile folclórico tropical es originario de la costa del Caribe colombiano?', ["La Cumbia", "El Tango", "El Flamenco", "El Waltz"], 0, 'Cumbia.');
+  addQ('artes', 'Danza', '¿Qué baile folclórico brasileño es el protagonista del famoso Carnaval de Río de Janeiro?', ["La Samba", "La Cumbia", "El Tango", "El Mambo"], 0, 'Samba.');
+  addQ('artes', 'Danza', '¿Qué género de baile callejero nació en Nueva York en los años 70 ligado a la cultura Hip-Hop?', ["Breakdance / Street Dance", "Ballet", "Tango", "Danza Folclórica"], 0, 'Breakdance.');
+  addQ('artes', 'Danza', '¿Qué calzado especial rígido usan las bailarinas de ballet para sostenerse sobre los dedos?', ["Zapatillas de punta", "Botas de zapateado", "Sandalias", "Tenis"], 0, 'Zapatillas de punta.');
+  addQ('artes', 'Danza', '¿Qué objeto o calzado con clavos en talón y punta usan los bailarines de flamenco y folclor para percutir el suelo?', ["Zapatos de zapateado", "Zapatillas de punta", "Descalzos", "Pantuflas"], 0, 'Zapateado.');
+  addQ('artes', 'Danza', '¿Qué término designa la vestimenta ceremonial o típica usada por los bailarines en una danza?', ["El vestuario o traje típico", "La utilería", "La escenografía", "El programa"], 0, 'Vestuario.');
+  addQ('artes', 'Danza', '¿Qué es la improvisación en la danza?', ["Crear movimientos espontáneos en el momento sin coreografía previa", "Memorizar pasos", "Caerse al suelo", "Tocar el piano"], 0, 'Improvisación.');
+  addQ('artes', 'Danza', '¿Qué es la alineación corporal en la técnica dancística?', ["La postura correcta y equilibrio de la columna y articulaciones", "Bailar rápido", "Saltar alto", "Usar maquillaje"], 0, 'Alineación corporal.');
+  addQ('artes', 'Danza', '¿Qué técnica de danza moderna fue creada por la célebre bailarina estadounidense Martha Graham?', ["Técnica Graham (contracción y liberación)", "Técnica Vaganova", "Método Cecchetti", "Técnica Royal"], 0, 'Técnica Graham.');
+  addQ('artes', 'Danza', '¿Qué gran bailarina y coreógrafa mexicana fundó el Ballet Folklórico de México?', ["Amalia Hernández", "Guillermina Bravo", "Alicia Alonso", "Nelly Campobello"], 0, 'Amalia Hernández.');
+  addQ('artes', 'Danza', '¿Qué eminente bailarina mexicana es Primera Bailarina del Staatsballett Berlin?', ["Elisa Carrillo Cabrera", "Amalia Hernández", "Sonia Amelio", "Pilar Rioja"], 0, 'Elisa Carrillo.');
+  addQ('artes', 'Danza', '¿Qué es la expresión corporal?', ["El uso del cuerpo para comunicar emociones e ideas sin palabras", "Cantar muy fuerte", "Escribir versos", "Pintar cuadros"], 0, 'Expresión corporal.');
+  addQ('artes', 'Danza', '¿Qué es un solo en una función de danza?', ["Una interpretación dancística ejecutada por un único bailarín", "Un baile de grupo", "El descanso", "El aplauso final"], 0, 'Solo.');
+  addQ('artes', 'Danza', '¿Qué es un \'Pas de deux\' en el ballet clásico?', ["Un baile o dueto interpretado por dos bailarines (bailarina y bailarín)", "Un baile de diez personas", "Un salto mortal", "La entrada del público"], 0, 'Pas de deux.');
+  addQ('artes', 'Danza', '¿Qué es el cuerpo de baile en una compañía de ballet?', ["El grupo de bailarines que actúan juntos en escena respaldando a los solistas", "El director", "Los músicos", "El público"], 0, 'Cuerpo de baile.');
+  addQ('artes', 'Danza', '¿Qué es el ritmo corporal?', ["La capacidad de seguir la pulsación musical con movimientos del cuerpo", "El vestuario", "La escenografía", "La iluminación"], 0, 'Ritmo corporal.');
+  addQ('artes', 'Danza', '¿Qué es el centro de gravedad en el movimiento del bailarín?', ["El punto del cuerpo (zona pélvica/abdominal) donde se equilibra el peso", "Los pies", "La cabeza", "Las manos"], 0, 'Centro de gravedad.');
+  addQ('artes', 'Danza', '¿Qué es un giro o pirueta en danza?', ["Una rotación completa del cuerpo sobre un solo pie", "Un salto vertical", "Una caída", "Un paso atrás"], 0, 'Pirueta.');
+  addQ('artes', 'Danza', '¿Qué es la flexibilidad en la preparación física del bailarín?', ["La capacidad de las articulaciones de realizar movimientos de gran amplitud", "La fuerza muscular bruta", "La velocidad al correr", "La memoria de pasos"], 0, 'Flexibilidad.');
+  addQ('artes', 'Danza', '¿Qué danza tradicional del norte de México incluye ritmos acelerados como la polca y la redova?', ["El baile norteño / Polca norteña", "La jarana", "La chilena", "El son jarocho"], 0, 'Polca norteña.');
+  addQ('artes', 'Danza', '¿Qué baile tradicional del estado de Yucatán se baila erguido sosteniendo botellas en la cabeza?', ["La Jarana Yucateca", "El Huapango", "La Bamba", "El Sambenito"], 0, 'Jarana Yucateca.');
+  addQ('artes', 'Danza', '¿Qué danza folclórica de la región Huasteca mexicana incluye un complejo zapateado sobre tarima de madera?', ["El Huapango Huasteco", "La Cumbia", "El Mambo", "El Danzón"], 0, 'Huapango Huasteco.');
+  addQ('artes', 'Danza', '¿Qué elegante baile de salón de origen cubano es popular en los salones de la Ciudad de México como el Salón México?', ["El Danzón", "La Salsa", "El Rock and Roll", "El Hip Hop"], 0, 'Danzón.');
+  addQ('artes', 'Danza', '¿Qué ritmo y baile tropical afrocaribeño se originó en los barrios neoyorquinos con aportes puertorriqueños y cubanos?', ["La Salsa", "El Tango", "El Flamenco", "El Vals"], 0, 'Salsa.');
+  addQ('artes', 'Danza', '¿Qué baile caribeño originario de República Dominicana destaca por su ritmo alegre de tambora y güira?', ["El Merengue", "El Tango", "La Samba", "El Pasodoble"], 0, 'Merengue.');
+  addQ('artes', 'Danza', '¿Qué baile sensual caribeño dominicano de ritmo lento se baila en pareja abrazada al son del requinto?', ["La Bachata", "El Merengue", "La Cumbia", "El Mambo"], 0, 'Bachata.');
+  addQ('artes', 'Danza', '¿Qué es la utilería de mano en una coreografía dancística (sombreros, abanicos, cintas)?', ["Accesorios que los bailarines incorporan al baile", "El escenario de madera", "La luz", "La música"], 0, 'Accesorios de mano.');
+  addQ('artes', 'Danza', '¿Qué es el estiramiento o calentamiento previo en la danza?', ["Ejercicios para preparar músculos y evitar lesiones antes de bailar", "Bailar sin música", "Comer antes de actuar", "Dormir"], 0, 'Calentamiento.');
+  addQ('artes', 'Danza', '¿Qué es la apreciación dancística?', ["La capacidad crítica de valorar, comprender y disfrutar una obra de danza", "Aprender a coser trajes", "Tocar el violín", "Contar boletos"], 0, 'Apreciación dancística.');
+  addQ('artes', 'Teatro', '¿Qué término designa los objetos físicos utilizados por los actores en escena?', ["La utilería", "La escenografía", "El vestuario", "El libreto"], 0, 'Utilería.');
+  addQ('artes', 'Teatro', '¿Cómo se llama el texto escrito que contiene los diálogos y acotaciones de una obra teatral?', ["El guion o libreto teatral", "El poema", "El ensayo", "La partitura"], 0, 'Guion teatral.');
+  addQ('artes', 'Teatro', '¿Cómo se llaman las indicaciones escritas entre paréntesis en el guion sobre gestos, movimientos y entradas?', ["Acotaciones", "Diálogos", "Monólogos", "Escenas"], 0, 'Acotaciones.');
+  addQ('artes', 'Teatro', '¿Cómo se denomina la conversación hablada entre dos o más personajes en escena?', ["Diálogo", "Monólogo", "Soliloquio", "Aparte"], 0, 'Diálogo.');
+  addQ('artes', 'Teatro', '¿Qué es un monólogo en el teatro?', ["El discurso extenso que pronuncia un solo personaje en voz alta", "Un diálogo entre tres", "La música de fondo", "El aplauso"], 0, 'Monólogo.');
+  addQ('artes', 'Teatro', '¿Qué es un soliloquio?', ["Cuando un personaje reflexiona en voz alta a solas revelando sus pensamientos al público", "Un diálogo rápido", "Un baile", "Una acotación"], 0, 'Soliloquio.');
+  addQ('artes', 'Teatro', '¿Qué es el \'aparte\' teatral?', ["Cuando un personaje habla directamente al público sin que los otros personajes en escena lo oigan", "La utilería", "El telón", "El camerino"], 0, 'Aparte.');
+  addQ('artes', 'Teatro', '¿Qué género teatral clásico trata temas graves con un destino fatal y trágico para el protagonista?', ["La Tragedia", "La Comedia", "El Sainete", "El Entremés"], 0, 'Tragedia.');
+  addQ('artes', 'Teatro', '¿Qué género teatral busca divertir al espectador mediante situaciones jocosas y final feliz?', ["La Comedia", "La Tragedia", "El Drama desgarrador", "El Melodrama"], 0, 'Comedia.');
+  addQ('artes', 'Teatro', '¿Qué género teatral combina elementos cómicos y trágicos reflejando la vida real?', ["El Drama o Tragicomedia", "La Farsa", "La Ópera", "El Mimo"], 0, 'Drama.');
+  addQ('artes', 'Teatro', '¿Qué es la escenografía teatral?', ["El conjunto de decorados, telones y elementos visuales que ambientan el espacio", "La ropa de los actores", "Las luces", "El texto"], 0, 'Escenografía.');
+  addQ('artes', 'Teatro', '¿Qué es el vestuario en una producción teatral?', ["La ropa y accesorios que caracterizan a los personajes según la época y rol", "Las luces", "Los muebles", "El maquillaje"], 0, 'Vestuario.');
+  addQ('artes', 'Teatro', '¿Qué función cumple la caracterización y maquillaje teatral?', ["Transformar el rostro y apariencia del actor para encarnar al personaje", "Iluminar la sala", "Escribir el guion", "Limpiar el escenario"], 0, 'Caracterización.');
+  addQ('artes', 'Teatro', '¿Quién es el responsable de unificar la visión artística, guiar a los actores y coordinar la obra?', ["El director teatral", "El dramaturgo", "El escenógrafo", "El apuntador"], 0, 'Director teatral.');
+  addQ('artes', 'Teatro', '¿Quién es la persona que escribe el texto dramático u obra de teatro?', ["El dramaturgo", "El actor", "El tramoyista", "El taquillero"], 0, 'Dramaturgo.');
+  addQ('artes', 'Teatro', '¿Cómo se denomina la división principal de una obra teatral (marcada clásicamente por la caída del telón)?', ["El Acto", "La Escena", "El Cuadro", "La Acotación"], 0, 'El Acto.');
+  addQ('artes', 'Teatro', '¿Qué división menor de un acto cambia cada vez que entra o sale un personaje de escena?', ["La Escena", "El Acto", "El Prólogo", "El Epílogo"], 0, 'La Escena.');
+  addQ('artes', 'Teatro', '¿Qué es el telón de boca en un teatro tradicional?', ["El gran cortinaje frontal que separa el escenario del patio de butacas", "El fondo", "La utilería", "Las bambalinas"], 0, 'Telón de boca.');
+  addQ('artes', 'Teatro', '¿Qué son las bambalinas en la tramoya del escenario?', ["Lienzos de tela colgados en el techo del escenario que ocultan los focos", "Las sillas del público", "Los trajes", "Los programas"], 0, 'Bambalinas.');
+  addQ('artes', 'Teatro', '¿Qué es el proscenio en la arquitectura de un escenario teatral?', ["La zona frontal del escenario más cercana al público", "El camerino trasero", "El foso de orquesta", "El techo"], 0, 'Proscenio.');
+  addQ('artes', 'Teatro', '¿Qué es el foro o fondo en el escenario?', ["La parte trasera del escenario opuesta al público", "El frente", "El lateral", "La taquilla"], 0, 'Foro.');
+  addQ('artes', 'Teatro', '¿Qué es el ensayo general antes del estreno?', ["La práctica completa de la obra con vestuario, luces, escenografía y sonido sin interrupciones", "El primer borrador", "La lectura en mesa", "La función pagada"], 0, 'Ensayo general.');
+  addQ('artes', 'Teatro', '¿Qué es la lectura dramatizada o lectura en mesa?', ["El primer paso donde los actores leen el guion dando intención vocal a los personajes", "El estreno", "La construcción de muebles", "La función final"], 0, 'Lectura en mesa.');
+  addQ('artes', 'Teatro', '¿Qué artista dramático es considerado el padre del teatro griego trágico con \'La Orestíada\'?', ["Esquilo", "Sófocles", "Eurípides", "Aristófanes"], 0, 'Esquilo.');
+  addQ('artes', 'Teatro', '¿Qué dramaturgo griego escribió las grandes tragedias \'Edipo Rey\' y \'Antígona\'?', ["Sófocles", "Esquilo", "Eurípides", "Menandro"], 0, 'Sófocles.');
+  addQ('artes', 'Teatro', '¿Qué dramaturgo griego destacó por sus obras más humanas y complejas como \'Medea\' y \'Las troyanas\'?', ["Eurípides", "Sófocles", "Esquilo", "Aristófanes"], 0, 'Eurípides.');
+  addQ('artes', 'Teatro', '¿Qué autor griego es el máximo representante de la comedia antigua con \'Las nubes\' y \'Lisístrata\'?', ["Aristófanes", "Menandro", "Plauto", "Terencio"], 0, 'Aristófanes.');
+  addQ('artes', 'Teatro', '¿Qué dramaturgo inglés renacentista es considerado el más grande escritor de la lengua inglesa (\'Hamlet\', \'Macbeth\')?', ["William Shakespeare", "Christopher Marlowe", "Ben Jonson", "John Webster"], 0, 'William Shakespeare.');
+  addQ('artes', 'Teatro', '¿Qué famoso teatro londinense de madera estaba asociado a las representaciones de Shakespeare?', ["The Globe (El Globo)", "Broadway", "Teatro Scala", "Teatro Real"], 0, 'The Globe.');
+  addQ('artes', 'Teatro', '¿Qué dramaturgo francés del siglo XVII escribió las comedias universales \'Tartufo\' y \'El enfermo imaginario\'?', ["Molière (Jean-Baptiste Poquelin)", "Corneille", "Racine", "Beaumarchais"], 0, 'Molière.');
+  addQ('artes', 'Teatro', '¿Qué poeta y dramaturgo español del Siglo de Oro renovó el teatro con la \'Arte nuevo de hacer comedias\'?', ["Lope de Vega", "Calderón de la Barca", "Tirso de Molina", "Cervantes"], 0, 'Lope de Vega.');
+  addQ('artes', 'Teatro', '¿Qué dramaturgo español escribió el clásico filosófico \'La vida es sueño\'?', ["Calderón de la Barca", "Lope de Vega", "Quevedo", "Góngora"], 0, 'Calderón de la Barca.');
+  addQ('artes', 'Teatro', '¿Qué dramaturgo español del siglo XX compuso las célebres tragedias \'Bodas de sangre\' y \'La casa de Bernarda Alba\'?', ["Federico García Lorca", "Valle-Inclán", "Benavente", "Buero Vallejo"], 0, 'García Lorca.');
+  addQ('artes', 'Teatro', '¿Qué maestro y director teatral ruso creó el influyente \'Método de actuación\' basado en la memoria emotiva?', ["Konstantín Stanislavski", "Vsevolod Meyerhold", "Bertolt Brecht", "Antonin Artaud"], 0, 'Stanislavski.');
+  addQ('artes', 'Teatro', '¿Qué dramaturgo alemán creó el \'Teatro Épico\' o distanciamiento crítico con \'Madre Coraje\'?', ["Bertolt Brecht", "Stanislavski", "Artaud", "Beckett"], 0, 'Bertolt Brecht.');
+  addQ('artes', 'Teatro', '¿Qué corriente teatral del siglo XX expresaba el absurdo de la existencia con obras como \'Esperando a Godot\' de Samuel Beckett?', ["Teatro del Absurdo", "Teatro Realista", "Teatro Barroco", "Teatro Musical"], 0, 'Teatro del Absurdo.');
+  addQ('artes', 'Teatro', '¿Qué es la improvisación teatral?', ["Crear escenas, diálogos y personajes al instante sin libreto previo", "Memorizar el guion", "Leer en voz baja", "Usar vestuario caro"], 0, 'Improvisación teatral.');
+  addQ('artes', 'Teatro', '¿Qué es la proyección vocal en la interpretación actoral?', ["Técnica para hablar con claridad y volumen adecuado que llegue hasta la última fila", "Gritar sin control", "Susurrar", "Usar micrófono de mano"], 0, 'Proyección vocal.');
+  addQ('artes', 'Teatro', '¿Qué es la pantomima o arte del mimo?', ["Representar historias mediante gestos, expresión facial y movimientos corporales sin usar la voz", "Cantar ópera", "Bailar tap", "Escribir textos"], 0, 'Pantomima.');
+  addQ('artes', 'Teatro', '¿Qué gran mimo francés es inmortal con su personaje \'Bip\' de rostro blanco?', ["Marcel Marceau", "Charlie Chaplin", "Buster Keaton", "Jacques Tati"], 0, 'Marcel Marceau.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Apple\'?', ["Manzana", "Naranja", "Plátano", "Uva"], 0, 'Apple = Manzana.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Dog\'?', ["Perro", "Gato", "Pájaro", "Rata"], 0, 'Dog = Perro.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Cat\'?', ["Gato", "Perro", "Caballo", "Vaca"], 0, 'Cat = Gato.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Book\'?', ["Libro", "Cuaderno", "Pluma", "Mesa"], 0, 'Book = Libro.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'House\'?', ["Casa", "Escuela", "Edificio", "Parque"], 0, 'House = Casa.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Water\'?', ["Agua", "Leche", "Jugo", "Refresco"], 0, 'Water = Agua.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'School\'?', ["Escuela", "Hospital", "Tienda", "Banco"], 0, 'School = Escuela.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Teacher\'?', ["Profesor/a", "Estudiante", "Doctor", "Policía"], 0, 'Teacher = Profesor/a.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Friend\'?', ["Amigo/a", "Enemigo", "Hermano", "Padre"], 0, 'Friend = Amigo/a.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Sun\'?', ["Sol", "Luna", "Estrella", "Nube"], 0, 'Sun = Sol.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Moon\'?', ["Luna", "Sol", "Tierra", "Cielo"], 0, 'Moon = Luna.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Tree\'?', ["Árbol", "Flor", "Planta", "Piedra"], 0, 'Tree = Árbol.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Computer\'?', ["Computadora", "Teléfono", "Televisión", "Radio"], 0, 'Computer = Computadora.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Red\'?', ["Rojo", "Azul", "Verde", "Amarillo"], 0, 'Red = Rojo.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Blue\'?', ["Azul", "Rojo", "Negro", "Blanco"], 0, 'Blue = Azul.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Green\'?', ["Verde", "Amarillo", "Rosa", "Morado"], 0, 'Green = Verde.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Big\'?', ["Grande", "Pequeño", "Alto", "Bajo"], 0, 'Big = Grande.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Small\'?', ["Pequeño", "Grande", "Largo", "Ancho"], 0, 'Small = Pequeño.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Happy\'?', ["Feliz", "Triste", "Enojado", "Cansado"], 0, 'Happy = Feliz.');
+  addQ('ingles', 'Vocabulary', 'What is the Spanish translation for \'Sad\'?', ["Triste", "Feliz", "Contento", "Sorprendido"], 0, 'Sad = Triste.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Pan\'?', ["Bread", "Cheese", "Meat", "Rice"], 0, 'Pan = Bread.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Leche\'?', ["Milk", "Water", "Juice", "Coffee"], 0, 'Leche = Milk.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Médico/a\'?', ["Doctor", "Teacher", "Engineer", "Pilot"], 0, 'Médico = Doctor.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Coche/Auto\'?', ["Car", "Bicycle", "Airplane", "Boat"], 0, 'Auto = Car.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Ventana\'?', ["Window", "Door", "Wall", "Ceiling"], 0, 'Ventana = Window.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Puerta\'?', ["Door", "Window", "Chair", "Table"], 0, 'Puerta = Door.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Lápiz\'?', ["Pencil", "Pen", "Ruler", "Eraser"], 0, 'Lápiz = Pencil.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Silla\'?', ["Chair", "Table", "Bed", "Sofa"], 0, 'Silla = Chair.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Mesa\'?', ["Table", "Chair", "Desk", "Closet"], 0, 'Mesa = Table.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Cama\'?', ["Bed", "Table", "Chair", "Lamp"], 0, 'Cama = Bed.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Pájaro\'?', ["Bird", "Fish", "Rabbit", "Snake"], 0, 'Pájaro = Bird.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Pez/Pescado\'?', ["Fish", "Bird", "Bear", "Tiger"], 0, 'Pez = Fish.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Caballo\'?', ["Horse", "Cow", "Pig", "Sheep"], 0, 'Caballo = Horse.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Vaca\'?', ["Cow", "Horse", "Goat", "Duck"], 0, 'Vaca = Cow.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Manzana\'?', ["Apple", "Banana", "Orange", "Grape"], 0, 'Manzana = Apple.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Plátano/Banana\'?', ["Banana", "Apple", "Lemon", "Peach"], 0, 'Plátano = Banana.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Naranja\'?', ["Orange", "Apple", "Melon", "Berry"], 0, 'Naranja = Orange.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Zapato\'?', ["Shoe", "Shirt", "Pants", "Hat"], 0, 'Zapato = Shoe.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Camisa\'?', ["Shirt", "Shoe", "Socks", "Jacket"], 0, 'Camisa = Shirt.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Pantalones\'?', ["Pants", "Shirt", "Dress", "Skirt"], 0, 'Pantalones = Pants.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Vestido\'?', ["Dress", "Pants", "Coat", "Hat"], 0, 'Vestido = Dress.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Sombrero/Gorro\'?', ["Hat", "Shoe", "Glove", "Belt"], 0, 'Sombrero = Hat.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Ciudad\'?', ["City", "Village", "Country", "Street"], 0, 'Ciudad = City.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'País\'?', ["Country", "City", "State", "Town"], 0, 'País = Country.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Río\'?', ["River", "Lake", "Ocean", "Sea"], 0, 'Río = River.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Montaña\'?', ["Mountain", "Hill", "Valley", "Forest"], 0, 'Montaña = Mountain.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Bosque\'?', ["Forest / Woods", "River", "Desert", "Beach"], 0, 'Bosque = Forest.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Playa\'?', ["Beach", "Forest", "Mountain", "River"], 0, 'Playa = Beach.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Desierto\'?', ["Desert", "Jungle", "Ocean", "Island"], 0, 'Desierto = Desert.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Isla\'?', ["Island", "Desert", "Lake", "River"], 0, 'Isla = Island.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Hermano\'?', ["Brother", "Sister", "Father", "Mother"], 0, 'Hermano = Brother.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Hermana\'?', ["Sister", "Brother", "Mother", "Aunt"], 0, 'Hermana = Sister.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Padre\'?', ["Father", "Mother", "Uncle", "Grandfather"], 0, 'Padre = Father.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Madre\'?', ["Mother", "Father", "Aunt", "Grandmother"], 0, 'Madre = Mother.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Abuelo\'?', ["Grandfather", "Father", "Uncle", "Brother"], 0, 'Abuelo = Grandfather.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Abuela\'?', ["Grandmother", "Mother", "Aunt", "Sister"], 0, 'Abuela = Grandmother.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Tío\'?', ["Uncle", "Aunt", "Cousin", "Brother"], 0, 'Tío = Uncle.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Tía\'?', ["Aunt", "Uncle", "Cousin", "Sister"], 0, 'Tía = Aunt.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Primo/a\'?', ["Cousin", "Uncle", "Aunt", "Nephew"], 0, 'Primo = Cousin.');
+  addQ('ingles', 'Vocabulary', 'What is the English word for \'Reloj de pulsera\'?', ["Watch", "Clock", "Ring", "Glasses"], 0, 'Reloj = Watch.');
+  addQ('ingles', 'Grammar', 'Which auxiliary verb is used for Simple Present questions with \'You\'?', ["Do", "Does", "Is", "Are"], 0, 'Do.');
+  addQ('ingles', 'Grammar', 'Which auxiliary verb is used for Simple Present questions with \'He\'?', ["Does", "Do", "Is", "Are"], 0, 'Does.');
+  addQ('ingles', 'Grammar', 'Which auxiliary verb is used for Simple Present questions with \'She\'?', ["Does", "Do", "Am", "Are"], 0, 'Does.');
+  addQ('ingles', 'Grammar', 'Which auxiliary verb is used for Simple Present questions with \'It\'?', ["Does", "Do", "Is", "Are"], 0, 'Does.');
+  addQ('ingles', 'Grammar', 'Which auxiliary verb is used for Simple Present questions with \'They\'?', ["Do", "Does", "Is", "Am"], 0, 'Do.');
+  addQ('ingles', 'Grammar', 'Which auxiliary verb is used for Simple Present questions with \'We\'?', ["Do", "Does", "Is", "Are"], 0, 'Do.');
+  addQ('ingles', 'Grammar', 'What is the correct form of the verb \'to be\' for \'I\' in present tense?', ["am", "is", "are", "be"], 0, 'I am.');
+  addQ('ingles', 'Grammar', 'What is the correct form of the verb \'to be\' for \'He\' in present tense?', ["is", "am", "are", "be"], 0, 'He is.');
+  addQ('ingles', 'Grammar', 'What is the correct form of the verb \'to be\' for \'She\' in present tense?', ["is", "am", "are", "be"], 0, 'She is.');
+  addQ('ingles', 'Grammar', 'What is the correct form of the verb \'to be\' for \'It\' in present tense?', ["is", "am", "are", "be"], 0, 'It is.');
+  addQ('ingles', 'Grammar', 'What is the correct form of the verb \'to be\' for \'You\' in present tense?', ["are", "am", "is", "be"], 0, 'You are.');
+  addQ('ingles', 'Grammar', 'What is the correct form of the verb \'to be\' for \'We\' in present tense?', ["are", "am", "is", "be"], 0, 'We are.');
+  addQ('ingles', 'Grammar', 'What is the correct form of the verb \'to be\' for \'They\' in present tense?', ["are", "am", "is", "be"], 0, 'They are.');
+  addQ('ingles', 'Grammar', 'Choose the correct subject pronoun to replace \'John and I\':', ["We", "They", "He", "You"], 0, 'We.');
+  addQ('ingles', 'Grammar', 'Choose the correct subject pronoun to replace \'Sarah and Tom\':', ["They", "We", "She", "You"], 0, 'They.');
+  addQ('ingles', 'Grammar', 'Choose the correct subject pronoun to replace \'The dog\':', ["It", "They", "He", "She"], 0, 'It.');
+  addQ('ingles', 'Grammar', 'Choose the correct subject pronoun to replace \'My sister\':', ["She", "He", "They", "We"], 0, 'She.');
+  addQ('ingles', 'Grammar', 'Choose the correct subject pronoun to replace \'My father\':', ["He", "She", "They", "It"], 0, 'He.');
+  addQ('ingles', 'Grammar', 'What is the past tense of the regular verb \'play\'?', ["played", "play", "playing", "plays"], 0, 'played.');
+  addQ('ingles', 'Grammar', 'What is the past tense of the regular verb \'walk\'?', ["walked", "walk", "walking", "walks"], 0, 'walked.');
+  addQ('ingles', 'Grammar', 'What is the past tense of the regular verb \'clean\'?', ["cleaned", "clean", "cleaning", "cleans"], 0, 'cleaned.');
+  addQ('ingles', 'Grammar', 'What is the past tense of the regular verb \'listen\'?', ["listened", "listen", "listening", "listens"], 0, 'listened.');
+  addQ('ingles', 'Grammar', 'What is the past tense of the regular verb \'cook\'?', ["cooked", "cook", "cooking", "cooks"], 0, 'cooked.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'go\'?', ["went", "goed", "gone", "going"], 0, 'went.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'eat\'?', ["ate", "eated", "eaten", "eating"], 0, 'ate.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'see\'?', ["saw", "seed", "seen", "seeing"], 0, 'saw.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'run\'?', ["ran", "runned", "running", "runs"], 0, 'ran.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'have\'?', ["had", "haved", "has", "having"], 0, 'had.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'make\'?', ["made", "maked", "making", "makes"], 0, 'made.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'take\'?', ["took", "taked", "taken", "taking"], 0, 'took.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'buy\'?', ["bought", "buyed", "buys", "buying"], 0, 'bought.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'write\'?', ["wrote", "writed", "written", "writing"], 0, 'wrote.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'drink\'?', ["drank", "drinked", "drunk", "drinking"], 0, 'drank.');
+  addQ('ingles', 'Grammar', 'What is the irregular past tense of the verb \'sleep\'?', ["slept", "sleeped", "sleeping", "sleeps"], 0, 'slept.');
+  addQ('ingles', 'Grammar', 'Choose the correct possessive adjective for \'I\':', ["my", "your", "his", "her"], 0, 'my.');
+  addQ('ingles', 'Grammar', 'Choose the correct possessive adjective for \'You\':', ["your", "my", "our", "their"], 0, 'your.');
+  addQ('ingles', 'Grammar', 'Choose the correct possessive adjective for \'He\':', ["his", "her", "its", "their"], 0, 'his.');
+  addQ('ingles', 'Grammar', 'Choose the correct possessive adjective for \'She\':', ["her", "his", "its", "their"], 0, 'her.');
+  addQ('ingles', 'Grammar', 'Choose the correct possessive adjective for \'We\':', ["our", "your", "their", "my"], 0, 'our.');
+  addQ('ingles', 'Grammar', 'Choose the correct possessive adjective for \'They\':', ["their", "our", "your", "his"], 0, 'their.');
+  addQ('ingles', 'Grammar', 'Which preposition of place is used when an object is touching the surface of a table?', ["on", "in", "under", "behind"], 0, 'on.');
+  addQ('ingles', 'Grammar', 'Which preposition of place is used when an object is inside a box?', ["in", "on", "under", "next to"], 0, 'in.');
+  addQ('ingles', 'Grammar', 'Which preposition of place is used when an object is beneath a bed?', ["under", "on", "in", "above"], 0, 'under.');
+  addQ('ingles', 'Grammar', 'Which preposition of time is used before specific times like \'7:00 AM\'?', ["at", "in", "on", "by"], 0, 'at.');
+  addQ('ingles', 'Grammar', 'Which preposition of time is used before days of the week like \'Monday\'?', ["on", "at", "in", "by"], 0, 'on.');
+  addQ('ingles', 'Grammar', 'Which preposition of time is used before months and years like \'July\' or \'2024\'?', ["in", "at", "on", "by"], 0, 'in.');
+  addQ('ingles', 'Grammar', 'What is the plural form of the noun \'cat\'?', ["cats", "cates", "caties", "cat"], 0, 'cats.');
+  addQ('ingles', 'Grammar', 'What is the plural form of the noun \'dog\'?', ["dogs", "doges", "dogies", "dog"], 0, 'dogs.');
+  addQ('ingles', 'Grammar', 'What is the plural form of the noun \'bus\'?', ["busses or buses", "bus", "busies", "busen"], 0, 'buses.');
+  addQ('ingles', 'Grammar', 'What is the plural form of the noun \'box\'?', ["boxes", "boxs", "boxies", "boxen"], 0, 'boxes.');
+  addQ('ingles', 'Grammar', 'What is the irregular plural form of the noun \'child\'?', ["children", "childs", "childes", "childer"], 0, 'children.');
+  addQ('ingles', 'Grammar', 'What is the irregular plural form of the noun \'man\'?', ["men", "mans", "manes", "manies"], 0, 'men.');
+  addQ('ingles', 'Grammar', 'What is the irregular plural form of the noun \'woman\'?', ["women", "womans", "womanes", "womenes"], 0, 'women.');
+  addQ('ingles', 'Grammar', 'What is the irregular plural form of the noun \'tooth\'?', ["teeth", "tooths", "toothes", "teethes"], 0, 'teeth.');
+  addQ('ingles', 'Grammar', 'What is the irregular plural form of the noun \'foot\'?', ["feet", "foots", "footies", "feets"], 0, 'feet.');
+  addQ('ingles', 'Grammar', 'What is the irregular plural form of the noun \'mouse\'?', ["mice", "mouses", "mousies", "mices"], 0, 'mice.');
+  addQ('ingles', 'Grammar', 'Which modal verb expresses ability in English?', ["can", "must", "should", "may"], 0, 'can.');
+  addQ('ingles', 'Grammar', 'Which modal verb expresses strong obligation or rule?', ["must", "can", "might", "could"], 0, 'must.');
+  addQ('ingles', 'Grammar', 'Which modal verb is used to give advice or recommendations?', ["should", "must", "can", "will"], 0, 'should.');
+  addQ('ingles', 'Grammar', 'Which indefinite article is used before a vowel sound (\'an apple\')?', ["an", "a", "the", "some"], 0, 'an.');
+  addQ('ingles', 'Reading', 'Reading Passage #1: \'Tom gets up at 7:00 AM every morning.\' What time does Tom wake up?', ["7:00 AM", "8:00 AM", "6:00 PM", "9:00 AM"], 0, '7:00 AM.');
+  addQ('ingles', 'Reading', 'Reading Passage #2: \'Sarah loves reading adventure books in the school library.\' Where does Sarah read?', ["In the school library", "In the park", "In the kitchen", "On the bus"], 0, 'Library.');
+  addQ('ingles', 'Reading', 'Reading Passage #3: \'The red car belongs to Mr. Davis.\' What color is Mr. Davis\'s car?', ["Red", "Blue", "Black", "White"], 0, 'Red.');
+  addQ('ingles', 'Reading', 'Reading Passage #4: \'Lucy has two dogs and one cat at home.\' How many pets does Lucy have in total?', ["Three pets", "Two pets", "One pet", "Four pets"], 0, '2 dogs + 1 cat = 3.');
+  addQ('ingles', 'Reading', 'Reading Passage #5: \'David plays soccer with his friends every Saturday.\' What sport does David play?', ["Soccer", "Basketball", "Tennis", "Baseball"], 0, 'Soccer.');
+  addQ('ingles', 'Reading', 'Reading Passage #6: \'Emily buys fresh apples and oranges at the market.\' What fruit does Emily buy?', ["Apples and oranges", "Bananas and grapes", "Lemons and peaches", "Melons"], 0, 'Apples and oranges.');
+  addQ('ingles', 'Reading', 'Reading Passage #7: \'The sun shines brightly in the blue sky during summer.\' What season is described?', ["Summer", "Winter", "Autumn", "Spring"], 0, 'Summer.');
+  addQ('ingles', 'Reading', 'Reading Passage #8: \'Jack rides his blue bicycle to school every morning.\' How does Jack get to school?', ["By bicycle", "By bus", "On foot", "By train"], 0, 'Bicycle.');
+  addQ('ingles', 'Reading', 'Reading Passage #9: \'Maria is studying English and French at university.\' What languages is Maria studying?', ["English and French", "Spanish and German", "Italian and Chinese", "Japanese"], 0, 'English and French.');
+  addQ('ingles', 'Reading', 'Reading Passage #10: \'The bakery opens at 6:00 AM and sells fresh bread.\' What does the bakery sell?', ["Fresh bread", "Meat", "Shoes", "Books"], 0, 'Fresh bread.');
+  addQ('ingles', 'Reading', 'Reading Passage #11: \'Oliver forgot his umbrella, so he got wet in the rain.\' Why did Oliver get wet?', ["He forgot his umbrella", "He was swimming", "He fell in a lake", "He washed his car"], 0, 'Forgot umbrella.');
+  addQ('ingles', 'Reading', 'Reading Passage #12: \'Anna baked a delicious chocolate cake for her mother\'s birthday.\' What kind of cake did Anna bake?', ["Chocolate cake", "Vanilla cake", "Fruit cake", "Carrot cake"], 0, 'Chocolate cake.');
+  addQ('ingles', 'Reading', 'Reading Passage #13: \'The yellow bus stopped near the central park.\' Where did the bus stop?', ["Near the central park", "At the airport", "At the beach", "Near the hospital"], 0, 'Near central park.');
+  addQ('ingles', 'Reading', 'Reading Passage #14: \'Benjamin loves playing the piano in the evening.\' What instrument does Benjamin play?', ["The piano", "The guitar", "The drums", "The flute"], 0, 'Piano.');
+  addQ('ingles', 'Reading', 'Reading Passage #15: \'The weather forecast predicts heavy snow for tomorrow.\' What weather is expected?', ["Heavy snow", "Bright sun", "Warm rain", "Strong wind"], 0, 'Heavy snow.');
+  addQ('ingles', 'Reading', 'Reading Passage #16: \'Sophia went to the dentist because she had a toothache.\' Why did Sophia visit the doctor?', ["She had a toothache", "She broke her leg", "She had a cold", "She needed glasses"], 0, 'Toothache.');
+  addQ('ingles', 'Reading', 'Reading Passage #17: \'The train to London departs from platform 4.\' Which platform does the train leave from?', ["Platform 4", "Platform 1", "Platform 9", "Platform 2"], 0, 'Platform 4.');
+  addQ('ingles', 'Reading', 'Reading Passage #18: \'Lucas works as a computer engineer in a technology company.\' What is Lucas\'s profession?', ["Computer engineer", "Doctor", "Teacher", "Chef"], 0, 'Computer engineer.');
+  addQ('ingles', 'Reading', 'Reading Passage #19: \'The museum exhibits ancient Egyptian statues and jewelry.\' What does the museum display?', ["Ancient Egyptian statues and jewelry", "Modern cars", "Space rockets", "Dinosaur bones"], 0, 'Egyptian statues.');
+  addQ('ingles', 'Reading', 'Reading Passage #20: \'Grace drinks a cup of hot tea before going to bed.\' What beverage does Grace drink?', ["Hot tea", "Cold milk", "Orange juice", "Coffee"], 0, 'Hot tea.');
+  addQ('ingles', 'Reading', 'Reading Passage #21: \'Henry walks his golden retriever dog in the park every evening.\' What breed is Henry\'s dog?', ["Golden retriever", "Poodle", "Bulldog", "German shepherd"], 0, 'Golden retriever.');
+  addQ('ingles', 'Reading', 'Reading Passage #22: \'The plane took off at noon and arrived at 4:00 PM.\' How long was the flight?', ["Four hours", "Two hours", "Six hours", "One hour"], 0, '12:00 to 4:00 = 4 hours.');
+  addQ('ingles', 'Reading', 'Reading Passage #23: \'Victoria waters the red roses in her garden every morning.\' Which flowers does Victoria water?', ["Red roses", "Yellow tulips", "White lilies", "Blue orchids"], 0, 'Red roses.');
+  addQ('ingles', 'Reading', 'Reading Passage #24: \'Daniel bought a new pair of black leather shoes.\' What color are Daniel\'s new shoes?', ["Black", "Brown", "White", "Blue"], 0, 'Black.');
+  addQ('ingles', 'Reading', 'Reading Passage #25: \'The concert started at 8:00 PM and ended at 10:30 PM.\' What time did the concert end?', ["10:30 PM", "8:00 PM", "9:00 PM", "11:00 PM"], 0, '10:30 PM.');
+  addQ('ingles', 'Reading', 'Reading Passage #26: \'Samantha prefers tea over coffee in the morning.\' What drink does Samantha prefer?', ["Tea", "Coffee", "Water", "Juice"], 0, 'Tea.');
+  addQ('ingles', 'Reading', 'Reading Passage #27: \'The library is closed on Sundays and public holidays.\' On which day is the library closed?', ["Sundays", "Mondays", "Fridays", "Saturdays"], 0, 'Sundays.');
+  addQ('ingles', 'Reading', 'Reading Passage #28: \'Robert traveled to Japan to visit his grandparents.\' Which country did Robert travel to?', ["Japan", "China", "Korea", "India"], 0, 'Japan.');
+  addQ('ingles', 'Reading', 'Reading Passage #29: \'The chef prepared a traditional Italian pasta dish.\' What cuisine did the chef prepare?', ["Italian cuisine", "Mexican cuisine", "French cuisine", "Chinese cuisine"], 0, 'Italian.');
+  addQ('ingles', 'Reading', 'Reading Passage #30: \'The hotel room has a king-size bed and an ocean view.\' What view does the room offer?', ["An ocean view", "A mountain view", "A city view", "A garden view"], 0, 'Ocean view.');
+  addQ('ingles', 'Reading', 'Reading Passage #31: \'Chloe is studying biology to become a scientist.\' What subject is Chloe studying?', ["Biology", "Chemistry", "Physics", "Math"], 0, 'Biology.');
+  addQ('ingles', 'Reading', 'Reading Passage #32: \'The farmer harvested ripe tomatoes from his greenhouse.\' What vegetable did the farmer pick?', ["Ripe tomatoes", "Carrots", "Potatoes", "Onions"], 0, 'Tomatoes.');
+  addQ('ingles', 'Reading', 'Reading Passage #33: \'Ethan practices swimming three times a week at the sports club.\' How often does Ethan practice?', ["Three times a week", "Every day", "Once a month", "Twice a year"], 0, 'Three times a week.');
+  addQ('ingles', 'Reading', 'Reading Passage #34: \'The movie was directed by a famous French filmmaker.\' Where is the filmmaker from?', ["France", "Italy", "Spain", "Germany"], 0, 'France.');
+  addQ('ingles', 'Reading', 'Reading Passage #35: \'Zoe paints watercolor landscapes during her free time.\' What technique does Zoe use?', ["Watercolor", "Oil painting", "Sculpture", "Sketching"], 0, 'Watercolor.');
+  addQ('ingles', 'Reading', 'Reading Passage #36: \'The postman delivered three letters and one small package.\' How many items were delivered in total?', ["Four items", "Three items", "One item", "Five items"], 0, '3 + 1 = 4.');
+  addQ('ingles', 'Reading', 'Reading Passage #37: \'Noah repaired his broken wooden chair in the workshop.\' What item did Noah fix?', ["His wooden chair", "His table", "His desk", "His door"], 0, 'Wooden chair.');
+  addQ('ingles', 'Reading', 'Reading Passage #38: \'The zoo has a newborn baby elephant born last week.\' Which baby animal was born?', ["A baby elephant", "A baby lion", "A baby giraffe", "A baby tiger"], 0, 'Baby elephant.');
+  addQ('ingles', 'Reading', 'Reading Passage #39: \'Hannah enjoys listening to classical music while studying.\' What genre of music does Hannah listen to?', ["Classical music", "Rock music", "Pop music", "Jazz"], 0, 'Classical music.');
+  addQ('ingles', 'Reading', 'Reading Passage #40: \'The new supermarket sells organic vegetables and fresh fruits.\' What kind of vegetables does it sell?', ["Organic vegetables", "Frozen vegetables", "Canned vegetables", "Dried vegetables"], 0, 'Organic vegetables.');
+  addQ('ingles', 'Listening', 'Listening Exercise #1: Audio prompt: \'Could you please open the window?\' What is requested?', ["To open the window", "To close the door", "To turn on the light", "To sit down"], 0, 'Open window.');
+  addQ('ingles', 'Listening', 'Listening Exercise #2: Audio prompt: \'Where is the nearest bank?\' What is the speaker asking for?', ["Directions to a bank", "The time", "A dollar bill", "A bus ticket"], 0, 'Directions to bank.');
+  addQ('ingles', 'Listening', 'Listening Exercise #3: Audio prompt: \'What time does the train leave?\' What information does the speaker need?', ["Departure time of the train", "Price of the ticket", "Number of passengers", "Platform number"], 0, 'Departure time.');
+  addQ('ingles', 'Listening', 'Listening Exercise #4: Audio prompt: \'I would like a cup of hot coffee, please.\' What is ordered?', ["A cup of hot coffee", "A glass of water", "A cold soda", "An iced tea"], 0, 'Hot coffee.');
+  addQ('ingles', 'Listening', 'Listening Exercise #5: Audio prompt: \'Could you spell your last name, please?\' What is the person asked to do?', ["Spell their last name", "Sign a document", "Say their age", "Write their address"], 0, 'Spell last name.');
+  addQ('ingles', 'Listening', 'Listening Exercise #6: Audio prompt: \'Turn right at the traffic lights and go straight ahead.\' What direction is given?', ["Turn right at lights and go straight", "Turn left immediately", "Stop the car", "Go back"], 0, 'Turn right and go straight.');
+  addQ('ingles', 'Listening', 'Listening Exercise #7: Audio prompt: \'How much does this black jacket cost?\' What is being asked?', ["The price of the black jacket", "The size of the jacket", "The material of the jacket", "The color"], 0, 'Price of jacket.');
+  addQ('ingles', 'Listening', 'Listening Exercise #8: Audio prompt: \'Nice to meet you, my name is Alex.\' What is happening?', ["An introduction between people", "A farewell message", "An apology", "A telephone warning"], 0, 'Introduction.');
+  addQ('ingles', 'Listening', 'Listening Exercise #9: Audio prompt: \'Sorry, I am late because of heavy traffic.\' What is expressed?', ["An apology for being late due to traffic", "A request for directions", "A complaint about weather", "A greeting"], 0, 'Apology for lateness.');
+  addQ('ingles', 'Listening', 'Listening Exercise #10: Audio prompt: \'Please fasten your seatbelts for takeoff.\' Where would you hear this statement?', ["On an airplane", "In a restaurant", "At a library", "In a park"], 0, 'On an airplane.');
+  addQ('ingles', 'Listening', 'Listening Exercise #11: Audio prompt: \'May I take your order now?\' Who is likely speaking?', ["A waiter or waitress", "A doctor", "A pilot", "A teacher"], 0, 'A waiter.');
+  addQ('ingles', 'Listening', 'Listening Exercise #12: Audio prompt: \'The library will close in ten minutes.\' What warning is announced?', ["The library is closing soon", "The library is opening", "Books are on sale", "Silence is required"], 0, 'Closing soon.');
+  addQ('ingles', 'Listening', 'Listening Exercise #13: Audio prompt: \'Take one pill after meals twice a day.\' Who gave this instruction?', ["A doctor or pharmacist", "A chef", "A mechanic", "A police officer"], 0, 'Doctor or pharmacist.');
+  addQ('ingles', 'Listening', 'Listening Exercise #14: Audio prompt: \'Watch out! The floor is wet and slippery.\' What is warned?', ["A slippery wet floor hazard", "A broken door", "A loud noise", "A closed path"], 0, 'Slippery floor.');
+  addQ('ingles', 'Listening', 'Listening Exercise #15: Audio prompt: \'Could I borrow your red pen for a second?\' What item is requested?', ["A red pen", "A blue pencil", "A notebook", "A ruler"], 0, 'Red pen.');
+  addQ('ingles', 'Listening', 'Listening Exercise #16: Audio prompt: \'Happy birthday! Wishing you a wonderful year ahead.\' What is celebrated?', ["A birthday celebration", "A wedding anniversary", "A graduation", "A new job"], 0, 'Birthday.');
+  addQ('ingles', 'Listening', 'Listening Exercise #17: Audio prompt: \'Pardon me, do you have the current time?\' What is requested?', ["The current time", "Money", "Directions", "A newspaper"], 0, 'Current time.');
+  addQ('ingles', 'Listening', 'Listening Exercise #18: Audio prompt: \'Press button number 3 for the third floor.\' Where are you?', ["In an elevator", "On a bus", "In a car", "On a plane"], 0, 'Elevator.');
+  addQ('ingles', 'Listening', 'Listening Exercise #19: Audio prompt: \'Please leave a message after the beep.\' What system is this?', ["A voicemail messaging system", "A radio station", "A live podcast", "A tv show"], 0, 'Voicemail.');
+  addQ('ingles', 'Listening', 'Listening Exercise #20: Audio prompt: \'The total amount comes to twenty dollars.\' What is stated?', ["The total price to pay", "The change given", "The discount percentage", "The tax rate"], 0, 'Total price.');
+  addQ('ingles', 'Listening', 'Listening Exercise #21: Audio prompt: \'Keep off the grass in the public garden.\' What rule is stated?', ["Do not walk on the grass", "Do not feed birds", "Do not pick flowers", "No swimming"], 0, 'Keep off grass.');
+  addQ('ingles', 'Listening', 'Listening Exercise #22: Audio prompt: \'Welcome aboard flight 402 to New York.\' Where are the passengers?', ["On a flight / plane", "On a cruise ship", "On a train", "In a taxi"], 0, 'On a flight.');
+  addQ('ingles', 'Listening', 'Listening Exercise #23: Audio prompt: \'Check-in time is at 3:00 PM at the front desk.\' Where are you registering?', ["At a hotel front desk", "At a hospital", "At a school", "At a stadium"], 0, 'Hotel front desk.');
+  addQ('ingles', 'Listening', 'Listening Exercise #24: Audio prompt: \'Silence your mobile phones during the performance.\' What is requested?', ["Mute mobile phones", "Turn off lights", "Leave the room", "Take photos"], 0, 'Mute phones.');
+  addQ('ingles', 'Listening', 'Listening Exercise #25: Audio prompt: \'Do you need a bag for your groceries?\' Where are you?', ["At a grocery store / supermarket", "At a clothing store", "At a gas station", "At a pharmacy"], 0, 'Grocery store.');
+  addQ('ingles', 'Listening', 'Listening Exercise #26: Audio prompt: \'Here is your receipt and change, thank you.\' What transaction finished?', ["A purchase / payment", "A phone call", "A job interview", "A medical test"], 0, 'A purchase.');
+  addQ('ingles', 'Listening', 'Listening Exercise #27: Audio prompt: \'Keep your passport and boarding pass ready.\' What travel document is mentioned?', ["Passport and boarding pass", "Driver's license", "Student card", "Credit card"], 0, 'Passport.');
+  addQ('ingles', 'Listening', 'Listening Exercise #28: Audio prompt: \'Mind the gap between the train and the platform.\' What danger is highlighted?', ["The gap between train and platform", "High speed", "Closed doors", "Hot surfaces"], 0, 'Mind the gap.');
+  addQ('ingles', 'Listening', 'Listening Exercise #29: Audio prompt: \'Can I have your attention, please?\' What is the speaker seeking?', ["The audience's attention", "Financial help", "A seat", "Quiet time"], 0, 'Attention.');
+  addQ('ingles', 'Listening', 'Listening Exercise #30: Audio prompt: \'Have a safe flight and a great trip!\' What wish is expressed?', ["A safe flight and trip", "Good luck on an exam", "Get well soon", "Happy new year"], 0, 'Safe flight.');
+  addQ('ingles', 'Listening', 'Listening Exercise #31: Audio prompt: \'Breakfast is served from 7:00 AM to 10:00 AM.\' What meal is served?', ["Breakfast", "Lunch", "Dinner", "Snack"], 0, 'Breakfast.');
+  addQ('ingles', 'Listening', 'Listening Exercise #32: Audio prompt: \'Would you like sparkling or still water?\' What beverage options are offered?', ["Sparkling or still water", "Coffee or tea", "Beer or wine", "Juice or soda"], 0, 'Water types.');
+  addQ('ingles', 'Listening', 'Listening Exercise #33: Audio prompt: \'The next station is Central Station.\' What announcement is played?', ["Public transit next stop", "Flight landing", "Movie starting", "Weather update"], 0, 'Next transit stop.');
+  addQ('ingles', 'Listening', 'Listening Exercise #34: Audio prompt: \'Please sign on the dotted line.\' What action is requested?', ["To sign a document", "To cut paper", "To fold a page", "To draw a picture"], 0, 'To sign.');
+  addQ('ingles', 'Listening', 'Listening Exercise #35: Audio prompt: \'Your table is ready, right this way.\' Who is guiding you?', ["A restaurant host/waiter", "A taxi driver", "A flight attendant", "A hotel maid"], 0, 'Restaurant host.');
+  addQ('ingles', 'Listening', 'Listening Exercise #36: Audio prompt: \'Insert your card and enter your PIN number.\' What machine are you using?', ["An ATM / cash machine", "A vending machine", "A washing machine", "A coffee maker"], 0, 'ATM.');
+  addQ('ingles', 'Listening', 'Listening Exercise #37: Audio prompt: \'Congratulations on passing your driving test!\' What achievement is praised?', ["Passing the driving test", "Winning a race", "Graduating university", "Buying a house"], 0, 'Driving test.');
+  addQ('ingles', 'Listening', 'Listening Exercise #38: Audio prompt: \'Please keep your seatbelts fastened until the captain turns off the sign.\' Who is in command?', ["The airplane captain", "The bus driver", "The train conductor", "The ship captain"], 0, 'Airplane captain.');
+  addQ('ingles', 'Listening', 'Listening Exercise #39: Audio prompt: \'Would you like paper or plastic bags?\' Where are you asked this?', ["At checkout in a store", "At a restaurant", "At a bank", "At a hotel"], 0, 'Store checkout.');
+  addQ('ingles', 'Listening', 'Listening Exercise #40: Audio prompt: \'Thank you for calling customer service, how can I help you today?\' What department is this?', ["Customer service", "Technical repair", "Sales team", "Human resources"], 0, 'Customer service.');
+  addQ('integrador', 'Comunicación Escrita', '¿Cuál es el objetivo principal de redactar un ensayo argumentativo?', ["Sustentar una postura u opinión con argumentos válidos", "Contar una anécdota chistosa", "Hacer una lista de compras", "Copiar un texto"], 0, 'Sustentar postura.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué propiedad textual garantiza la unión lógica de ideas a lo largo de un escrito?', ["Coherencia y cohesión", "Métrica de versos", "Uso de colores", "Tipografía grande"], 0, 'Coherencia y cohesión.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué elemento abre la introducción de un reporte de investigación?', ["El planteamiento del problema o tema central", "La conclusión final", "La lista de autores", "El glosario"], 0, 'Planteamiento.');
+  addQ('integrador', 'Comunicación Escrita', '¿Por qué es indispensable citar las fuentes bibliográficas en un trabajo académico?', ["Para evitar el plagio y dar rigor científico al escrito", "Para hacer el libro más pesado", "Para gastar tinta", "Por adorno visual"], 0, 'Evita el plagio.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué función cumple la tesis en la estructura de un ensayo?', ["Expresar la hipótesis o postura defensiva principal del autor", "Resumir el título", "Lista de capítulos", "Agradecimientos"], 0, 'Tesis principal.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué conector argumentativo introduce una objeción parcial a la tesis?', ["Si bien / Aunque", "Por lo tanto", "Además", "Por ejemplo"], 0, 'Introduce objeción parcial.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la anáfora como recurso de cohesión textual?', ["La repetición intencionada de una o varias palabras al inicio de oraciones", "El uso de comas", "El cambio de idioma", "La falta de rima"], 0, 'Repetición al inicio.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es el marco teórico en un protocolo de investigación escrito?', ["El compendio de teorías, antecedentes y conceptos que fundamentan el estudio", "El índice de páginas", "La portada con logo", "La dedicatoria"], 0, 'Compendio de teorías.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué diferencia a un resumen de una síntesis textual?', ["El resumen extracta las ideas principales objetivas y la síntesis las reinterpreta", "Son exactamente iguales", "El resumen es más largo", "La síntesis no usa palabras"], 0, 'Extracto vs reinterpretación.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es el voseo en la redacción lingüística de ciertas regiones hispanohablantes?', ["El uso del pronombre 'vos' en lugar de 'tú'", "Hablar en voz alta", "Usar mayúsculas", "Omitir verbos"], 0, 'Uso de \'vos\'.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es un texto periodístico de opinión o columna?', ["Un artículo firmado donde el autor expresa su juicio crítico sobre la actualidad", "Una noticia objetiva", "Una receta", "Un poema de amor"], 0, 'Artículo de opinión.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la nota a pie de página en la edición de libros?', ["Una aclaración o cita complementaria ubicada en el margen inferior", "El título principal", "El número de capítulo", "La contraportada"], 0, 'Aclaración al pie.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué se entiende por \'registro coloquial\' en la producción verbal?', ["El lenguaje informal cotidiano usado entre familiares y amigos", "El lenguaje científico formal", "El código morse", "La poesía clásica"], 0, 'Lenguaje informal.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la catáfora en la cohesión de una oración?', ["Anticipar una idea que se mencionará más adelante en el texto", "Repetir el sujeto", "Eliminar el verbo", "Usar tilde diacrítica"], 0, 'Anticipación sintáctica.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es un reporte técnico o informe de actividades?', ["Un documento estructurado que rige los resultados de una gestión o experimento", "Una novela de ficción", "Un poema lírico", "Un guion teatral"], 0, 'Documento de resultados.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la elipsis como mecanismo de economía del lenguaje?', ["La omisión deliberada de elementos gramaticales que se sobreentienden por el contexto", "Escribir palabras largas", "Usar signos de admiración", "Escribir en mayúsculas"], 0, 'Omisión de elementos.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la metáfora conceptual según la lingüística cognitiva?', ["Comprender un dominio abstracto en términos de un dominio concreto", "Un error ortográfico", "Una regla de acentuación", "El uso de la coma"], 0, 'Dominio abstracto en concreto.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es un glosario de términos al final de un texto especializado?', ["La lista alfabética de vocablos técnicos con sus definiciones", "El índice de capítulos", "La bibliografía", "El prólogo"], 0, 'Lista de vocablos técnicos.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué función cumple la contraargumentación en un debate escrito?', ["Anticipar las objeciones del rival para refutarlas con evidencias sólidas", "Insultar al rival", "Cambiar de tema", "Rendirse"], 0, 'Refutar objeciones del rival.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es un texto ensayístico de carácter filosófico?', ["Una reflexión profunda y personal sobre preguntas existenciales o éticas", "Un manual de uso", "Un mapa", "Una tabla de multiplicar"], 0, 'Reflexión filosófica.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es el estilo directo al citar voces de personajes?', ["Reproducir textualmente las palabras entre comillas o guiones", "Resumir lo que dijeron", "Ignorar lo que dijeron", "Traducir mal"], 0, 'Cita directa entre comillas.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es el estilo indirecto en la narrativa escrita?', ["Relatar las palabras de otro personaje adaptándolas con conectores 'dijo que...'", "Usar comillas", "Actuar en escenario", "Gritar"], 0, 'Adaptar con \'dijo que\'.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es una antología literaria o textual?', ["Una selección compilada de las mejores obras o extractos de varios autores", "Un diccionario", "Una sola novela", "Un periódico diario"], 0, 'Compilación de obras.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la hipertextualidad en la redacción digital?', ["La conexión de un texto con otros mediante enlaces o hipervínculos", "Imprimir en papel", "Escribir a mano", "Usar corrector de ortografía"], 0, 'Enlaces e hipervínculos.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es un manifiesto redactado por un grupo de vanguardia?', ["Un documento público que proclama sus principios, metas e ideales", "Una factura de compra", "Un mapa topográfico", "Un horario"], 0, 'Proclama de principios.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la paráfrasis explicativa en una investigación?', ["Aclarar un concepto complejo expresándolo de manera más sencilla sin alterar el sentido", "Copiar con errores", "Cambiar el tema", "Eliminar datos"], 0, 'Aclarar de forma sencilla.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la ironía como figura estilística en un ensayo?', ["Expresar lo contrario de lo que se piensa con un tono burlesco o crítico", "Decir la verdad estricta", "Gritar fuerte", "Citar a un autor"], 0, 'Expresar lo contrario burlescamente.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es el tono en una composición escrita (solemne, satírico, melancólico)?', ["La actitud emocional que transmite el autor hacia el tema o lector", "El volumen de voz", "El color del papel", "El tipo de letra"], 0, 'Actitud emocional.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es una reseña crítica de un libro o película?', ["Una evaluación fundamentada que describe y juzga el valor de una obra", "La sinopsis del reverso", "Un anuncio publicitario", "Una entrevista"], 0, 'Evaluación fundamentada.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la intertextualidad en la teoría de la redacción?', ["La relación o diálogo que un escrito establece con otros textos previos", "La corrección de comas", "El uso de tildes", "La traducción"], 0, 'Diálogo con textos previos.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la estructura deductiva de un párrafo expositivo?', ["Presentar la idea general al principio y desarrollarla con detalles específicos", "Ir de los detalles a la idea final", "No tener idea principal", "Mezclar idiomas"], 0, 'De lo general a lo específico.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la estructura inductiva en un escrito científico?', ["Partir de casos u observaciones particulares para concluir en una tesis general", "Presentar la tesis al inicio", "Usar poesía", "Omitir datos"], 0, 'De lo particular a lo general.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la ambigüedad en la sintaxis de una oración?', ["Cuando una frase puede interpretarse de dos o más formas distintas debido a su mala construcción", "Tener ortografía perfecta", "Usar palabras cortas", "Escribir rápido"], 0, 'Múltiples interpretaciones por mala sintaxis.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es el pleonasmo o redundancia estilística?', ["Emplear palabras innecesarias que repiten un significado ('subir arriba')", "Usar sinónimos", "Escribir con elegancia", "Usar conectores"], 0, 'Palabras innecesarias que repiten.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es un soliloquio reflexivo en un ensayo personal?', ["La manifestación por escrito de los pensamientos íntimos del autor", "Un diálogo", "Una tabla", "Un mapa"], 0, 'Pensamientos íntimos por escrito.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es un epígrafe al comienzo de un capítulo o libro?', ["Una cita corta o frase célebre colocada al inicio que sugiere el tema", "El índice", "La fe de erratas", "La dedicatoria"], 0, 'Cita breve explicativa al inicio.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la fe de erratas en una publicación impresa?', ["La lista de errores tipográficos descubiertos tras la impresión y sus correcciones", "La portada", "La firma del autor", "La contraportada"], 0, 'Lista de errores e correcciones.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la tipografía y su jerarquía visual en la maquetación de un escrito?', ["La elección de fuentes, tamaños y negritas para organizar la lectura", "El color del papel", "El idioma usado", "La encuadernación"], 0, 'Organización visual mediante fuentes.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es la bibliografía comentada en un proyecto de tesis?', ["La lista de referencias donde cada fuente incluye una breve valoración crítica", "Una lista simple", "Una portada", "Un mapa"], 0, 'Referencias con valoración crítica.');
+  addQ('integrador', 'Comunicación Escrita', '¿Qué es el plagio académico?', ["Apropiarse de ideas, textos o descubrimientos ajenos sin dar el debido crédito al autor original", "Estudiar mucho", "Citar correctamente", "Traducir textos"], 0, 'Apropiación sin crédito.');
+  addQ('integrador', 'Comunicación Artística', '¿Cómo enriquece la combinación de música e imagen a una producción audiovisual?', ["Potencia la emoción y el sentido narrativo de la obra", "Confunde al espectador", "Elimina el color", "Reduce la calidad"], 0, 'Potencia la emoción.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué transmite la composición asimétrica en una obra visual?', ["Dinamismo, tensión y movimiento", "Calma estática absoluta", "Rigidez arquitectónica", "Oscuridad total"], 0, 'Dinamismo.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué papel juega el diseño escenográfico en una puesta en escena teatral?', ["Ambientar el espacio físico y la época de la narrativa", "Sustituir a los actores", "Apagar la luz", "Vender entradas"], 0, 'Ambientar el espacio.');
+  addQ('integrador', 'Comunicación Artística', '¿Cómo se define el concepto de \'estética\' en el análisis artístico?', ["La rama de la filosofía que estudia la belleza y la percepción del arte", "El precio de un cuadro", "El tamaño del marco", "La firma del artista"], 0, 'Estudio de la belleza.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué función cumple la paleta de colores en una producción cinematográfica?', ["Evocar estados de ánimo e identidad psicológica de la escena", "Aumentar la velocidad del vídeo", "Ahorrar luz", "Reducir sonido"], 0, 'Evoca emociones.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la perspectiva atmosférica o aérea en la pintura de paisaje?', ["Representar la profundidad difuminando tonos y contornos hacia el azul tenue", "Pintar desde un avión", "Usar pintura dorada", "Pintar de noche"], 0, 'Difuminar profundidad.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el ritmo visual en una composición artística?', ["La repetición armónica de líneas, formas o colores que crea movimiento ocular", "El sonido de la música", "El tamaño de la sala", "El precio del cuadro"], 0, 'Repetición armónica visual.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el canon de proporciones en la escultura clásica?', ["El sistema de medidas basado en la cabeza o módulo para lograr armonía corporal", "El material de la base", "El peso de la estatua", "La herramienta"], 0, 'Sistema de medidas armónico.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la técnica del vitral en la arquitectura gótica?', ["El diseño de composiciones figurativas con trozos de vidrio emplomado que filtran la luz", "Pintar paredes con óleo", "Hacer estatuas de piedra", "Tejer alfombras"], 0, 'Vidrio emplomado.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el readymade o arte encontrado popularizado por Marcel Duchamp?', ["Elevar un objeto cotidiano fabricado en serie a la categoría de obra de arte al elegirlo y firmarlo", "Pintar un cuadro al óleo", "Esculpir en mármol", "Hacer un grabado"], 0, 'Objeto cotidiano como arte.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la performance en las artes plásticas contemporáneas?', ["Una acción artística en vivo donde el cuerpo del creador y el tiempo forman la obra", "Una pintura en bastidor", "Una fotografía enmarcada", "Una partitura"], 0, 'Acción en vivo con el cuerpo.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la instalación artística en una galería o museo?', ["Una obra tridimensional concebida para transformar y adaptar un espacio específico", "Colgar un cuadro", "Poner una silla", "Encender la luz"], 0, 'Transformar un espacio específico.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el Land Art o Arte de la Tierra?', ["Crear intervenciones artísticas a gran escala directamente en paisajes naturales usando rocas, tierra o vegetación", "Pintar flores", "Hacer jardinería doméstica", "Tomar fotos de animales"], 0, 'Intervenciones en paisajes naturales.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el grabado al aguafuerte sobre plancha de cobre?', ["Técnica calcográfica que usa ácido nítrico para corroer las líneas dibujadas sobre barniz", "Pintar con acuarela", "Tallar madera", "Moldear arcilla"], 0, 'Corrosión con ácido en plancha.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el esfumado (sfumato) perfeccionado por Leonardo da Vinci?', ["Superponer veladuras transparentes para suavizar contornos y sombras sin líneas bruscas", "Dibujar con carbón negro", "Pintar con espátula", "Usar colores neón"], 0, 'Suavizar contornos con veladuras.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el arte cinético?', ["Expresión artística tridimensional donde las obras poseen movimiento real o ilusorio", "Pinturas estáticas", "Fotografías antiguas", "Música coral"], 0, 'Obras con movimiento real o ilusorio.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la encáustica en la pintura antigua?', ["Técnica que utiliza cera de abejas derretida mezclada con pigmentos de color", "Pintar con agua", "Usar tinta china", "Tallar mármol"], 0, 'Pigmentos mezclados con cera de abejas.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el sfumato en la mirada del personaje de la Mona Lisa?', ["Una transición imperceptible de sombras que crea misterio en la expresión", "Un rasguño en el cuadro", "El tono del marco", "Un error de pintura"], 0, 'Transición de sombras imperceptibles.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el dripping en el expresionismo abstracto?', ["Verter o gotear pintura directamente sobre el lienzo extendido en el suelo", "Usar pincel de pelo fino", "Dibujar con regla", "Barnizar la madera"], 0, 'Gotear pintura en lienzo en el suelo.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la paleta cromática reducida o acromática?', ["Trabajar exclusivamente con blanco, negro y la gama intermedia de grises", "Usar todos los colores primarios", "Usar tonos neón", "Pintar sobre vidrio"], 0, 'Blanco, negro y grises.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el bajorrelieve en la escultura arquitectónica?', ["Una técnica de tallado donde las figuras sobresalen ligeramente del plano de fondo", "Una estatua exenta", "Un cuadro al óleo", "Una pintura en techo"], 0, 'Figuras sobresalen ligeramente del fondo.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es una escultura exenta o de bulto redondo?', ["Una obra tridimensional esculpida por todos sus lados que se puede contemplar desde cualquier ángulo", "Un relieve en pared", "Un grabado", "Un dibujo 2D"], 0, 'Esculpida por todos los lados.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el ensamblaje (assemblage) en la escultura moderna?', ["Combinar e integrar objetos tridimensionales diversos para crear una escultura", "Pintar con acrílico", "Tallar un bloque de madera", "Fundir bronce"], 0, 'Combinar objetos tridimensionales diversos.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la contrapposto en la escultura griega y renacentista?', ["La postura armónica donde el peso del cuerpo descansa sobre una sola pierna creando una leve S en la cadera", "Estar sentado", "Correr rápido", "Saltar con ambos pies"], 0, 'Peso sobre una pierna con curva armónica.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el muralismo mexicano en la historia del arte del siglo XX?', ["Un movimiento monumental de arte público con contenido social, político e identitario", "Hacer grafitis pequeños", "Pintar lienzos para galerías privadas", "Dibujar cómics"], 0, 'Arte monumental público social.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el dadaísmo como ruptura vanguardista?', ["El rechazo a la lógica burguesa y la exaltación del azar y lo absurdo", "Copiar el Renacimiento", "Pintar paisajes realistas", "Esculpir reyes"], 0, 'Rechazo a la lógica y azar absurdo.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el movimiento Fauvista impulsado por Henri Matisse?', ["La liberación del color puro usado de manera arbitraria y emotiva independientemente de la realidad", "Pintar fotográficamente", "Usar solo blanco y negro", "Esculpir en mármol"], 0, 'Color puro arbitrario y emotivo.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la fotografía estenopeica en el arte fotográfico?', ["Capturar imágenes sin lente usando una caja estanca con un pequeño orificio (estenopo)", "Usar una cámara réflex digital", "Usar un teléfono inteligente", "Editar con Photoshop"], 0, 'Caja con pequeño orificio sin lente.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la regla de los tercios en la composición fotográfica y pictórica?', ["Dividir la imagen en 9 rectángulos iguales colocando los puntos de interés en las intersecciones", "Poner todo en el centro exacto", "Cortar la foto en tres", "Pintar tres colores"], 0, 'Intersecciones de la cuadrícula 3x3.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el contraste de temperaturas en la teoría del color?', ["Yuxtaponer colores cálidos (rojo/amarillo) y fríos (azul/verde) para generar vibración visual", "Medir la temperatura ambiental", "Usar luz eléctrica", "Mezclar agua caliente con pintura"], 0, 'Yuxtaponer colores cálidos y fríos.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la textura táctil a diferencia de la textura visual?', ["La rugosidad o relieve físico palpable con las manos sobre la obra", "Una ilusión plana", "El color de la pintura", "El brillo de la luz"], 0, 'Relieve físico palpable.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la serigrafía como método de estampación gráfica?', ["Transferir tinta a través de una malla tensada en un marco bloqueando las áreas sin imagen", "Tallar madera", "Grabar piedra", "Dibujar con lápiz"], 0, 'Tinta a través de malla tensada.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el Art Nouveau o Modernismo de finales del siglo XIX?', ["Un estilo inspirado en las formas orgánicas de la naturaleza, líneas curvas y motivos vegetales", "El uso de líneas rectas metálicas", "Pinturas de guerra", "Esculturas cúbicas"], 0, 'Formas orgánicas y líneas curvas.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la Bauhaus como escuela pionera de arte, diseño y arquitectura?', ["La institución alemana que unificó el arte, la artesanía y la producción industrial funcional", "Un museo parisino", "Un estilo poético", "Un grupo de pintura barroca"], 0, 'Unión de arte, artesanía e industria.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el Minimalismo en las artes visuales del siglo XX?', ["Reducir la obra a sus elementos geométricos y estructurales esenciales eliminando el adorno", "Llenar el lienzo de detalles", "Pintar con muchos colores", "Esculpir estatuas gigantes"], 0, 'Reducir a lo esencial geométrico.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el Arte Conceptual según Sol LeWitt?', ["La idea o concepto detrás de la obra es más importante que el objeto físico final", "La técnica de pintura perfecta", "El valor económico en subastas", "El tamaño de la escultura"], 0, 'La idea es más importante que el objeto.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el fotomontaje en el arte de vanguardia?', ["Combinar recortes de varias fotografías para crear una nueva composición visual", "Tomar una sola foto", "Pintar con óleo", "Esculpir en madera"], 0, 'Combinar recortes de fotografías.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el grabado a la punta seca?', ["Rayar directamente una plancha de metal con una aguja de acero dura creando rebabas que retienen tinta", "Pintar con pincel", "Usar ácido", "Imprimir en papel fotográfico"], 0, 'Rayar metal con aguja dura.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es el hiperrealismo en la pintura contemporánea?', ["Reproducir la realidad con un grado de detalle y precisión casi fotográfico", "Pintar formas abstractas", "Hacer bocetos rápidos", "Usar acuarelas sueltas"], 0, 'Detalle y precisión fotográfica.');
+  addQ('integrador', 'Comunicación Artística', '¿Qué es la iconografía en la historia del arte?', ["El estudio de los temas, símbolos y significados representados en las obras visuales", "La restauración de marcos", "La venta de cuadros", "La química de los pigmentos"], 0, 'Estudio de temas, símbolos y significados.');
+  addQ('integrador', 'Comunicación Internacional', 'Why is English widely spoken as a global language in science and art?', ["Because it enables international collaboration across borders", "Because it is mandatory for everyone", "To reduce reading", "Because Spanish is not used"], 0, 'Global collaboration.');
+  addQ('integrador', 'Comunicación Internacional', 'What is the primary benefit of bilingual communication in global business?', ["Facilitating understanding and trade between different cultures", "Increasing taxes", "Avoiding travel", "Reducing vocabulary"], 0, 'Facilitating trade & understanding.');
+  addQ('integrador', 'Comunicación Internacional', 'What does intercultural competence mean when communicating globally?', ["Understanding and respecting cultural differences during interaction", "Speaking only one language", "Ignoring traditions", "Forcing your views"], 0, 'Respecting differences.');
+  addQ('integrador', 'Comunicación Internacional', 'Why are subtitles or dubbing necessary for international films?', ["To allow global audiences to understand foreign language dialogue", "To hide the original sound", "To shorten the movie", "To change the actors"], 0, 'Global audience understanding.');
+  addQ('integrador', 'Comunicación Internacional', 'What role do translation services play in international organizations like the UN?', ["Ensuring equal communication and diplomatic dialogue among nations", "Creating confusion", "Delaying meetings", "Selling books"], 0, 'Diplomatic dialogue.');
+  addQ('integrador', 'Comunicación Internacional', 'What does the term \'lingua franca\' mean in global communication?', ["A common language used to communicate between people with different native tongues", "A language spoken in France only", "A dead language", "A secret code"], 0, 'Common language for diverse speakers.');
+  addQ('integrador', 'Comunicación Internacional', 'Why is English considered the primary language of global aviation and maritime safety?', ["To ensure standard, clear communication during international flights and voyages", "Because planes are made in USA", "To reduce training time", "Because it is easier to spell"], 0, 'Standard safety communication.');
+  addQ('integrador', 'Comunicación Internacional', 'What is the primary function of simultaneous interpretation during international summits?', ["Translating spoken speech into another language in real time as the speaker talks", "Writing books later", "Subtitling movies", "Teaching grammar"], 0, 'Real-time spoken translation.');
+  addQ('integrador', 'Comunicación Internacional', 'What is code-switching in multilingual speakers?', ["Alternating between two or more languages in a single conversation", "Translating written text", "Learning new alphabets", "Speaking very fast"], 0, 'Alternating languages in conversation.');
+  addQ('integrador', 'Comunicación Internacional', 'What does false cognate (\'false friend\') mean in language learning?', ["Words in different languages that look similar but have completely different meanings", "Words with the same meaning", "Grammar errors", "Accents"], 0, 'Similar look but different meaning.');
+  addQ('integrador', 'Comunicación Internacional', 'Why is localized translation important when adapting websites for foreign markets?', ["Adapting content to fit the cultural nuances, currency, and idioms of the local target audience", "Translating word for word blindly", "Keeping the text in English", "Removing images"], 0, 'Adapting to cultural nuances & local context.');
+  addQ('integrador', 'Comunicación Internacional', 'What is the CEFR (Common European Framework of Reference for Languages)?', ["An international standard for describing language proficiency from A1 to C2", "A grammar book", "A dictionary company", "A travel agency"], 0, 'Standard framework for language proficiency (A1-C2).');
+  addQ('integrador', 'Comunicación Internacional', 'What is the significance of the TOEFL and IELTS examinations internationally?', ["Standardized tests evaluating English proficiency for university admission and immigration", "Driving tests", "Art competitions", "Math Olympiads"], 0, 'Standardized English proficiency tests.');
+  addQ('integrador', 'Comunicación Internacional', 'What is language immersion in educational methodology?', ["Learning a language by living and studying in an environment where it is spoken exclusively", "Studying 10 minutes a week", "Reading dictionaries", "Using translation apps"], 0, 'Environment where language is spoken exclusively.');
+  addQ('integrador', 'Comunicación Internacional', 'What does the idiom \'break the ice\' mean in international networking?', ["To initiate conversation and relieve tension in a social setting", "To freeze water", "To cancel a meeting", "To argue with someone"], 0, 'Initiate conversation & relieve tension.');
+  addQ('integrador', 'Comunicación Internacional', 'What does the business expression \'win-win situation\' convey globally?', ["An outcome that benefits all parties involved in a negotiation", "Winning a trophy", "One side losing everything", "Canceling a contract"], 0, 'Outcome benefiting all parties.');
+  addQ('integrador', 'Comunicación Internacional', 'Why are non-verbal cues (gestures, eye contact) crucial in intercultural communication?', ["Because gesture meanings vary widely across different cultures and can cause misunderstandings", "They mean the same worldwide", "They replace all words", "They are illegal in business"], 0, 'Gesture meanings vary across cultures.');
+  addQ('integrador', 'Comunicación Internacional', 'What is the purpose of an abstract in an international scientific paper written in English?', ["A concise summary of the research background, methodology, results, and conclusion", "The entire paper translated", "A list of references", "The author's biography"], 0, 'Concise summary of scientific research.');
+  addQ('integrador', 'Comunicación Internacional', 'What does the phrase \'think outside the box\' encourage in international problem solving?', ["To think creatively and unconventionally beyond traditional boundaries", "To look inside a container", "To follow strict rules", "To stop brainstorming"], 0, 'Creative and unconventional thinking.');
+  addQ('integrador', 'Comunicación Internacional', 'What is diplomacy in international relations?', ["The art and practice of conducting negotiations between representatives of states", "Declaring war", "Selling products online", "Building bridges"], 0, 'Negotiations between state representatives.');
+  addQ('integrador', 'Comunicación Internacional', 'What is global citizenship in the modern interconnected world?', ["Being aware of global issues, respecting diversity, and acting responsibly in a global community", "Holding five passports", "Living on a ship", "Speaking 20 languages"], 0, 'Awareness of global issues & diversity.');
+  addQ('integrador', 'Comunicación Internacional', 'What does the phrase \'lost in translation\' mean?', ["When the original meaning or nuance of a message is missed during translation", "Losing a book while traveling", "Forgetting your native language", "A misspelled word"], 0, 'Original meaning missed in translation.');
+  addQ('integrador', 'Comunicación Internacional', 'Why do international organizations use standardized acronyms (e.g., UNESCO, WHO, UNICEF)?', ["To simplify multi-word official titles across international communications", "To keep secrets", "Because titles are too long", "To save printer ink"], 0, 'Simplify multi-word titles globally.');
+  addQ('integrador', 'Comunicación Internacional', 'What is an official language in a sovereign nation?', ["A language given a special legal status in a country's constitution for government administration", "The language spoken by tourists", "A language taught in summer", "The oldest language"], 0, 'Legal status for government administration.');
+  addQ('integrador', 'Comunicación Internacional', 'What is language extinction or language endangerment?', ["When a language loses all its native speakers and ceases to be used", "When a dictionary is lost", "When a school closes", "When grammar changes"], 0, 'Loss of all native speakers.');
+  addQ('integrador', 'Comunicación Internacional', 'What is a dialect in sociolinguistics?', ["A regional or social variety of a language distinguished by vocabulary, grammar, and pronunciation", "A completely new language", "A written alphabet", "An accent only"], 0, 'Regional/social variety of a language.');
+  addQ('integrador', 'Comunicación Internacional', 'What is phonetics?', ["The branch of linguistics that studies the sounds of human speech", "The study of spelling", "The study of ancient books", "The study of sentences"], 0, 'Study of human speech sounds.');
+  addQ('integrador', 'Comunicación Internacional', 'What is syntax in comparative linguistics?', ["The set of rules that structure how words combine to form phrases and sentences", "The meaning of words", "The history of letters", "The sound of vowels"], 0, 'Rules structuring phrases and sentences.');
+  addQ('integrador', 'Comunicación Internacional', 'What is semantics?', ["The subfield of linguistics focused on the study of meaning in words and sentences", "The study of verbs", "The study of accents", "The study of writing systems"], 0, 'Study of meaning in language.');
+  addQ('integrador', 'Comunicación Internacional', 'What is pragmatic competence in language use?', ["The ability to use language effectively and appropriately in social contexts", "Memorizing grammar rules", "Writing fast", "Knowing hard words"], 0, 'Appropriate language use in social contexts.');
+  addQ('integrador', 'Comunicación Internacional', 'What is an idiom in English?', ["A phrase whose meaning cannot be understood from the literal meanings of its individual words", "A rule of grammar", "A single hard word", "A scientific term"], 0, 'Phrase with non-literal meaning.');
+  addQ('integrador', 'Comunicación Internacional', 'What does \'hit the nail on the head\' mean?', ["To describe or identify something exactly right", "To do carpentry work", "To hurt your hand", "To make a mistake"], 0, 'Describe or identify something exactly right.');
+  addQ('integrador', 'Comunicación Internacional', 'What does \'bite the bullet\' mean in English conversation?', ["To face a difficult situation with courage and get it over with", "To eat something hard", "To play with weapons", "To give up"], 0, 'Face a difficult situation with courage.');
+  addQ('integrador', 'Comunicación Internacional', 'What does \'piece of cake\' mean in colloquial English?', ["Something that is very easy to do", "A sweet dessert", "A small reward", "A birthday gift"], 0, 'Something very easy to do.');
+  addQ('integrador', 'Comunicación Internacional', 'What does \'under the weather\' mean when someone says it?', ["Feeling slightly sick or unwell", "Standing in the rain", "Being cold", "Traveling by plane"], 0, 'Feeling slightly sick or unwell.');
+  addQ('integrador', 'Comunicación Internacional', 'What does \'burn the midnight oil\' mean?', ["To work or study late into the night", "To light a lamp", "To waste energy", "To cook dinner late"], 0, 'Work or study late into the night.');
+  addQ('integrador', 'Comunicación Internacional', 'What does \'cost an arm and a leg\' describe?', ["Something that is extremely expensive", "A medical operation", "A dangerous activity", "A heavy burden"], 0, 'Extremely expensive.');
+  addQ('integrador', 'Comunicación Internacional', 'What does \'once in a blue moon\' mean?', ["An event that happens very rarely", "Every full moon", "Something impossible", "Every month"], 0, 'An event that happens very rarely.');
+  addQ('integrador', 'Comunicación Internacional', 'What does \'see eye to eye\' mean between two people?', ["To agree fully with each other on a matter", "To look closely at someone", "To wear glasses", "To fight face to face"], 0, 'Agree fully with each other.');
+  addQ('integrador', 'Comunicación Internacional', 'What does \'spill the beans\' mean in informal English?', ["To reveal secret information prematurely", "To drop food on the floor", "To cook dinner", "To make a mess"], 0, 'Reveal secret information.');
+  addQ('integrador', 'Interpretación y Análisis', 'Al realizar el análisis crítico de una obra dramática, ¿qué aspecto se examina?', ["La coherencia entre actuación, guion y puesta en escena", "El precio de la entrada", "El color del piso", "La marca del micrófono"], 0, 'Coherencia general.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la interpretación hermenéutica de un texto literario?', ["El análisis del significado profundo y el contexto sociocultural", "Contar las palabras", "Medir el libro", "Revisar la tipografía"], 0, 'Significado profundo.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué implica analizar la estructura de un poema?', ["Examinar la métrica, rima, estrofas y figuras estilísticas", "Contar las hojas", "Revisar la portada", "Leer al revés"], 0, 'Métrica y figuras.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué diferencia hay entre la lectura denotativa y la connotativa?', ["La denotativa es literal y la connotativa es figurada", "Ambas son idénticas", "La denotativa es falsa", "La connotativa es en inglés"], 0, 'Literal vs figurado.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el contexto histórico de una obra de arte?', ["El momento social, político y cultural en que fue creada", "La fecha de venta", "El nombre de la galería", "La edad del comprador"], 0, 'Momento social y cultural.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la validez metodológica en el análisis de una investigación científica?', ["El grado en que el estudio mide lo que realmente pretende medir sin sesgos", "El número de hojas del reporte", "La velocidad de publicación", "El formato de letra"], 0, 'Medir sin sesgos lo pretendido.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es un argumento ad hominem en la falacia lógica de un debate?', ["Atacar a la persona que emite el razonamiento en lugar de refutar su argumento", "Usar datos falsos", "Exagerar la consecuencia", "Hablar en latín"], 0, 'Atacar a la persona en vez del argumento.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la falacia del hombre de paja (straw man)?', ["Distorsionar o caricaturizar la postura del oponente para atacarla más fácilmente", "Decir una verdad a medias", "Cambiar de idioma", "Repetir la tesis"], 0, 'Distorsionar la postura del oponente.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el sesgo de confirmación en la interpretación de información?', ["La tendencia a buscar y valorar solo los datos que confirman nuestras creencias previas", "Revisar todas las fuentes imparcialmente", "Dudar de todo", "Comprobar con experimentos"], 0, 'Buscar datos que confirmen creencias previas.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la inferencia lógica en la lectura comprensiva?', ["Deducir una conclusión implícita a partir de las premisas explícitas del texto", "Leer en voz alta", "Copiar una frase", "Buscar en el diccionario"], 0, 'Deducir conclusión implícita de premisas.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el análisis FODA (FORTALEZAS, OPORTUNIDADES, DEBILIDADES, AMENAZAS)?', ["Una herramienta estratégica para evaluar factores internos y externos de un proyecto", "Un tipo de examen", "Un poema de cuatro estrofas", "Un método pictórico"], 0, 'Evaluación estratégica interna y externa.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la triangulación de datos en la metodología cualitativa?', ["Verificar los hallazgos mediante múltiples fuentes, métodos o investigadores para dar rigor", "Usar tres páginas", "Hacer tres preguntas", "Dibujar triángulos"], 0, 'Verificar hallazgos con múltiples fuentes/métodos.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la revisión por pares (peer review) en la ciencia y literatura académica?', ["La evaluación crítica de un manuscrito por expertos independientes antes de su publicación", "La corrección de ortografía", "La lectura por el autor", "La venta en librerías"], 0, 'Evaluación de manuscrito por expertos independientes.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la semiótica según Charles Sanders Peirce?', ["La ciencia que estudia los signos, sus clasificaciones (ícono, índice, símbolo) y significados", "El estudio de los fósiles", "La gramática del inglés", "La pintura al óleo"], 0, 'Estudio de signos y significados (ícono, índice, símbolo).');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué representa un \'ícono\' en la clasificación semiótica de Peirce?', ["Un signo que guarda una relación de semejanza directa con su objeto (ej. una foto)", "Un signo abstracto", "Una palabra", "Una huella digital"], 0, 'Signo con relación de semejanza directa.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué representa un \'índice\' en la semiótica de Peirce?', ["Un signo que tiene una relación causal o física de contigüidad con el objeto (ej. el humo indica fuego)", "Un dibujo", "Una letra", "Un cuadro"], 0, 'Relación causal o física (humo = fuego).');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué representa un \'símbolo\' en semiótica?', ["Un signo cuya relación con el objeto es convencional y arbitraria (ej. la paloma de la paz)", "Una sombra", "Una foto", "Una huella"], 0, 'Relación convencional y arbitraria.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la deconstrucción analítica según Jacques Derrida?', ["Cuestionar las oposiciones binarias de un texto para revelar sus contradicciones e ideologías implícitas", "Romper el libro", "Traducir mal", "Borrar párrafos"], 0, 'Cuestionar oposiciones binarias y contradicciones.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la métrica en el análisis versifilógico de la poesía?', ["La medida y conteo de las sílabas gramáticas y poéticas que componen un verso", "El peso del papel", "El año de publicación", "El color de la tinta"], 0, 'Conteo de sílabas poéticas en el verso.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la sinalefa en el cómputo silábico poético?', ["La unión de la vocal final de una palabra con la vocal inicial de la siguiente en una sola sílaba poética", "Separar dos vocales", "Acentuar la última sílaba", "Omitir la rima"], 0, 'Unión de vocal final e inicial contiguas.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el hiato poético o diéresis?', ["La ruptura de la sinalefa o diptongo para contar una sílaba métrica más", "Unir dos sílabas", "Repetir una palabra", "Rimar en consonante"], 0, 'Ruptura para contar una sílaba más.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el verso endecasílabo?', ["Un verso de 11 sílabas métricas, característico del soneto renacentista", "Un verso de 8 sílabas", "Un verso de 14 sílabas", "Un verso de 5 sílabas"], 0, 'Verso de 11 sílabas métricas.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el verso octosílabo?', ["Un verso de 8 sílabas métricas, propio del romance y la poesía popular hispánica", "Un verso de 11 sílabas", "Un verso de 12 sílabas", "Un verso de 6 sílabas"], 0, 'Verso de 8 sílabas métricas.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el verso alejandrino?', ["Un verso de 14 sílabas métricas dividido en dos hemistiquios de 7 sílabas", "Un verso de 10 sílabas", "Un verso de 8 sílabas", "Un verso de 16 sílabas"], 0, 'Verso de 14 sílabas métricas (7+7).');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es un soneto en la estructura poética clásica?', ["Una composición poética de 14 versos endecasílabos organizados en dos cuartetos y dos tercetos", "Un poema de 10 versos", "Un poema en prosa", "Una canción de 3 estrofas"], 0, '14 versos endecasílabos (2 cuartetos y 2 tercetos).');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el análisis sintáctico de una oración compleja?', ["Identificar el sujeto, predicado, núcleo, complementos directos, indirectos y subordinadas", "Buscar faltas de ortografía", "Traducir la frase", "Contar las letras"], 0, 'Identificar sujeto, predicado y complementos.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el complemento directo en la sintaxis?', ["El elemento que recibe directamente la acción del verbo transitivo", "Quien realiza la acción", "El lugar donde ocurre", "El tiempo de la acción"], 0, 'Recibe directamente la acción del verbo.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el complemento indirecto?', ["El destinatario u objeto beneficiado o perjudicado por la acción verbal", "El sujeto", "El verbo", "El adverbio de modo"], 0, 'Destinatario o beneficiado por la acción.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el complemento circumstantial (de lugar, tiempo, modo)?', ["La palabra o grupo que expresa las condiciones de tiempo, lugar, modo o causa de la acción", "El núcleo del sujeto", "La tilde", "La conjunción"], 0, 'Expresa tiempo, lugar, modo o causa.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es una oración subordinada sustantiva?', ["Una oración dependiente que cumple la función de un sustantivo dentro de la oración principal", "Una oración independiente", "Un verso sin rima", "Una pregunta"], 0, 'Oración dependiente con función de sustantivo.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es una oración subordinada adjetiva o relativa?', ["Una oración que modifica a un sustantivo (antecedente) funcionando como adjetivo", "Un verbo", "Un adverbio", "Una conjunción coordinada"], 0, 'Modifica a un sustantivo antecedentes.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es una oración subordinada adverbial?', ["Una oración dependiente que funciona como adverbio indicando tiempo, causa, condición o lugar", "Un sujeto", "Un sustantivo", "Una interjección"], 0, 'Funciona como adverbio (tiempo, causa, etc.).');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la falacia de petición de principio (petitio principii)?', ["Un argumento donde la conclusión está implícitamente asumida en las premisas", "Atacar al oponente", "Usar datos falsos", "Hablar muy rápido"], 0, 'La conclusión está asumida en las premisas.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la falacia ad populum o apelación a la multitud?', ["Afirmar que una propuesta es verdadera o buena solo porque la mayoría la apoya", "Citar a un sabio", "Mostrar pruebas de laboratorio", "Usar gráficos"], 0, 'Afirmar la verdad porque la mayoría la apoya.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la falacia ad verecundiam o apelación a la falsa autoridad?', ["Defender una idea apelando al prestigio de alguien que no es experto en el tema", "Usar estadísticas reales", "Comprobar con hechos", "Hacer experimentos"], 0, 'Apelar al prestigio de un no experto.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la paradoja como figura de pensamiento?', ["Una afirmación aparentemente contradictoria que encierra una verdad profunda ('Vivo sin vivir en mí')", "Una mentira simple", "Un error de cómputo", "Una rima pobre"], 0, 'Afirmación aparentemente contradictoria profunda.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el oxímoron en la retórica literaria?', ["La combinación en un mismo sintagma de dos palabras de significado opuesto ('un silencio atronador')", "Una comparación con 'como'", "Una lista de adjetivos", "Una frase en latín"], 0, 'Sintagma con dos palabras de significado opuesto.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la antítesis?', ["La yuxtaposición de dos frases o conceptos de significado contrario para resaltar el contraste", "La repetición de letras", "Un tipo de rima", "Una falta de ortografía"], 0, 'Yuxtaposición de conceptos contrarios.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es el hipérbaton?', ["La alteración del orden sintáctico habitual de las palabras en una oración", "Una exageración monumental", "La omisión de conectores", "La repetición de sonidos"], 0, 'Alteración del orden sintáctico habitual.');
+  addQ('integrador', 'Interpretación y Análisis', '¿Qué es la aliteración poética?', ["La repetición evidente de un mismo sonido consonántico a lo largo de un verso ('en el silencio el susurro')", "La rima al final de estrofa", "La suma de sílabas", "La falta de tilde"], 0, 'Repetición de un mismo sonido consonántico.');
+  addQ('integrador', 'Retos Integradores', '¿Qué competencia se demuestra al resolver un problema usando Lenguaje, Arte e Inglés a la vez?', ["Pensamiento crítico e integración multidisciplinaria", "Memorización pasiva", "Aislamiento de materias", "Falta de expresión"], 0, 'Integración multidisciplinaria.');
+  addQ('integrador', 'Retos Integradores', '¿Cómo contribuye el dominio del lenguaje y las artes al desarrollo personal?', ["Potencia la creatividad, empatía y comunicación afectiva", "Limita las oportunidades laboral", "Produce aburrimiento", "Reduce el intelecto"], 0, 'Potencia creatividad y empatía.');
+  addQ('integrador', 'Retos Integradores', '¿Por qué el pensamiento multidisciplinario es valioso en el siglo XXI?', ["Permite abordar problemas complejos desde diversas perspectivas integradas", "Porque obliga a estudiar menos", "Porque reemplaza a la ciencia", "Porque es muy antiguo"], 0, 'Perspectivas integradas.');
+  addQ('integrador', 'Retos Integradores', '¿Qué logro representa completar con éxito todos los desafíos de Guardianes del Lenguaje?', ["Demostrar maestría integral en comunicación, arte e idiomas", "Ganar un juguete", "Terminar un juego simple", "Olvidar los temas"], 0, 'Maestría integral.');
+  addQ('integrador', 'Retos Integradores', '¿Cómo se conecta el arte visual con la literatura en una novela gráfica?', ["Combinando narrativa textual con ilustración secuencial", "Usar solo texto", "Usar solo música", "Imprimir sin tinta"], 0, 'Texto e ilustración secuencial.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°6: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°7: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°8: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°9: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°10: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°11: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°12: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°13: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°14: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°15: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°16: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°17: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°18: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°19: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°20: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°21: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°22: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°23: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°24: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°25: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°26: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°27: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°28: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°29: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°30: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°31: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°32: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°33: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°34: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°35: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°36: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°37: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°38: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°39: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
+  addQ('integrador', 'Retos Integradores', 'Gran Desafío Integrador N°40: ¿Qué actitud define a un verdadero \'Guardián del Lenguaje\'?', ["La curiosidad constante, el respeto cultural y la excelencia comunicativa", "La apatía intelectual", "El rechazo a otros idiomas", "El descuido ortográfico"], 0, 'Excelencia comunicativa.');
   return qPool;
 }
-
 module.exports = generateUniqueQuestions;
