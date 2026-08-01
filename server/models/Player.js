@@ -12,6 +12,10 @@ const playerSchema = new mongoose.Schema({
   email: {
     type: String
   },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
   nickname: {
     type: String,
     required: true

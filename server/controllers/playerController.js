@@ -7,6 +7,15 @@ exports.getPlayer = async (req, res) => {
     if (!player) {
       return res.status(404).json({ message: 'Jugador no encontrado' });
     }
+
+    const adminEmail = (process.env.ADMIN_EMAIL || 'zlagustin10@gmail.com').toLowerCase();
+    if (player.email && player.email.toLowerCase() === adminEmail) {
+      if (!player.isAdmin) {
+        player.isAdmin = true;
+        await player.save();
+      }
+    }
+
     res.json(player);
   } catch (error) {
     res.status(500).json({ message: 'Error del servidor', error: error.message });
@@ -17,13 +26,15 @@ exports.getPlayer = async (req, res) => {
 exports.createPlayer = async (req, res) => {
   try {
     const { googleId, email, nickname, character, pet } = req.body;
-    // Creamos un userId unico si viene de google, o usamos el googleId como userId base
     const userId = googleId || `user_${Date.now()}`;
-    
+    const adminEmail = (process.env.ADMIN_EMAIL || 'zlagustin10@gmail.com').toLowerCase();
+    const isAdmin = email && email.toLowerCase() === adminEmail;
+
     const newPlayer = new Player({
       userId,
       googleId,
       email,
+      isAdmin,
       nickname,
       character,
       pet
@@ -31,7 +42,6 @@ exports.createPlayer = async (req, res) => {
     
     const savedPlayer = await newPlayer.save();
     
-    // Devolvemos el JWT de sesión
     const jwtSecret = process.env.JWT_SECRET || 'guardianes_secreto_super_seguro_2024';
     const jwt = require('jsonwebtoken');
     const authToken = jwt.sign({ userId: savedPlayer.userId, googleId: savedPlayer.googleId }, jwtSecret, { expiresIn: '30d' });
@@ -181,6 +191,14 @@ exports.devGodMode = async (req, res) => {
     let player = await Player.findOne({ userId: req.params.userId });
     if (!player) return res.status(404).json({ message: 'Jugador no encontrado' });
 
+    const adminEmail = (process.env.ADMIN_EMAIL || 'zlagustin10@gmail.com').toLowerCase();
+    const isOwner = player.isAdmin || (player.email && player.email.toLowerCase() === adminEmail);
+
+    if (!isOwner) {
+      return res.status(403).json({ message: `Acceso denegado: El Modo Dios está reservado exclusivamente para el correo de administrador (${adminEmail}).` });
+    }
+
+    player.isAdmin = true;
     player.lingocoins = 999999;
     player.xp = 99999;
     player.totalXPEarned = 99999;
@@ -211,7 +229,7 @@ exports.devGodMode = async (req, res) => {
     player.inventory.ownedTitles = ['title_novato', 'title_estudiante', 'title_guardian', 'title_erudito', 'title_leyenda'];
 
     await player.save();
-    res.json({ message: '⚡ ¡Modo Dios activado con éxito! Créditos, Insignias y Accesorios al máximo.', player });
+    res.json({ message: `⚡ ¡Modo Dios activado con éxito para ${player.email}!`, player });
   } catch (error) {
     res.status(500).json({ message: 'Error al activar Modo Dios', error: error.message });
   }

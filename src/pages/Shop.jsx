@@ -131,13 +131,15 @@ function Shop() {
             <span style={{ fontSize: '0.8rem', color: '#000' }}>TIENDA LINGO</span>
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <button 
-              className="btn-retro"
-              style={{ fontSize: '0.65rem', padding: '6px 10px', backgroundColor: '#e91e63', color: '#fff', margin: 0 }}
-              onClick={activateGodMode}
-            >
-              ⚡ MODO DIOS (MAX CRÉDITOS Y XP)
-            </button>
+            {(player.isAdmin || player.email === 'zlagustin10@gmail.com') && (
+              <button 
+                className="btn-retro"
+                style={{ fontSize: '0.65rem', padding: '6px 10px', backgroundColor: '#e91e63', color: '#fff', margin: 0 }}
+                onClick={activateGodMode}
+              >
+                ⚡ MODO DIOS (ADMIN)
+              </button>
+            )}
             <div className="rpg-box" style={{ margin: 0, padding: '10px', display: 'inline-block' }}>
               <span style={{ fontSize: '0.8rem', color: '#000' }}>💰 {player.lingocoins} LC</span>
             </div>

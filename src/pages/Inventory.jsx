@@ -141,7 +141,9 @@ function Inventory() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '15px', flexWrap: 'wrap' }}>
-        <button className="btn-retro" style={{ backgroundColor: '#e91e63', color: '#fff' }} onClick={activateGodMode}>⚡ MODO DIOS (MAX CRÉDITOS Y XP)</button>
+        {(player.isAdmin || player.email === 'zlagustin10@gmail.com') && (
+          <button className="btn-retro" style={{ backgroundColor: '#e91e63', color: '#fff' }} onClick={activateGodMode}>⚡ MODO DIOS (ADMIN)</button>
+        )}
         <button className="btn-retro" onClick={() => navigate('/shop')}>🏪 Ir a la Tienda</button>
         <button className="btn-retro success" onClick={() => navigate('/map')}>🗺️ Volver al Mapa</button>
       </div>
