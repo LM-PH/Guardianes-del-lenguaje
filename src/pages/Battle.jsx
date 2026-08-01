@@ -133,6 +133,18 @@ function Battle() {
     }
   };
 
+  const getPlayerSpritePath = (pl) => {
+    if (!pl || !pl.character) return '/sprites/boy_v18.png?v=40';
+    const isGirl = pl.character.gender === 'girl';
+    const eqSkin = pl.inventory?.equippedSkin;
+    const prefix = isGirl ? 'girl_' : 'boy_';
+
+    if (eqSkin && eqSkin !== 'default') {
+      return `/sprites/${prefix}${eqSkin}.png?v=40`;
+    }
+    return `/sprites/${isGirl ? 'girl_v18.png?v=40' : 'boy_v18.png?v=40'}`;
+  };
+
   const getSkinEmoji = (eqSkin) => {
     if (eqSkin === 'skin_explorador') return '🤠';
     if (eqSkin === 'skin_bibliotecario') return '🤓';
@@ -376,16 +388,11 @@ function Battle() {
             {/* Sprite GBA: fila 1 = up (espalda al jugador, mirando al enemigo) */}
             <div className="sprite-walk-back" style={{ 
               position: 'relative', zIndex: 1, width: '90px', height: '90px', 
-              backgroundImage: `url('/sprites/${player.character.gender === 'girl' ? 'girl_final.png?v=33' : 'boy_final.png?v=33'}')`, 
+              backgroundImage: `url('${getPlayerSpritePath(player)}')`, 
               backgroundSize: '400% 400%',
               backgroundPositionY: '33.33%',  /* Fila 1 = up = espalda */
               imageRendering: 'pixelated' 
             }}>
-               {player.inventory?.equippedSkin && (
-                 <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '1.2rem', backgroundColor: '#fff', borderRadius: '50%', border: '2px solid #111', width: '28px', height: '28px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                   {getSkinEmoji(player.inventory.equippedSkin)}
-                 </div>
-               )}
             </div>
           </div>
 

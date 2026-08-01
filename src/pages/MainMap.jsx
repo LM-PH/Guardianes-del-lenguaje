@@ -282,6 +282,21 @@ function MainMap() {
   // Sprite sheets GBA v4 (pixel art estilo Pokémon GBA con 4 filas direccionales)
   const girlImgRef = useImage('/sprites/girl_v18.png?v=33')
   const boyImgRef = useImage('/sprites/boy_v18.png?v=33')
+
+  // Trajes / Skins
+  const boySkinExploradorRef = useImage('/sprites/boy_skin_explorador.png?v=40')
+  const girlSkinExploradorRef = useImage('/sprites/girl_skin_explorador.png?v=40')
+  const boySkinBibliotecarioRef = useImage('/sprites/boy_skin_bibliotecario.png?v=40')
+  const girlSkinBibliotecarioRef = useImage('/sprites/girl_skin_bibliotecario.png?v=40')
+  const boySkinArtistaRef = useImage('/sprites/boy_skin_artista.png?v=40')
+  const girlSkinArtistaRef = useImage('/sprites/girl_skin_artista.png?v=40')
+  const boySkinTraductorRef = useImage('/sprites/boy_skin_traductor.png?v=40')
+  const girlSkinTraductorRef = useImage('/sprites/girl_skin_traductor.png?v=40')
+  const boySkinMaestroRef = useImage('/sprites/boy_skin_maestro.png?v=40')
+  const girlSkinMaestroRef = useImage('/sprites/girl_skin_maestro.png?v=40')
+  const boySkinSabioRef = useImage('/sprites/boy_skin_sabio.png?v=40')
+  const girlSkinSabioRef = useImage('/sprites/girl_skin_sabio.png?v=40')
+
   const npcBoyImgRef = useImage('/sprites/npc_boy_uniform.png?v=33')
   const npcGirlImgRef = useImage('/sprites/npc_girl_uniform.png?v=33')
   const maestraInglesImgRef = useImage('/sprites/maestra_ingles.png?v=33')
@@ -1121,9 +1136,17 @@ function MainMap() {
       ctx.fillStyle = 'rgba(0,0,0,0.28)'
       ctx.beginPath(); ctx.ellipse(playerPx+TS/2, playerPy+TS-2, TS*0.35, 4, 0, 0, Math.PI*2); ctx.fill()
 
-        // Ignoramos skin de emoji y usamos el sprite sheet
-        // (Podríamos borrar esta rama si ya no usaremos la skin de emoji en el mapa principal)
-        const spriteImg = pl.character?.gender === 'girl' ? girlImgRef.current : boyImgRef.current
+        const isGirl = pl.character?.gender === 'girl';
+        const eqSkin = pl.inventory?.equippedSkin;
+        let spriteImg = isGirl ? girlImgRef.current : boyImgRef.current;
+
+        if (eqSkin === 'skin_explorador') spriteImg = (isGirl ? girlSkinExploradorRef.current : boySkinExploradorRef.current) || spriteImg;
+        if (eqSkin === 'skin_bibliotecario') spriteImg = (isGirl ? girlSkinBibliotecarioRef.current : boySkinBibliotecarioRef.current) || spriteImg;
+        if (eqSkin === 'skin_artista') spriteImg = (isGirl ? girlSkinArtistaRef.current : boySkinArtistaRef.current) || spriteImg;
+        if (eqSkin === 'skin_traductor') spriteImg = (isGirl ? girlSkinTraductorRef.current : boySkinTraductorRef.current) || spriteImg;
+        if (eqSkin === 'skin_maestro') spriteImg = (isGirl ? girlSkinMaestroRef.current : boySkinMaestroRef.current) || spriteImg;
+        if (eqSkin === 'skin_sabio') spriteImg = (isGirl ? girlSkinSabioRef.current : boySkinSabioRef.current) || spriteImg;
+
         const hasSprite = spriteImg && (spriteImg.width > 0 || spriteImg.naturalWidth > 0)
         if (hasSprite) {
           const sw = spriteImg.width || spriteImg.naturalWidth

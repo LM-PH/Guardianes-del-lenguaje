@@ -85,7 +85,17 @@ function Shop() {
               display: 'flex', flexDirection: 'column', alignItems: 'center', 
               opacity: isOwned ? 0.6 : 1, filter: isOwned ? 'grayscale(100%)' : 'none' 
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '10px' }}>{item.sprite || '📜'}</div>
+              {activeTab === 'skins' ? (
+                <div style={{ 
+                  width: '70px', height: '70px', marginBottom: '10px', 
+                  backgroundImage: `url('/sprites/${player.character?.gender === 'girl' ? 'girl_' : 'boy_'}${item.id}.png?v=40')`, 
+                  backgroundSize: '400% 400%', 
+                  backgroundPositionY: '0%', 
+                  imageRendering: 'pixelated' 
+                }} />
+              ) : (
+                <div style={{ fontSize: '3rem', marginBottom: '10px' }}>{item.sprite || '📜'}</div>
+              )}
               <div style={{ fontWeight: 'bold', textAlign: 'center', color: '#000' }}>{item.name}</div>
               <div style={{ 
                 fontSize: '0.75rem', 

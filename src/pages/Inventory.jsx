@@ -121,7 +121,17 @@ function Inventory() {
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
                   border: isEquipped ? '4px solid #4caf50' : '4px solid #000'
                 }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '10px' }}>{item.sprite || '📜'}</div>
+                  {activeTab === 'skins' ? (
+                    <div style={{ 
+                      width: '70px', height: '70px', marginBottom: '10px', 
+                      backgroundImage: `url('/sprites/${player.character?.gender === 'girl' ? 'girl_' : 'boy_'}${item.id}.png?v=40')`, 
+                      backgroundSize: '400% 400%', 
+                      backgroundPositionY: '0%', 
+                      imageRendering: 'pixelated' 
+                    }} />
+                  ) : (
+                    <div style={{ fontSize: '3rem', marginBottom: '10px' }}>{item.sprite || '📜'}</div>
+                  )}
                   <div style={{ fontWeight: 'bold', textAlign: 'center' }}>{item.name}</div>
                   <div style={{ fontSize: '0.8rem', color: '#ffeb3b', margin: '5px 0' }}>{item.rarity}</div>
                   
