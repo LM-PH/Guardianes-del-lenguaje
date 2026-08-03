@@ -124,7 +124,7 @@ function Inventory() {
                   {activeTab === 'skins' ? (
                     <div style={{ 
                       width: '70px', height: '70px', marginBottom: '10px', 
-                      backgroundImage: `url('/sprites/${player.character?.gender === 'girl' ? 'girl_' : 'boy_'}${item.id}.png?v=200')`, 
+                      backgroundImage: `url('/sprites/${player.character?.gender === 'girl' ? 'girl_' : 'boy_'}${item.id}.png?v=300')`, 
                       backgroundSize: '400% 400%', 
                       backgroundPositionY: '0%', 
                       imageRendering: 'pixelated' 
