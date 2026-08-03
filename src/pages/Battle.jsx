@@ -134,15 +134,15 @@ function Battle() {
   };
 
   const getPlayerSpritePath = (pl) => {
-    if (!pl || !pl.character) return '/sprites/boy_v18.png?v=1111';
+    if (!pl || !pl.character) return '/sprites/boy_v18.png?v=2222';
     const isGirl = pl.character.gender === 'girl';
     const eqSkin = pl.inventory?.equippedSkin;
     const prefix = isGirl ? 'girl_' : 'boy_';
 
     if (eqSkin && eqSkin !== 'default') {
-      return `/sprites/${prefix}${eqSkin}.png?v=1111`;
+      return `/sprites/${prefix}${eqSkin}.png?v=2222`;
     }
-    return `/sprites/${isGirl ? 'girl_v18.png?v=1111' : 'boy_v18.png?v=1111'}`;
+    return `/sprites/${isGirl ? 'girl_v18.png?v=2222' : 'boy_v18.png?v=2222'}`;
   };
 
   const getSkinEmoji = (eqSkin) => {
