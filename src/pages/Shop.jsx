@@ -88,7 +88,7 @@ function Shop() {
               {activeTab === 'skins' ? (
                 <div style={{ 
                   width: '70px', height: '70px', marginBottom: '10px', 
-                  backgroundImage: `url('/sprites/${player.character?.gender === 'girl' ? 'girl_' : 'boy_'}${item.id}.png?v=1010')`, 
+                  backgroundImage: `url('/sprites/${player.character?.gender === 'girl' ? 'girl_' : 'boy_'}${item.id}.png?v=2020')`, 
                   backgroundSize: '400% 400%', 
                   backgroundPositionY: '0%', 
                   imageRendering: 'pixelated' 
