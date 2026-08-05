@@ -11,7 +11,7 @@ const CANVAS_W = VW * TS
 const CANVAS_H = VH * TS
 
 const MAPS = {
-  pueblo_inicial:   { width: 50,  height: 50,  title: 'Pueblo Inicial'        },
+  pueblo_inicial:   { width: 50,  height: 50,  title: 'Pueblo Inicial (NUEVA VERSIÓN)'        },
   mapa_espanol:     { width: 100, height: 100, title: 'Mapa de Español'       },
   mapa_artes:       { width: 100, height: 100, title: 'Mapa de Artes'         },
   mapa_ingles:      { width: 100, height: 100, title: 'Mapa de Inglés'        },
