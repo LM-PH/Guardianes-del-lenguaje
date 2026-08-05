@@ -149,7 +149,6 @@ function Battle() {
     if (eqSkin === 'skin_explorador') return '🤠';
     if (eqSkin === 'skin_bibliotecario') return '🤓';
     if (eqSkin === 'skin_artista') return '🧑‍🎨';
-    if (eqSkin === 'skin_traductor') return '🗣️';
     if (eqSkin === 'skin_maestro') return '🧑‍🏫';
     if (eqSkin === 'skin_sabio') return '🧙';
     return '';

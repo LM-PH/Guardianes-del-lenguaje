@@ -224,7 +224,7 @@ exports.devGodMode = async (req, res) => {
       integrador: 50
     };
 
-    player.inventory.ownedSkins = ['skin_explorador', 'skin_bibliotecario', 'skin_artista', 'skin_traductor', 'skin_maestro', 'skin_sabio'];
+    player.inventory.ownedSkins = ['skin_explorador', 'skin_bibliotecario', 'skin_artista', 'skin_maestro', 'skin_sabio'];
     player.inventory.ownedPets = ['pet_gatito', 'pet_perrito', 'pet_zorrito', 'pet_dragon'];
     player.inventory.ownedTitles = ['title_novato', 'title_estudiante', 'title_guardian', 'title_erudito', 'title_leyenda'];
 

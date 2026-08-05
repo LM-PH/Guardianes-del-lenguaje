@@ -40,7 +40,6 @@ const SKIN_EMOJI = {
   skin_explorador:   '🤠',
   skin_bibliotecario:'🤓',
   skin_artista:      '🧑‍🎨',
-  skin_traductor:    '🗣️',
   skin_maestro:      '🧑‍🏫',
   skin_sabio:        '🧙',
 }
@@ -290,8 +289,6 @@ function MainMap() {
   const girlSkinBibliotecarioRef = useImage('/sprites/girl_skin_bibliotecario.png?v=7070')
   const boySkinArtistaRef = useImage('/sprites/boy_skin_artista.png?v=7070')
   const girlSkinArtistaRef = useImage('/sprites/girl_skin_artista.png?v=7070')
-  const boySkinTraductorRef = useImage('/sprites/boy_skin_traductor_v400.png?v=7070')
-  const girlSkinTraductorRef = useImage('/sprites/girl_skin_traductor_v400.png?v=7070')
   const boySkinMaestroRef = useImage('/sprites/boy_skin_maestro_v400.png?v=7070')
   const girlSkinMaestroRef = useImage('/sprites/girl_skin_maestro_v400.png?v=7070')
   const boySkinSabioRef = useImage('/sprites/boy_skin_sabio.png?v=7070')
@@ -1143,7 +1140,6 @@ function MainMap() {
         if (eqSkin === 'skin_explorador') spriteImg = (isGirl ? girlSkinExploradorRef.current : boySkinExploradorRef.current) || spriteImg;
         if (eqSkin === 'skin_bibliotecario') spriteImg = (isGirl ? girlSkinBibliotecarioRef.current : boySkinBibliotecarioRef.current) || spriteImg;
         if (eqSkin === 'skin_artista') spriteImg = (isGirl ? girlSkinArtistaRef.current : boySkinArtistaRef.current) || spriteImg;
-        if (eqSkin === 'skin_traductor') spriteImg = (isGirl ? girlSkinTraductorRef.current : boySkinTraductorRef.current) || spriteImg;
         if (eqSkin === 'skin_maestro') spriteImg = (isGirl ? girlSkinMaestroRef.current : boySkinMaestroRef.current) || spriteImg;
         if (eqSkin === 'skin_sabio') spriteImg = (isGirl ? girlSkinSabioRef.current : boySkinSabioRef.current) || spriteImg;
 
