@@ -11,7 +11,7 @@ const CANVAS_W = VW * TS
 const CANVAS_H = VH * TS
 
 const MAPS = {
-  pueblo_inicial:   { width: 50,  height: 50,  title: 'Pueblo Inicial (v300)'        },
+  pueblo_inicial:   { width: 50,  height: 50,  title: 'Pueblo Inicial (v400)'        },
   mapa_espanol:     { width: 100, height: 100, title: 'Mapa de Español'       },
   mapa_artes:       { width: 100, height: 100, title: 'Mapa de Artes'         },
   mapa_ingles:      { width: 100, height: 100, title: 'Mapa de Inglés'        },
@@ -290,10 +290,10 @@ function MainMap() {
   const girlSkinBibliotecarioRef = useImage('/sprites/girl_skin_bibliotecario.png?v=7070')
   const boySkinArtistaRef = useImage('/sprites/boy_skin_artista.png?v=7070')
   const girlSkinArtistaRef = useImage('/sprites/girl_skin_artista.png?v=7070')
-  const boySkinTraductorRef = useImage('/sprites/boy_skin_traductor_v300.png?v=7070')
-  const girlSkinTraductorRef = useImage('/sprites/girl_skin_traductor_v300.png?v=7070')
-  const boySkinMaestroRef = useImage('/sprites/boy_skin_maestro_v300.png?v=7070')
-  const girlSkinMaestroRef = useImage('/sprites/girl_skin_maestro_v300.png?v=7070')
+  const boySkinTraductorRef = useImage('/sprites/boy_skin_traductor_v400.png?v=7070')
+  const girlSkinTraductorRef = useImage('/sprites/girl_skin_traductor_v400.png?v=7070')
+  const boySkinMaestroRef = useImage('/sprites/boy_skin_maestro_v400.png?v=7070')
+  const girlSkinMaestroRef = useImage('/sprites/girl_skin_maestro_v400.png?v=7070')
   const boySkinSabioRef = useImage('/sprites/boy_skin_sabio.png?v=7070')
   const girlSkinSabioRef = useImage('/sprites/girl_skin_sabio.png?v=7070')
 

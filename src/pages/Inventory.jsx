@@ -124,7 +124,7 @@ function Inventory() {
                   {activeTab === 'skins' ? (
                     <div style={{ 
                       width: '70px', height: '70px', marginBottom: '10px', 
-                      backgroundImage: `url('/sprites/${player.character?.gender === 'girl' ? 'girl_' : 'boy_'}${item.id}${['skin_traductor', 'skin_maestro'].includes(item.id) ? '_v300' : ''}.png?v=7070')`, 
+                      backgroundImage: `url('/sprites/${player.character?.gender === 'girl' ? 'girl_' : 'boy_'}${item.id}${['skin_traductor', 'skin_maestro'].includes(item.id) ? '_v400' : ''}.png?v=7070')`, 
                       backgroundSize: '400% 400%', 
                       backgroundPositionY: '0%', 
                       imageRendering: 'pixelated' 
